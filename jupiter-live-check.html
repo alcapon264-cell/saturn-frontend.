@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jupiter Perps market-stats check</title>
+<style>
+:root{--bg:#fff;--fg:#14171a;--mut:#5b6670;--line:#d9dee3;--ok:#0a7d3b;--bad:#b3261e;--card:#f6f8fa}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1114;--fg:#e8ecef;--mut:#9aa5ae;--line:#2a3138;--ok:#4cc38a;--bad:#ff8a80;--card:#161b20}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}main{max-width:760px;margin:0 auto;padding:20px 16px}
+h1{font-size:20px;margin:0 0 4px}p{color:var(--mut);margin:6px 0}button{font:inherit;padding:8px 14px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;cursor:pointer}
+button:disabled{opacity:.5}pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12.5px;white-space:pre-wrap;word-break:break-word}
+.row{border-top:1px solid var(--line);padding:8px 0}.ok{color:var(--ok)}.bad{color:var(--bad)}
+</style></head><body><main>
+<h1>Jupiter Perps <code>/market-stats</code> — read-only check</h1>
+<p>Sends 3 GET requests (SOL, ETH, BTC), 5 s apart. No API key, no cookies, nothing is written anywhere. Open it from the same origin you use for Saturn (for example a page on your GitHub Pages site) so CORS matches.</p>
+<p><b>Limit of a browser run:</b> a page can only see response headers that Jupiter lists in <code>Access-Control-Expose-Headers</code> (plus a few safe ones). If no rate-limit header appears here, that does <b>not</b> prove there is none. Use <code>node scripts/live-check.mjs</code> for the full header list.</p>
+<p><button id="run">Run check</button> <button id="dl" disabled>Download JSON</button></p>
+<div id="out"></div><pre id="verdict" hidden></pre>
+<script>
+const BASE='https://perps-api.jup.ag/v1',M={SOL:'So11111111111111111111111111111111111111112',ETH:'7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs',BTC:'3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh'};
+const TS=/(time|ts|stamp|updated|at)$/i,sleep=ms=>new Promise(r=>setTimeout(r,ms)),out=document.getElementById('out'),vd=document.getElementById('verdict');let rep=null;
+function line(cls,text){const d=document.createElement('div');d.className='row '+cls;d.textContent=text;out.appendChild(d)}
+document.getElementById('run').onclick=async e=>{
+ e.target.disabled=true;out.textContent='';vd.hidden=true;rep={when:new Date().toISOString(),origin:location.origin,results:[]};
+ for(const [m,mint] of Object.entries(M)){const r={market:m},t0=performance.now();
+  try{const res=await fetch(BASE+'/market-stats?mint='+encodeURIComponent(mint),{method:'GET',headers:{accept:'application/json'},credentials:'omit',redirect:'error'});
+   r.status=res.status;r.ms=Math.round(performance.now()-t0);r.exposedHeaders=Object.fromEntries([...res.headers.entries()]);
+   const text=await res.text();try{const j=JSON.parse(text);r.keys=Object.fromEntries(Object.entries(j).map(([k,v])=>[k,Array.isArray(v)?'array':typeof v]));r.price=j.price;r.priceType=typeof j.price;r.timestampLikeKeys=Object.keys(j).filter(k=>TS.test(k))}catch{r.parseError=true}
+  }catch(err){r.error=String(err&&err.message||err)}
+  rep.results.push(r);line(r.error||r.status!==200?'bad':'ok',m+': '+(r.error?'ERROR '+r.error:'HTTP '+r.status+' in '+r.ms+' ms, price='+r.price+' ('+r.priceType+')'));await sleep(5000)}
+ const names=[...new Set(rep.results.flatMap(r=>Object.keys(r.exposedHeaders||{})))].sort();
+ rep.verdict={allHttp200:rep.results.every(r=>r.status===200),priceTypes:[...new Set(rep.results.map(r=>r.priceType))],exposedHeaderNames:names,rateLimitLikeHeaders:names.filter(h=>/rate|limit|retry|quota|remaining|reset/i.test(h)),timestampLikeKeys:[...new Set(rep.results.flatMap(r=>r.timestampLikeKeys||[]))]};
+ vd.textContent=JSON.stringify(rep.verdict,null,2);vd.hidden=false;document.getElementById('dl').disabled=false;e.target.disabled=false};
+document.getElementById('dl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(rep,null,2)],{type:'application/json'}));a.download='jupiter-market-stats-check.json';a.click()};
+</script></main></body></html>
