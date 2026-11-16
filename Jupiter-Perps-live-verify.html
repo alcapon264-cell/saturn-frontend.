@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jupiter Perps — Stage 1 live verification</title>
+<style>
+:root{--bg:#0b0b0d;--fg:#ece8df;--mut:#8d8a82;--ln:#26262b;--ok:#6fcf97;--bad:#eb5757;--warn:#e6b85c;--card:#141417}
+@media(prefers-color-scheme:light){:root{--bg:#faf8f3;--fg:#1c1b19;--mut:#6b675f;--ln:#ddd8cc;--card:#fff;--ok:#1b7f4a;--bad:#c0392b;--warn:#9a6b00}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,sans-serif;padding:16px;max-width:860px;margin-inline:auto}
+h1{font-size:18px;margin:0 0 4px}p{color:var(--mut);margin:4px 0 12px}
+button{background:var(--fg);color:var(--bg);border:0;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer}button:disabled{opacity:.5}
+input{width:100%;padding:10px;border-radius:8px;border:1px solid var(--ln);background:var(--card);color:var(--fg);margin:6px 0 10px;font:inherit}
+.row{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--ln)}.tag{flex:none;width:58px;font-weight:700;font-size:12px}
+.PASS{color:var(--ok)}.FAIL{color:var(--bad)}.INFO,.NOTE{color:var(--warn)}
+pre{background:var(--card);border:1px solid var(--ln);border-radius:8px;padding:10px;overflow:auto;max-height:260px;font-size:12px;white-space:pre-wrap;word-break:break-all}
+details{margin:8px 0}summary{cursor:pointer;color:var(--mut)}
+</style></head><body>
+<h1>Jupiter Perps — Stage 1 live verification</h1>
+<p>Read-only. Sends only <b>GET</b> requests to <code>https://perps-api.jup.ag/v1</code>: <code>/market-stats</code>, <code>/pool-info</code>, and (if you enter a wallet) <code>/positions</code> and <code>/trades</code>. No signing, no wallet connection, no keys. Open it from a normal browser; the CORS result is only meaningful when the page is served from a real origin (https://…), not from a sandbox. Then send the "Copy report" output back.</p>
+<label>Wallet address (optional, public key only — needed to check position units)</label>
+<input id="w" placeholder="Solana public address with an open Jupiter perp (leave blank to skip)" autocomplete="off" spellcheck="false">
+<button id="go">Run checks</button> <button id="cp" disabled>Copy report</button>
+<div id="out"></div><details><summary>Raw responses</summary><pre id="raw"></pre></details>
+<script>
+const BASE='https://perps-api.jup.ag/v1';
+const MINTS={SOL:'So11111111111111111111111111111111111111112',ETH:'7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs',BTC:'3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh'};
+const RANGE={SOL:[10,2000],ETH:[300,30000],BTC:[5000,500000]}; /* sanity magnitudes only, not prices */
+const out=document.getElementById('out'),raw={},lines=[];
+const log=(t,m)=>{lines.push(t+' '+m);const d=document.createElement('div');d.className='row';d.innerHTML='<span class="tag '+t+'">'+t+'</span><span></span>';d.lastChild.textContent=m;out.appendChild(d)};
+const get=async(p,q)=>{const u=new URL(BASE+p);Object.entries(q||{}).forEach(([k,v])=>u.searchParams.set(k,v));
+ let r;try{r=await fetch(u,{method:'GET',headers:{accept:'application/json'},credentials:'omit',cache:'no-store'})}catch(e){return{cors:false,err:String(e)}}
+ let j=null,txt='';try{txt=await r.text();j=JSON.parse(txt)}catch(e){}return{cors:true,status:r.status,json:j,text:txt.slice(0,500)}};
+const isNum=s=>typeof s==='string'&&s.trim()!==''&&isFinite(+s);
+const hasKeys=(o,ks)=>o&&typeof o==='object'?ks.filter(k=>!(k in o)):ks;
+async function run(){
+ out.innerHTML='';lines.length=0;for(const k in raw)delete raw[k];
+ log('INFO','origin: '+location.origin+' | '+new Date().toISOString());
+ if(location.protocol==='file:'||location.origin==='null')log('NOTE','Served from file:/null origin. Many APIs treat this differently; for a decisive CORS answer, host this page on any https site (or http://localhost) and re-run.');
+ /* 1. market-stats + CORS + mint plausibility */
+ let corsSeen=null;
+ for(const [a,m] of Object.entries(MINTS)){
+  const r=await get('/market-stats',{mint:m});raw['market-stats '+a]=r;
+  if(!r.cors){corsSeen=false;log('FAIL','/market-stats '+a+': the browser blocked or could not complete the request ('+r.err+'). This is consistent with missing CORS headers, but also with being offline or blocked by an extension; check the DevTools console/network tab for "CORS" wording before concluding.');continue}
+  corsSeen=corsSeen===false?false:true;
+  if(r.status!==200||!r.json){log('FAIL','/market-stats '+a+': HTTP '+r.status+' '+r.text.slice(0,120));continue}
+  const miss=hasKeys(r.json,['price','priceChange24H','priceHigh24H','priceLow24H','volume']);
+  log(miss.length?'FAIL':'PASS','/market-stats '+a+' shape: '+(miss.length?'missing '+miss.join(','):'price, priceChange24H, priceHigh24H, priceLow24H, volume present'));
+  const price=+r.json.price,[lo,hi]=RANGE[a];
+  log(isNum(r.json.price)&&price>=lo&&price<=hi?'PASS':'FAIL','/market-stats '+a+' mint maps to an asset priced '+r.json.price+' (sanity range '+lo+'–'+hi+'; this only rules out gross mix-ups, and you should still compare against a price you trust)');
+  const pc=+r.json.priceChange24H,pct=price?pc/price*100:NaN;
+  log('INFO',a+' priceChange24H='+r.json.priceChange24H+' with price '+r.json.price+' → if USD this is '+pct.toFixed(2)+'% of price; if already percent it is '+pc+'%. Compare with the 24h change shown on jup.ag/perps to decide the unit.');
+  log('INFO',a+' high/low/volume: '+r.json.priceHigh24H+' / '+r.json.priceLow24H+' / '+r.json.volume+' (check high ≥ price ≥ low: '+(+r.json.priceHigh24H>=price&&price>=+r.json.priceLow24H?'yes':'NO')+')');
+ }
+ if(corsSeen===true)log('PASS','CORS: a cross-origin GET from this origin was readable by the page. Other origins (e.g. saturn’s production domain) must be tested the same way, because the allow-list may be origin-specific.');
+ if(corsSeen===false)log('FAIL','CORS: at least one request failed at the network/CORS layer. If DevTools confirms a CORS error, a backend proxy would be required.');
+ /* 2. pool-info */
+ const r2=await get('/pool-info',{mint:MINTS.SOL});raw['pool-info SOL']=r2;
+ if(r2.cors&&r2.json){const ks=['longAvailableLiquidity','longBorrowRatePercent','longUtilizationPercent','shortAvailableLiquidity','shortBorrowRatePercent','shortUtilizationPercent','openFeePercent','maxRequestExecutionSec','maxPriceImpactFeePercent'];
+  const miss=hasKeys(r2.json,ks);log(miss.length?'FAIL':'PASS','/pool-info shape: '+(miss.length?'missing '+miss.join(','):'all nine documented fields present'));
+  log('INFO','/pool-info samples (units to confirm): '+ks.filter(k=>k in r2.json).map(k=>k+'='+r2.json[k]).join(', '));
+  log('INFO','openFeePercent: if this reads 0.06 it is a percent number (0.06%), not a fraction.');
+ }else log('FAIL','/pool-info: '+(r2.err||('HTTP '+r2.status)));
+ /* 3. positions / trades if wallet */
+ const w=document.getElementById('w').value.trim();
+ if(!w)log('NOTE','No wallet entered: /positions and /trades were NOT checked. Position unit scaling (sizeUsd, collateralUsd, entryPriceUsd, markPriceUsd, liquidationPriceUsd, pnl*, fees) therefore remains unverified.');
+ else{
+  const r3=await get('/positions',{walletAddress:w,includeClosedPositions:'false'});raw['positions']=r3;
+  if(!r3.cors||r3.status!==200||!r3.json)log('FAIL','/positions: '+(r3.err||('HTTP '+r3.status+' '+r3.text.slice(0,120))));
+  else{
+   const L=r3.json.dataList;log(Array.isArray(L)?'PASS':'FAIL','/positions envelope: dataList is '+(Array.isArray(L)?'an array of '+L.length:typeof L)+(('count' in r3.json)?' | count='+r3.json.count:' | no count field'));
+   if(Array.isArray(L)&&!L.length)log('NOTE','Wallet has no open positions: cannot verify units. Use a wallet with an open perp.');
+   (L||[]).forEach((p,i)=>{
+    const ks=['asset','assetMint','side','leverage','sizeUsd','collateralUsd','entryPriceUsd','markPriceUsd','liquidationPriceUsd','pnlBeforeFeesUsd','pnlAfterFeesUsd','createdTime','positionPubkey'];
+    const miss=hasKeys(p,ks);log(miss.length?'FAIL':'PASS','position['+i+'] '+p.asset+' fields: '+(miss.length?'missing '+miss.join(','):'all present'));
+    const known=Object.entries(MINTS).find(([a,m])=>m===p.assetMint);
+    log('INFO','position['+i+'] asset="'+p.asset+'" assetMint='+p.assetMint+(known?' → matches our '+known[0]+' mint '+(known[0]===p.asset?'(ASSET NAME AGREES)':'(ASSET NAME DISAGREES — mint table wrong)'):' → not one of our three mints'));
+    const n=k=>+p[k],stat=await_=>0;
+    const mk=n('markPriceUsd'),en=n('entryPriceUsd'),sz=n('sizeUsd'),co=n('collateralUsd'),lq=n('liquidationPriceUsd'),pb=n('pnlBeforeFeesUsd'),pa=n('pnlAfterFeesUsd');
+    const live=raw['market-stats '+p.asset]&&raw['market-stats '+p.asset].json?+raw['market-stats '+p.asset].json.price:NaN;
+    log('INFO','position['+i+'] RAW: size='+p.sizeUsd+' collateral='+p.collateralUsd+' entry='+p.entryPriceUsd+' mark='+p.markPriceUsd+' liq='+p.liquidationPriceUsd+' pnlBefore='+p.pnlBeforeFeesUsd+' pnlAfter='+p.pnlAfterFeesUsd+' leverage='+p.leverage+' createdTime='+p.createdTime);
+    log(Math.abs(mk/1e6/live-1)<.05?'PASS':'FAIL','position['+i+'] markPriceUsd/1e6 = '+(mk/1e6)+' vs live /market-stats '+live+' → '+(Math.abs(mk/1e6/live-1)<.05?'1e6 scale confirmed for the MARK price only':'not within 5% — scale or timing differs'));
+    log(en/1e6>live/20&&en/1e6<live*20?'PASS':'FAIL','position['+i+'] entryPriceUsd/1e6 = '+(en/1e6)+' (plausible vs live '+live+'; entry may legitimately differ a lot from mark)');
+    log(Math.abs(sz/co/ +p.leverage-1)<.1?'PASS':'FAIL','position['+i+'] sizeUsd/collateralUsd = '+(sz/co).toFixed(3)+' vs reported leverage '+p.leverage+' → '+(Math.abs(sz/co/+p.leverage-1)<.1?'size and collateral share a scale and leverage = size/collateral':'leverage is NOT simply size/collateral (or scales differ)'));
+    const dir=p.side==='long'?1:-1,exp=dir*(mk-en)/en*sz;
+    log(Math.abs(pb-exp)<=Math.max(.02*Math.abs(exp),.002*sz)?'PASS':'FAIL','position['+i+'] pnlBeforeFees='+(pb/1e6)+' vs (mark−entry)/entry×size='+(exp/1e6).toFixed(4)+' (USD) → '+(Math.abs(pb-exp)<=Math.max(.02*Math.abs(exp),.002*sz)?'pnlBeforeFees scale and sign confirmed':'mismatch'));
+    log('INFO','position['+i+'] pnlAfter−pnlBefore = '+((pa-pb)/1e6).toFixed(4)+' USD: should be minus the total fees; compare with the fee fields (openFeesUsd='+p.openFeesUsd+', closeFeesUsd='+p.closeFeesUsd+', borrowFeesUsd='+p.borrowFeesUsd+', totalFeesUsd='+p.totalFeesUsd+') to learn their scale. The adapter does not display fees.');
+    const liqOk=p.side==='long'?lq<mk&&lq>0:lq>mk;log(liqOk?'PASS':'FAIL','position['+i+'] liquidationPriceUsd='+(lq/1e6)+' is on the '+(liqOk?'correct':'WRONG')+' side of mark for a '+p.side);
+    log(p.createdTime>1.4e9&&p.createdTime<4e9?'PASS':'FAIL','position['+i+'] createdTime='+p.createdTime+' → '+(p.createdTime>1.4e9&&p.createdTime<4e9?'seconds since epoch ('+new Date(p.createdTime*1000).toISOString()+')':'not in seconds'));
+   });
+  }
+  const now=Math.floor(Date.now()/1000),r4=await get('/trades',{walletAddress:w,start:now-90*86400,end:now});raw['trades']=r4;
+  if(r4.cors&&r4.json&&Array.isArray(r4.json.dataList)){const L=r4.json.dataList;log('PASS','/trades envelope: dataList array of '+L.length+(('count' in r4.json)?' | count='+r4.json.count:''));
+   if(L[0])log('INFO','/trades first item RAW (is price/size decimal USD like the docs sample, or scaled?): price='+L[0].price+' size='+L[0].size+' fee='+L[0].fee+' pnl='+L[0].pnl+' createdTime='+L[0].createdTime+' (unix seconds expected)');
+   else log('NOTE','/trades returned no rows for this wallet in the last 90 days; units not checked.')}
+  else log('FAIL','/trades: '+(r4.err||('HTTP '+r4.status+' '+(r4.text||'').slice(0,120))));
+ }
+ const f=lines.filter(l=>l.startsWith('FAIL')).length;
+ log(f?'FAIL':'PASS','Summary: '+lines.filter(l=>l.startsWith('PASS')).length+' pass, '+f+' fail. A FAIL here means "do not trust that mapping/scale yet", not necessarily a Jupiter bug.');
+ document.getElementById('raw').textContent=JSON.stringify(raw,null,1);
+}
+document.getElementById('go').onclick=async e=>{e.target.disabled=true;try{await run()}catch(x){log('FAIL','script error: '+x)}e.target.disabled=false;document.getElementById('cp').disabled=false};
+document.getElementById('cp').onclick=()=>{const t=lines.join('\n')+'\n\nRAW\n'+document.getElementById('raw').textContent;navigator.clipboard.writeText(t).then(()=>{document.getElementById('cp').textContent='Copied'},()=>{prompt('Copy:',t)})};
+</script></body></html>
