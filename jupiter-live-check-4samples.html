@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jupiter Perps — 4-sample live check</title>
+<style>
+:root{color-scheme:light dark;--bg:#fff;--fg:#14171a;--mut:#5b6670;--line:#d9dee3;--ok:#0a7d3b;--bad:#b3261e;--card:#f6f8fa}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1114;--fg:#e8ecef;--mut:#9aa5ae;--line:#2a3138;--ok:#4cc38a;--bad:#ff8a80;--card:#161b20}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}main{max-width:820px;margin:0 auto;padding:22px 16px}h1{font-size:21px;margin:0 0 8px}p{color:var(--mut);margin:8px 0}button{font:inherit;padding:10px 15px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:9px;cursor:pointer;margin:8px 8px 8px 0}button:disabled{opacity:.5;cursor:default}.row{border-top:1px solid var(--line);padding:9px 0;overflow-wrap:anywhere}.ok{color:var(--ok)}.bad{color:var(--bad)}.muted{color:var(--mut)}pre{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:12px;overflow:auto;font-size:12px;white-space:pre-wrap;word-break:break-word}progress{width:100%;height:12px}small{color:var(--mut)}
+</style>
+</head>
+<body><main>
+<h1>Jupiter Perps <code>/market-stats</code> — 4-sample live check</h1>
+<p>This performs <b>12 read-only GET requests</b>: SOL, ETH and BTC, four rounds total. Requests are spaced 5 seconds apart, so each market is sampled about every 15 seconds. Total run time is about 60 seconds.</p>
+<p>No API key, cookies, wallet, signing or trading. Nothing is sent anywhere except Jupiter's fixed public API, and nothing is saved unless you tap Download JSON.</p>
+<p><b>Browser limitation:</b> the page can only read response headers exposed by Jupiter's CORS policy. Missing rate-limit headers here do not prove that no limits exist. This check records what the browser can observe.</p>
+<p><button id="run">Run 4-sample check</button><button id="dl" disabled>Download JSON report</button></p>
+<progress id="progress" max="12" value="0" hidden></progress><p id="status" class="muted">Ready. Run once and wait for all 12 requests to finish.</p>
+<div id="out"></div><pre id="verdict" hidden></pre>
+<script>
+'use strict';
+const BASE='https://perps-api.jup.ag/v1';
+const MARKETS={SOL:'So11111111111111111111111111111111111111112',ETH:'7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs',BTC:'3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh'};
+const SAMPLES=4, GAP_MS=5000, TS=/(time|ts|stamp|updated|at)$/i;
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const out=document.getElementById('out'), verdict=document.getElementById('verdict'), run=document.getElementById('run'), dl=document.getElementById('dl'), progress=document.getElementById('progress'), status=document.getElementById('status');
+let report=null;
+function addLine(cls,text){const d=document.createElement('div');d.className='row '+cls;d.textContent=text;out.appendChild(d)}
+function validPrice(v){return (typeof v==='number'&&Number.isFinite(v)&&v>0)||(typeof v==='string'&&/^\d{1,15}(\.\d{1,18})?$/.test(v.trim())&&Number(v)>0)}
+run.addEventListener('click',async()=>{
+ run.disabled=true;dl.disabled=true;out.textContent='';verdict.hidden=true;progress.hidden=false;progress.value=0;
+ report={when:new Date().toISOString(),origin:location.origin,base:BASE,samples:SAMPLES,intervalSec:15,requestGapSec:5,results:[]};
+ let failures=0,rateLimited=0;
+ for(let s=0;s<SAMPLES;s++){
+  for(const [market,mint] of Object.entries(MARKETS)){
+   const r={sample:s+1,market},started=performance.now();
+   try{
+    const response=await fetch(BASE+'/market-stats?mint='+encodeURIComponent(mint),{method:'GET',headers:{accept:'application/json'},credentials:'omit',redirect:'error',cache:'no-store'});
+    r.status=response.status;r.ms=Math.round(performance.now()-started);r.exposedHeaders=Object.fromEntries([...response.headers.entries()]);
+    const body=await response.text();r.bytes=body.length;
+    try{const j=JSON.parse(body);r.topLevelKeys=Object.fromEntries(Object.entries(j).map(([k,v])=>[k,Array.isArray(v)?'array':typeof v]));r.price=j.price;r.priceType=typeof j.price;r.priceValid=validPrice(j.price);r.timestampLikeKeys=Object.keys(j).filter(k=>TS.test(k));r.sampleValues=Object.fromEntries(Object.entries(j).filter(([,v])=>v===null||['string','number','boolean'].includes(typeof v)).slice(0,12));}
+    catch{r.parseError=true;r.bodyHead=body.slice(0,200)}
+    if(response.status===429)rateLimited++;if(response.status!==200||!r.priceValid||r.parseError)failures++;
+   }catch(error){r.error=String(error&&error.message||error);r.ms=Math.round(performance.now()-started);failures++}
+   report.results.push(r);progress.value=report.results.length;
+   addLine(r.error||r.status!==200||!r.priceValid?'bad':'ok','#'+r.sample+' '+market+': '+(r.error?'ERROR '+r.error:'HTTP '+r.status+' in '+r.ms+' ms, price='+r.price+' ('+r.priceType+')'));
+   status.textContent='Completed '+report.results.length+' of 12 requests…';
+   if(report.results.length<12)await sleep(GAP_MS);
+  }
+ }
+ const headerNames=[...new Set(report.results.flatMap(r=>Object.keys(r.exposedHeaders||{})))].sort();
+ const rateNames=headerNames.filter(h=>/rate|limit|retry|quota|remaining|reset/i.test(h));
+ const timestampKeys=[...new Set(report.results.flatMap(r=>r.timestampLikeKeys||[]))];
+ const priceTypes=[...new Set(report.results.map(r=>r.priceType||'unavailable'))];
+ const perMarket={};for(const market of Object.keys(MARKETS)){const rows=report.results.filter(r=>r.market===market);perMarket[market]={responses:rows.length,allHttp200:rows.every(r=>r.status===200),allPricesValid:rows.every(r=>r.priceValid===true),responseTimesMs:rows.map(r=>r.ms),prices:rows.map(r=>r.price??null)}}
+ report.verdict={all12Http200:report.results.length===12&&report.results.every(r=>r.status===200),allPricesValid:report.results.length===12&&report.results.every(r=>r.priceValid===true),failedRequests:failures,rateLimited429:rateLimited,priceTypes,rateLimitLikeExposedHeaders:rateNames,allExposedHeaderNames:headerNames,timestampLikeKeysSeen:timestampKeys,perMarket,note:'Browser-visible headers only; CORS may hide rate-limit headers. Four observations per market are not a long-term rate-limit guarantee.'};
+ verdict.textContent=JSON.stringify(report.verdict,null,2);verdict.hidden=false;
+ status.textContent='Finished: '+report.results.length+'/12 requests. Download the JSON report and send it back for review.';
+ dl.disabled=false;run.disabled=false;
+});
+dl.addEventListener('click',()=>{if(!report)return;const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='jupiter-live-check-4-samples.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+</script></main></body></html>
