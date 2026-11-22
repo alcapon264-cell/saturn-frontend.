@@ -17196,6 +17196,57 @@ html body .prf.tr2 #pr-bal .pr-bal .pb-h+.pb-r .pb-k{display:block!important;fon
 html body .prf.tr2 #pr-perf{padding-top:0!important;margin-top:8px!important}
 html body .prf.tr2 .lv-up{animation:lvUp .8s ease-out}html body .prf.tr2 .lv-dn{animation:lvDn .8s ease-out}
 @keyframes lvUp{0%{background:#4fd08a40;border-radius:6px}100%{background:transparent}}@keyframes lvDn{0%{background:#ff6b6b40;border-radius:6px}100%{background:transparent}}
+/* r164: the page always fits the phone (a long name/handle used to widen the middle column and push the right side off screen) */
+html body .prf.tr2{grid-template-columns:auto minmax(0,1fr)!important;grid-template-areas:"bar bar" "av nm" "act act" "f1 f2" "lk lk" "bal bal" "perf perf" "tabs tabs" "body body"!important;column-gap:16px!important;overflow-x:clip}
+html body .prf.tr2>*,html body .prf.tr2 .pr-nm,html body .prf.tr2 #pr-perf,html body .prf.tr2 #pu-body{min-width:0;max-width:100%}
+html body .prf.tr2 .pr-nm h1{overflow:hidden;text-overflow:ellipsis}
+html body .prf.tr2 .pr-hd{max-width:100%!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .prf.tr2 .tr2-tags{margin-left:0;margin-right:6px}
+/* actions: one full-width row under the name, like the design */
+html body .prf.tr2 #cp-row{grid-area:act!important;justify-self:stretch!important;margin:16px 0 0!important;width:100%}
+html body .prf.tr2 #cp-row .cp-row{display:flex!important;gap:10px;width:100%}
+html body .prf.tr2 #cp-row .cp-row>*{margin:0!important}
+html body .prf.tr2 #cp-row .cp-btn{flex:1.5 1 0!important;justify-content:center;min-height:48px}
+html body .prf.tr2 #cp-row .pu-fw{flex:1 1 0!important;justify-content:center;min-height:48px;display:inline-flex!important;align-items:center}
+html body .prf.tr2 .pr-fl{grid-column:1/-1}
+html body .prf.tr2 .pr-mh{display:flex!important;justify-content:space-between;align-items:baseline;gap:10px;min-width:0}
+html body .prf.tr2 .pr-mh em{white-space:nowrap}
+html body .prf.tr2 .pr-tabs{overflow-x:auto;scrollbar-width:none}
+html body .prf.tr2 .pr-met>div{min-width:0}
+/* calls: market cap now + result on the right */
+html body .prf.tr2 .tr2-c{display:flex!important;align-items:center;gap:12px}
+html body .prf.tr2 .tr2-c .pr-t{flex:1 1 auto;min-width:0}
+html body .prf.tr2 .tr2-c .pr-t1{display:flex;align-items:baseline;gap:6px;min-width:0}
+html body .prf.tr2 .tr2-c .pr-t1 b{font:800 15px/1.2 Inter,system-ui,sans-serif;white-space:nowrap}
+html body .prf.tr2 .tr2-fn{font:600 12px/1.2 Inter,system-ui,sans-serif;color:#6f695f;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html body .prf.tr2 .pr-t2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;font:600 12.5px/1.3 Inter,system-ui,sans-serif;color:#8d877a;margin-top:3px}
+html body .prf.tr2 .tr2-rt{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+html body .prf.tr2 .tr2-mc{font:800 15px/1 Inter,system-ui,sans-serif;color:#f3efe6}
+html body .prf.tr2 .tr2-c .pr-res.up::before{content:"▲ ";font-size:9px}html body .prf.tr2 .tr2-c .pr-res.dn::before{content:"▼ ";font-size:9px}
+html body .prf.tr2 .pr-sp{display:none!important}
+/* activity */
+html body .prf.tr2 .tr2-a{display:flex!important;align-items:center;gap:10px}
+html body .prf.tr2 .tr2-a .pr-lnk{display:flex;align-items:center;gap:12px;flex:1 1 auto;min-width:0;color:inherit;text-decoration:none}
+html body .prf.tr2 .tr2-a .pr-t{min-width:0;flex:1}
+html body .prf.tr2 .tr2-a .pr-t1{display:flex;align-items:center;gap:7px}
+html body .prf.tr2 .tr2-a .pr-t1 b{font:800 15px/1.2 Inter,system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body .prf.tr2 .tr2-sd{font:800 10.5px/1 Inter,system-ui,sans-serif;font-style:normal;padding:4px 7px;border-radius:7px;flex:none}
+html body .prf.tr2 .tr2-sd.b{color:#4fd08a;background:#4fd08a1a}html body .prf.tr2 .tr2-sd.s{color:#ff6b6b;background:#ff6b6b1a}
+html body .prf.tr2 .tr2-amt{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+html body .prf.tr2 .tr2-amt b{font:800 14px/1 Inter,system-ui,sans-serif}html body .prf.tr2 .tr2-amt b.b{color:#f3efe6}html body .prf.tr2 .tr2-amt b.s{color:#4fd08a}
+html body .prf.tr2 .tr2-amt a{font:700 11px/1 Inter,system-ui,sans-serif;color:#6f695f;text-decoration:none}
+html body .prf.tr2 .tr2-new{animation:tr2In 1.6s ease-out}
+@keyframes tr2In{0%{background:#e6b85c33;transform:translateY(-6px);opacity:.3}25%{opacity:1;transform:none}100%{background:transparent}}
+html body .prf.tr2 .tr2-cnt{display:flex;align-items:center;gap:10px;font:700 12px/1 Inter,system-ui,sans-serif;color:#8d877a;padding:4px 4px 10px}
+html body .prf.tr2 .tr2-live{display:inline-flex;align-items:center;gap:5px;color:#4fd08a;background:#4fd08a14;padding:5px 8px;border-radius:8px}
+html body .prf.tr2 .tr2-live i{width:6px;height:6px;border-radius:50%;background:#4fd08a;animation:tr2P 1.6s infinite}
+@keyframes tr2P{0%{box-shadow:0 0 0 0 #4fd08a80}70%{box-shadow:0 0 0 6px #4fd08a00}100%{box-shadow:0 0 0 0 #4fd08a00}}
+html body .prf.tr2 .tr2-end{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 0 6px;font:600 12px/1 Inter,system-ui,sans-serif;color:#6f695f}
+html body .prf.tr2 .tr2-end i{width:12px;height:12px;border-radius:50%;border:2px solid #e6b85c55;border-top-color:#e6b85c!important;animation:tr2S .8s linear infinite}
+@keyframes tr2S{to{transform:rotate(360deg)}}
+html body .prf.tr2 .tr2-c .pr-t,html body .prf.tr2 .tr2-a .pr-t{display:block!important}
+html body .prf.tr2 .tr2-c .pr-t2,html body .prf.tr2 .tr2-a .pr-t2{grid-column:auto!important;text-align:left}
+html body .prf.tr2 .tr2-c .pr-t2::before,html body .prf.tr2 .tr2-a .pr-t2::before{content:none!important;display:none!important}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -17326,6 +17377,13 @@ html body .soc.p2 #soc-rows>.sf-i.p2r.p2-loss{display:none!important}
 .p2-wait{display:flex;align-items:center;justify-content:center;gap:10px;padding:26px 0;color:#8f887c;font:600 13px Inter,system-ui,sans-serif}
 .p2-wait i{width:8px;height:8px;border-radius:50%;background:#4fd08a;box-shadow:0 0 0 4px #4fd08a26;animation:p2Pu 1.4s ease-in-out infinite}
 @keyframes p2Pu{50%{opacity:.35}}
+/* r164 winners board: fewer rows, more air, numbers roll */
+html body .soc.p2 .sf-i.p2r{padding:16px 20px!important}
+html body .soc.p2 #soc-feed .p2r+.p2r{margin-top:4px!important}
+html body .soc.p2 .p2-pl{font-variant-numeric:tabular-nums;font-size:17px!important}
+html body .soc.p2 #soc-feed .p2r:first-of-type .p2-pl{text-shadow:0 0 18px #4fd08a66}
+.p2r.p2-enter{animation:p2Enter 1s cubic-bezier(.2,.8,.2,1)}
+@keyframes p2Enter{0%{opacity:0;transform:translateY(-10px) scale(.98);background:#4fd08a22}40%{opacity:1;transform:none}100%{background:transparent}}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -18474,6 +18532,104 @@ function lvPaint(mint){const pS=LW.px.get(mint),su=typeof SOLUSD==='number'&&SOL
    if(sm&&r.dataset.lpl!==''){const pl=((1+Number(r.dataset.lpl)/100)*k-1)*100,t=(pl>=0?'+':'−')+Math.abs(pl).toFixed(Math.abs(pl)<100?1:0)+'%';if(sm.textContent!==t){sm.textContent=t;sm.className=pl>=0?'up':'dn'}}}
   else if(r.dataset.lv==='c'){const m=Number(r.dataset.lmu)*k,el=r.querySelector('.pr-res');if(el&&typeof prMult==='function'){const t=prMult(m);if(t&&el.textContent!==t){const up=m>Number(el.dataset.m||r.dataset.lmu);el.textContent=t;el.dataset.m=m;el.className='pr-res '+(m>=1?'up':'dn');flash(el,up)}}}})}
 })();
+/* ===== r164 Trader profile: full trading history, every token named, live activity =====
+   - History: the profile used to read only the wallet's 15 latest transactions (often one token). It now reads 40 at once, keeps reading
+     older pages in the background (up to 250 transactions), and Activity keeps loading older trades as you scroll (up to 1500).
+     Same RPC, same parser; every row is a real on-chain buy or sell.
+   - Names: tokens the market list doesn't know (fresh pump.fun coins) get their name, picture, price and market cap from GeckoTerminal.
+   - Live: the page listens on Saturn's /tokens/live socket for this wallet; a new buy or sell appears at the top of Activity at once. */
+(function(){'use strict';
+if(window.__satR164)return;window.__satR164=1;
+const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const B58=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/,SIG=/^[1-9A-HJ-NP-Za-km-z]{60,100}$/;
+const curW=()=>{if(typeof S==='undefined'||S.view!=='profile-u')return'';let w='';try{w=decodeURIComponent((location.hash.match(/^#\/u\/([^/?#]+)/)||[])[1]||'')}catch(x){}return B58.test(w)?w:''};
+const tok0=m=>{try{return socTok(m)}catch(x){return null}};
+/* ---------- token names/prices for coins the market list doesn't know (GeckoTerminal) ---------- */
+const GT=new Map(),GQ=new Set(),NM=new Map();let gT=0,gBusy=false,gWait=0;
+const num=v=>v==null||v===''||!isFinite(+v)?null:+v;
+function need(ms){for(const m of ms)if(B58.test(m)&&!tok0(m)&&!GT.has(m))GQ.add(m);if(GQ.size&&!gT&&!gBusy)gT=setTimeout(gRun,200)}
+async function gRun(){gT=0;if(gBusy)return;gBusy=true;let got=false;
+ try{while(GQ.size){if(Date.now()<gWait)await new Promise(r=>setTimeout(r,gWait-Date.now()));const c=[...GQ].slice(0,30);c.forEach(m=>GQ.delete(m));
+  let r;try{r=await fetch(`${CHART_CONFIG.HISTORY_API}/networks/solana/tokens/multi/${c.join(',')}`,{headers:{accept:'application/json'},referrerPolicy:'no-referrer'})}catch(x){r=null}
+  if(!r||!r.ok){if(r&&r.status===429){gWait=Date.now()+20000;c.forEach(m=>GQ.add(m));continue}c.forEach(m=>{if(!GT.has(m))GT.set(m,null)});continue}
+  const j=await r.json().catch(()=>null);((j&&j.data)||[]).forEach(d=>{const a=d&&d.attributes||{},id=a.address;if(!B58.test(id||''))return;
+   const img=/^https:\/\//.test(a.image_url||'')&&!/missing/.test(a.image_url)?a.image_url:null,mc=num(a.market_cap_usd),fdv=num(a.fdv_usd);
+   GT.set(id,{id,ca:id,name:a.name||a.symbol||short(id),tick:a.symbol||'?',img,price:num(a.price_usd),mc:mc!=null?mc:fdv,chg:null,pcg:{},pair:'',gt:1});got=true});
+  c.forEach(m=>{if(!GT.has(m))GT.set(m,null)})}}
+ finally{gBusy=false}if(got)repaint()}
+function tokOf(m){const t=tok0(m);if(t)return t;const g=GT.get(m);if(g)return g;const n=NM.get(m);return n?{id:m,ca:m,name:n.name||n.symbol,tick:n.symbol||n.name,img:null,price:null,mc:null,pcg:{},pair:''}:null}
+const tname=(m,t)=>t?e(t.tick&&t.tick!=='?'?t.tick:t.name):e(short(m));
+/* ---------- history: first page fast, the rest in the background, more on scroll ---------- */
+const H=new Map(),P1=40,PG=50,AUTO=250,CAP=1500;
+const key=x=>(x.signature||'')+'|'+x.mint;
+async function page(w,before,limit){const sigs=await solRpc('getSignaturesForAddress',[w,before?{limit,before}:{limit}]);if(!Array.isArray(sigs))throw new Error('rpc');
+ const txs=await socTxs(sigs.filter(s=>!s.err)),out=[];
+ txs.forEach(({s,tx})=>{const ms=new Set();[...(tx.meta.preTokenBalances||[]),...(tx.meta.postTokenBalances||[])].forEach(b=>{if(b.owner===w&&b.mint!==SOLM)ms.add(b.mint)});
+  ms.forEach(m=>{const p=parseTradeFromTx(tx,m,w);if(p)out.push({...p,signature:s,mint:m})})});
+ return{out,n:sigs.length,last:sigs.length?sigs[sigs.length-1].signature:null}}
+window.socWalletTrades=async function(w,force){const c=SOC.wt.get(w),h=H.get(w);
+ if(c&&h&&!force&&Date.now()-c.ts<60000){setTimeout(()=>auto(w),300);return c.items}
+ const p=await page(w,null,P1),items=p.out.sort((a,b)=>(b.time||0)-(a.time||0));
+ H.set(w,{before:p.last,done:p.n<P1,busy:false,read:p.n,keys:new Set(items.map(key)),err:0});SOC.wt.set(w,{ts:Date.now(),items});
+ setTimeout(()=>auto(w),300);return items};
+async function more(w){const h=H.get(w),c=SOC.wt.get(w);if(!h||!c||h.busy||h.done||h.read>=CAP)return false;h.busy=true;
+ try{const p=await page(w,h.before,PG);h.err=0;h.before=p.last||h.before;h.read+=p.n;if(p.n<PG||!p.last)h.done=true;
+  const add=p.out.filter(x=>!h.keys.has(key(x)));add.forEach(x=>{h.keys.add(key(x));c.items.push(x)});
+  if(add.length){c.items.sort((a,b)=>(b.time||0)-(a.time||0));const ms=add.map(x=>x.mint);try{await socEnsureTokens(ms)}catch(x){}need(ms)}
+  return true}
+ catch(x){h.err++;return false}
+ finally{h.busy=false;if(curW()===w)repaint()}}
+async function auto(w){for(let i=0;i<20;i++){const h=H.get(w);if(!h||h.done||h.read>=AUTO||curW()!==w||h.err>2)return;const ok=await more(w);if(!ok)await new Promise(r=>setTimeout(r,2500));else await new Promise(r=>setTimeout(r,350))}}
+let rpT=0;function repaint(){if(rpT)return;rpT=setTimeout(()=>{rpT=0;const w=curW();if(!w)return;const P=SOC.pf[w];if(!P)return;try{socPaintProfile(w)}catch(x){}},250)}
+/* ---------- rows ---------- */
+const ago=s=>{if(!s)return'—';const d=Math.max(0,Date.now()/1000-s);return d<60?Math.floor(d)+'s ago':d<3600?Math.floor(d/60)+'m ago':d<86400?Math.floor(d/3600)+'h ago':Math.floor(d/86400)+'d ago'};
+const NEW=new Set();
+window.prActRow=function(x){const t=tokOf(x.mint),buy=x.side==='buy',nm=tname(x.mint,t),k=key(x),fresh=NEW.has(k);
+ const sub=[];if(x.tokenAmt>0)sub.push(socNum(x.tokenAmt)+' '+(t&&t.tick&&t.tick!=='?'?e(t.tick):'tokens'));sub.push('<span class="tr2-ago" data-t="'+(x.time||0)+'">'+ago(x.time)+'</span>');
+ return `<div class="pr-r a tr2-a${fresh?' tr2-new':''}"><a class="pr-lnk" href="#/token/${e(t?t.id:x.mint)}"><span class="pr-av">${prAv(x.mint,t,40)}</span><span class="pr-t"><span class="pr-t1"><b>${nm}</b><i class="tr2-sd ${buy?'b':'s'}">${buy?'Bought':'Sold'}</i></span><span class="pr-t2">${sub.join(' · ')}</span></span></a><span class="tr2-amt"><b class="${buy?'b':'s'}">${x.solAmt>0?(buy?'−':'+')+socSol(x.solAmt):'—'}</b>${x.signature?`<a target="_blank" rel="noopener" href="${e(hTx(x.signature))}" aria-label="View transaction on explorer">Tx ↗</a>`:''}</span></div>`};
+const CR=window.prCallRow;
+window.prCallRow=function(c){let t=c.t,entryMc=c.entryMc,mc=c.mc,mult=c.mult;
+ if(!t){const g=tokOf(c.mint);if(g){t=g;const su=typeof SOLUSD==='number'&&SOLUSD>0?SOLUSD:null,nowSol=g.price!=null&&su?g.price/su:null;mc=g.mc;
+  if(mc!=null&&nowSol>0&&c.entry>0)entryMc=mc*(c.entry/nowSol);if(c.st==='open'&&nowSol>0&&c.entry>0)mult=nowSol/c.entry}}
+ const p0=t&&Number(t.price)>0?Number(t.price):null,live=p0&&c.st!=='closed'&&mult!=null;
+ const ent=entryMc!=null?'in at '+usd(entryMc)+' MC':c.entry>0?'in at '+prPx(c.entry)+' SOL':'entry unknown';
+ const p2=[ent];if(c.st==='closed')p2.push('closed'+(c.held!=null?' · held '+prDur(c.held):''));else if(c.tb)p2.push(ago(c.tb));
+ const mt=prMult(mult),up=mult!=null&&mult>=1;
+ return `<a class="pr-r c tr2-c" href="#/token/${e(t?t.id:c.mint)}"${live?` data-lv="c" data-lm="${e(c.mint)}" data-lp="${p0}" data-lmu="${mult}"`:''}${entryMc!=null?` data-emc="${entryMc}"`:''}><span class="pr-av">${prAv(c.mint,t,40)}</span><span class="pr-t"><span class="pr-t1"><b>${tname(c.mint,t)}</b>${t&&t.name&&t.tick&&t.name!==t.tick?`<em class="tr2-fn">${e(t.name)}</em>`:''}</span><span class="pr-t2">${e(p2.join(' · '))}</span></span><span class="tr2-rt"><b class="tr2-mc">${mc!=null?usd(mc):'—'}</b><span class="pr-res ${mt?(up?'up':'dn'):'na'}">${mt||'—'}</span></span></a>`};
+const HR=window.prHoldRow;
+window.prHoldRow=function(x){if(x&&!x.t){const g=tokOf(x.mint);if(g){const v=g.price!=null?g.price*x.amt:null;x={...x,t:g,price:g.price,val:v}}}return HR.call(this,x)};
+/* Activity: a quiet line at the end while older trades load; scrolling near the end loads more */
+const SPF=window.socPaintProfile;
+window.socPaintProfile=function(w){const r=SPF.apply(this,arguments);try{const P=SOC.pf[w],el=document.getElementById('pu-body');
+ if(P&&Array.isArray(P.trades)){need(P.trades.map(x=>x.mint));const h=H.get(w);
+  if(el&&SOC.ptab==='act'&&P.trades.length&&!el.querySelector('.tr2-end')){const done=!h||h.done||h.read>=CAP;
+   el.insertAdjacentHTML('beforeend',`<div class="tr2-end">${done?`${P.trades.length} trades · full history loaded`:`<i></i>Loading older trades… · ${P.trades.length} so far`}</div>`)}
+  if(el&&SOC.ptab!=='pos'){const s=el.querySelector('.tr2-cnt');if(!s&&P.trades.length){const n=new Set(P.trades.map(x=>x.mint)).size;el.insertAdjacentHTML('afterbegin',`<div class="tr2-cnt"><span class="tr2-live"><i></i>Live</span>${P.trades.length} trades · ${n} token${n===1?'':'s'}</div>`)}}}}catch(x){}
+ NEW.clear();return r};
+addEventListener('scroll',()=>{const w=curW();if(!w||SOC.ptab!=='act')return;const h=H.get(w);if(!h||h.done||h.busy)return;
+ if(innerHeight+scrollY>document.documentElement.scrollHeight-900)more(w)},{passive:true});
+/* times keep counting; open calls show the live market cap (entry MC x live multiple from the r163 price feed) */
+setInterval(()=>{if(!curW()||document.hidden)return;document.querySelectorAll('.prf .tr2-ago').forEach(s=>{const v=ago(+s.dataset.t);if(s.textContent!==v)s.textContent=v});
+ document.querySelectorAll('.prf .tr2-c[data-emc]').forEach(r=>{const m=Number((r.querySelector('.pr-res')||{}).dataset&&r.querySelector('.pr-res').dataset.m);if(!(m>0))return;const b=r.querySelector('.tr2-mc'),v=usd(Number(r.dataset.emc)*m);if(b&&b.textContent!==v)b.textContent=v})},1000);
+/* ---------- live: this wallet's new trades over /tokens/live ---------- */
+const L={ws:null,url:'wss://saturn-perps-staging.onrender.com/tokens/live',retry:1000,timer:0,ping:0,sent:'',away:0};
+function lSub(){const ws=L.ws,w=curW();if(!ws||ws.readyState!==1||!w||L.sent===w)return;L.sent=w;try{ws.send(JSON.stringify({type:'sub',mints:[],wallets:[w],trades:true}))}catch(x){}}
+function lOpen(){if(L.ws||typeof WebSocket==='undefined')return;let ws;try{ws=new WebSocket(L.url)}catch(x){lRetry();return}L.ws=ws;L.sent='';
+ ws.onopen=()=>{if(L.ws!==ws)return;lSub();clearInterval(L.ping);L.ping=setInterval(()=>{try{ws.readyState===1&&ws.send('{"type":"ping"}')}catch(x){}},25000);setTimeout(()=>{if(L.ws===ws)L.retry=1000},30000)};
+ ws.onmessage=ev=>{if(L.ws!==ws||typeof ev.data!=='string'||ev.data.length>4096)return;let j;try{j=JSON.parse(ev.data)}catch(x){return}if(j&&j.type==='trade')lTrade(j)};
+ ws.onerror=()=>{try{ws.close()}catch(x){}};ws.onclose=()=>{clearInterval(L.ping);if(L.ws!==ws)return;L.ws=null;lRetry()}}
+function lRetry(){clearTimeout(L.timer);const d=Math.round(L.retry*(0.8+Math.random()*0.4));L.retry=Math.min(L.retry*2,30000);L.timer=setTimeout(lCheck,d)}
+function lClose(){clearTimeout(L.timer);clearInterval(L.ping);const ws=L.ws;L.ws=null;L.sent='';if(ws){try{ws.onclose=ws.onmessage=ws.onerror=ws.onopen=null;ws.close()}catch(x){}}}
+function lCheck(){const w=curW();if(w&&!document.hidden){L.away=0;if(!L.ws)lOpen();else lSub()}else{if(!L.away)L.away=Date.now();if(L.ws&&Date.now()-L.away>10000)lClose()}}
+setInterval(lCheck,2000);document.addEventListener('visibilitychange',lCheck);
+function lTrade(j){const w=curW();if(!w||j.w!==w||typeof j.sig!=='string'||!SIG.test(j.sig)||typeof j.mint!=='string'||!B58.test(j.mint)||(j.side!=='buy'&&j.side!=='sell'))return;
+ if(j.name||j.symbol)NM.set(j.mint,{name:String(j.name||'').slice(0,40),symbol:String(j.symbol||'').slice(0,16)});
+ const c=SOC.wt.get(w),h=H.get(w),P=SOC.pf[w];if(!c||!h||!P||P.trades!==c.items)return;
+ const it={time:Number(j.at)>0?Math.floor(Number(j.at)):Math.floor(Date.now()/1000),side:j.side,mint:j.mint,solAmt:Number(j.sol)>0?Number(j.sol):0,tokenAmt:Number(j.tok)>0?Number(j.tok):0,signature:j.sig,live:true};
+ const k=key(it);if(h.keys.has(k))return;h.keys.add(k);c.items.unshift(it);c.items.sort((a,b)=>(b.time||0)-(a.time||0));NEW.add(k);need([it.mint]);
+ try{socEnsureTokens([it.mint]).then(repaint,repaint)}catch(x){}repaint()}
+window.__satTr164={H,GT,L};
+})();
 </script>
 <script id="saturn-r160-pulse">
 /* ===== Saturn r160 — Pulse redesign (additive; presentation + endless scroll) =====
@@ -18508,7 +18664,7 @@ try{if(typeof FEED==='object'&&FEED)FEED.MAXV=Math.max(FEED.MAXV||0,3000)}catch(
 const SP=window.SocialPage;window.SocialPage=function(){if(!['profit','bigall'].includes(SOC.filt))SOC.filt='profit';let h=SP.apply(this,arguments);try{
  const F=SOC.filt;
  h=h.replace('<div class="soc rf-soc">','<div class="soc rf-soc p2">');
- h=h.replace(/<div class="rf-flt">[\s\S]*?<\/div>(?=<div id="soc-feed")/,`<div class="rf-flt"><button type="button" data-soc="fset" data-v="profit" class="${F==='profit'?'on':''}">🔥 In profit</button><button type="button" data-soc="fset" data-v="bigall" class="${F==='bigall'?'on':''}">🐋 All big buys</button><span class="p2-min">buys ≥ ${MIN} SOL</span></div>`);
+ h=h.replace(/<div class="rf-flt">[\s\S]*?<\/div>(?=<div id="soc-feed")/,`<div class="rf-flt"><button type="button" data-soc="fset" data-v="profit" class="${F==='profit'?'on':''}">🔥 In profit</button><button type="button" data-soc="fset" data-v="bigall" class="${F==='bigall'?'on':''}">🐋 All big buys</button><span class="p2-min">${F==='profit'?'top winners · live':'buys ≥ '+MIN+' SOL'}</span></div>`);
  h=h.replace('<div class="rf-flt">','<div class="p2-beat" id="p2-beat" aria-hidden="true"><svg viewBox="0 0 250 40" preserveAspectRatio="none"></svg><span class="p2-bt"><b><i></i><em>—</em></b><small>big buys / min</small></span></div><div class="rf-flt">')}catch(x){}return h};
 
 /* ---------- one trade = one row ---------- */
@@ -18524,10 +18680,16 @@ window.socItem=function(tr){TR.set(tr.signature,tr);const t=tokOf(tr.mint),k=e(t
  <span class="p2-a"><b class="p2-pl ${P?(P.pct>=0?'b':'s'):'n'}">${P&&P.usd!=null?fmtU(P.usd):'—'}</b><small class="p2-pc ${P?(P.pct>=0?'b':'s'):''}">${P?(P.pct>=0?'+':'')+P.pct.toFixed(1)+'%':'live'}</small></span></article>`};
 
 /* ---------- Big filter: same list, only big trades (the feed's own filter only knows buy/sell) ---------- */
-const keep=x=>{if(!BIG(x))return false;if(SOC.filt!=='profit')return true;const P=pnl(x);return!P||P.pct>=-0.5};
+const keep=x=>BIG(x);
+/* r164 "In profit" = a short board of real winners: only big buys whose live P&L is known and clearly up (>= +10% and >= $20),
+   one row per token (that token's best trader), at most 10 rows, biggest profit first. If fewer than 3 qualify, buys up >= +3% fill in. */
+const BMAX=10;
+function board(all){const best=new Map();for(const x of all){if(!BIG(x))continue;const P=pnl(x);if(!P||P.usd==null||!(P.pct>0))continue;const o=best.get(x.mint);if(!o||P.usd>o.P.usd)best.set(x.mint,{x,P})}
+ const v=[...best.values()].sort((a,b)=>b.P.usd-a.P.usd);let top=v.filter(r=>r.P.pct>=10&&r.P.usd>=20);if(top.length<3)top=v.filter(r=>r.P.pct>=3&&r.P.usd>=5);
+ return top.slice(0,BMAX).map(r=>r.x)}
 if(typeof window.socPaintFeed==='function'){const PF=window.socPaintFeed;window.socPaintFeed=function(){
  let r;const T=SOC.tab==='global'?SOC.g:SOC.f,all=T&&T.items,f0=SOC.filt;
- try{if(T&&Array.isArray(all)){SOC.filt='all';T.items=all.filter(keep);try{r=PF.apply(this,arguments)}finally{T.items=all;SOC.filt=f0;if(T.F)T.F.keys=new Set(all.map(feedKey));const el=document.getElementById('soc-feed');if(el)el._tag=SOC.tab+'|'+f0}}
+ try{if(T&&Array.isArray(all)){SOC.filt='all';T.items=f0==='profit'?board(all):all.filter(keep);try{r=PF.apply(this,arguments)}finally{T.items=all;SOC.filt=f0;if(T.F)T.F.keys=new Set(all.map(feedKey));const el=document.getElementById('soc-feed');if(el)el._tag=SOC.tab+'|'+f0}}
   else r=PF.apply(this,arguments)}catch(x){SOC.filt=f0;r=PF.apply(this,arguments)}
  beat();return r}}
 
@@ -18652,6 +18814,7 @@ function pFlush(){pT=0;const items=pend;pend=[];if(!items.length||S.view!=='soci
  const tab=SOC.tab==='global'?'g':'f',T=tab==='g'?SOC.g:SOC.f,F=T&&T.F;if(!F||T.st!=='ok')return;
  const fresh=[];for(const it of items){if(tab==='f'&&!(it.wallet&&SOC.fw.includes(it.wallet)))continue;if(!BIG(it))continue;const k=feedKey(it);if(F.pool.has(k))continue;F.pool.set(k,it);fresh.push(it)}
  if(!fresh.length)return;fresh.sort((a,b)=>b.time-a.time);
+ if(SOC.filt==='profit'){const ks=new Set(fresh.map(feedKey));T.items=fresh.concat(T.items.filter(x=>!ks.has(feedKey(x))));if(T.items.length>3000)T.items.length=3000;BDIRTY=1;return}
  const top=(window.scrollY||0)<160;
  const go=()=>{if(top||!T.items.length){T.items=fresh.concat(T.items.filter(x=>!fresh.some(f=>feedKey(f)===feedKey(x))));F.newN=0;const el=document.getElementById('soc-feed');if(el)el._tag=null;socPaintFeed()}
   else{F.newN=(F.newN||0)+fresh.length;F.pending=(F.pending||[]).concat(fresh);try{feedPaintPill(T)}catch(x){}}};
@@ -18666,11 +18829,21 @@ let PDIRTY=0;
 setInterval(()=>{if(S.view!=='social'||document.hidden)return;let hid=0,shown=0;
  document.querySelectorAll('#soc-feed .p2r[data-p2]').forEach(r=>{const tr=TR.get(r.dataset.p2);if(!tr)return;const P=pnl(tr),a=r.querySelector('.p2-pl'),c=r.querySelector('.p2-pc');
   if(P&&a&&c){const t1=P.usd!=null?fmtU(P.usd):'—',t2=(P.pct>=0?'+':'')+P.pct.toFixed(1)+'%',cls=P.pct>=0?'b':'s';
-   if(a.textContent!==t1){const up=a.dataset.v!=null&&P.usd!=null&&P.usd>Number(a.dataset.v);a.textContent=t1;a.className='p2-pl '+cls;a.classList.remove('p2-up','p2-dn');void a.offsetWidth;a.classList.add(up?'p2-up':'p2-dn');a.dataset.v=P.usd!=null?P.usd:''}
+   if(a.textContent!==t1){const was=a.dataset.v!==''&&a.dataset.v!=null?Number(a.dataset.v):null,up=was!=null&&P.usd!=null&&P.usd>was;a.className='p2-pl '+cls;
+    if(was!=null&&P.usd!=null&&isFinite(was))roll(a,was,P.usd);else a.textContent=t1;a.classList.remove('p2-up','p2-dn');void a.offsetWidth;a.classList.add(up?'p2-up':'p2-dn');a.dataset.v=P.usd!=null?P.usd:''}
    if(c.textContent!==t2){c.textContent=t2;c.className='p2-pc '+cls}}
-  const lose=SOC.filt==='profit'&&P&&P.pct<-0.5;r.classList.toggle('p2-loss',!!lose);lose?hid++:shown++});
- const el=document.getElementById('soc-feed');if(el){let w=el.querySelector('.p2-wait');const none=!shown;if(none&&!w){w=document.createElement('div');w.className='p2-wait';w.innerHTML='<i></i>Watching for big buys in profit…';el.prepend(w)}else if(!none&&w)w.remove()}
- if(PDIRTY){PDIRTY=0;pSub()}},1000);
+  const lose=false;r.classList.toggle('p2-loss',!!lose);lose?hid++:shown++});
+ const el=document.getElementById('soc-feed');if(el){let w=el.querySelector('.p2-wait');const none=!shown;if(none&&!w){w=document.createElement('div');w.className='p2-wait';w.innerHTML='<i></i>Watching for traders in profit…';el.prepend(w)}else if(!none&&w)w.remove()}
+ if(PDIRTY){PDIRTY=0;pSub()}if(++BT%4===0||BDIRTY){BDIRTY=0;rerank()}},1000);
+/* the winners board re-ranks every few seconds; rows glide to their new place (FLIP), new winners fade in */
+let BT=0,BDIRTY=0;
+function rerank(){try{if(S.view!=='social'||document.hidden||SOC.filt!=='profit')return;const T=SOC.tab==='global'?SOC.g:SOC.f,el=document.getElementById('soc-feed');if(!T||!el||!Array.isArray(T.items))return;
+ const want=board(T.items).map(x=>x.signature).join(),have=[...el.querySelectorAll('.p2r[data-p2]')].map(r=>r.dataset.p2).join();if(want===have)return;
+ const old=new Map();el.querySelectorAll('.p2r[data-p2]').forEach(r=>old.set(r.dataset.p2,{y:r.getBoundingClientRect().top,v:r.querySelector('.p2-pl')&&r.querySelector('.p2-pl').dataset.v}));
+ el._tag=null;socPaintFeed();
+ el.querySelectorAll('.p2r[data-p2]').forEach(r=>{const o=old.get(r.dataset.p2),a=r.querySelector('.p2-pl');if(o){if(a&&o.v!=null)a.dataset.v=o.v;const dy=o.y-r.getBoundingClientRect().top;if(Math.abs(dy)>1){r.style.transition='none';r.style.transform=`translateY(${dy}px)`;requestAnimationFrame(()=>{r.style.transition='transform .6s cubic-bezier(.2,.8,.2,1)';r.style.transform=''})}}else r.classList.add('p2-enter')})}catch(x){}}
+/* numbers roll to the new value instead of jumping */
+function roll(a,from,to){const t0=performance.now(),d=700;cancelAnimationFrame(a._raf);const step=now=>{const k=Math.min(1,(now-t0)/d),ez=1-Math.pow(1-k,3);a.textContent=fmtU(from+(to-from)*ez);if(k<1)a._raf=requestAnimationFrame(step)};a._raf=requestAnimationFrame(step)}
 })();
 </script>
 <style id="saturn-r112-css">
