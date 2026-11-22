@@ -18153,6 +18153,40 @@ document.documentElement.classList.add('tk2-on');
    (SatDiscoverLive.tick: same DexScreener batch call, same guards: Discover open, tab visible, no search, its own busy flag);
    when that refresh is backing off after a failure, nothing extra is sent. */
 setInterval(()=>{try{const D=window.SatDiscoverLive;if(!D||document.hidden||D.fail)return;if(!document.querySelector('.rf-home #grid .dcx.tk2'))return;if(Date.now()-(D.last||0)>3500)D.tick()}catch(x){}},4000);
+/* r156 SOLANA LIVE MARKET CAP. Until now Solana rows had no WebSocket at all: they only changed when the DexScreener refresh came back.
+   While Discover is open and visible, ONE connection to the PumpAPI trade stream Saturn already uses on the token page
+   (PUMP_CONFIG.STREAM_URL) is opened. Every trade of a token that is on screen moves its row at once:
+     new price (USD) = stream price (SOL) x SOL/USD;  market cap = the row's own market cap x (new price / previous price)
+   so the market-cap definition stays exactly the provider's; only real trades move it. Frames for other tokens are dropped before
+   JSON parsing. Live values are kept for 20 s, so a slower DexScreener refresh cannot pull a row back to an older number; after that
+   DexScreener is the source again. The socket closes 10 s after Discover is left or the app is hidden, and reconnects with back-off. */
+const LV=new Map(),LIVE_TTL=20000;let lws=null,lwsState='idle',lwsRetry=1000,lwsTimer=0,awayAt=0,lpend=false,lastPaint=0;
+const lsol=()=>{try{return(typeof SOLUSD==='number'&&SOLUSD>0)?SOLUSD:null}catch(x){return null}};
+const lmints=()=>{const s=new Set();document.querySelectorAll('.rf-home #grid .dcx.tk2').forEach(r=>{const g=r.dataset.go||'';if(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(g))s.add(g)});return s};
+let LM=new Set();
+function lapply(){try{if(typeof S==='undefined'||!Array.isArray(S.items))return false;const now=Date.now();let ch=false;
+ for(const x of S.items){const l=x&&LV.get(x.id);if(!l||now-l.at>LIVE_TTL)continue;const p0=Number(x.price);
+  if(p0>0&&Math.abs(p0-l.p)/l.p>1e-9){const k=l.p/p0;if(k>0.2&&k<5){if(fin(x.mc))x.mc=Number(x.mc)*k;x.price=l.p;x.__live=now;ch=true}}}
+ for(const [k,l] of LV)if(now-l.at>LIVE_TTL)LV.delete(k);return ch}catch(x){return false}}
+const RL2=window.renderList;window.renderList=function(){lapply();return RL2.apply(this,arguments)};
+function lpaint(){if(lpend)return;lpend=true;const w=Math.max(0,450-(Date.now()-lastPaint));setTimeout(()=>{lpend=false;lastPaint=Date.now();try{if(typeof S!=='undefined'&&S.view==='home'&&!document.hidden&&lapply())renderList()}catch(x){}},w)}
+function lmsg(d){if(typeof d!=='string'||d.length>65536)return;const m=/"mint"\s*:\s*"([1-9A-HJ-NP-Za-km-z]{32,44})"/.exec(d);if(!m||!LM.has(m[1]))return;
+ let j;try{j=JSON.parse(d)}catch(x){return}if(!j||j.mint!==m[1])return;
+ if(j.quoteMint&&j.quoteMint!=='So11111111111111111111111111111111111111112')return;
+ const ps=Number(j.price),su=lsol();if(!(ps>0)||!Number.isFinite(ps)||!su)return;
+ LV.set(j.mint,{p:ps*su,at:Date.now()});lpaint()}
+function lopen(){if(lws||typeof WebSocket==='undefined')return;let url;try{url=PUMP_CONFIG.STREAM_URL}catch(x){return}if(!url)return;
+ let ws;try{ws=new WebSocket(url)}catch(x){lretry();return}lws=ws;lwsState='connecting';ws.binaryType='arraybuffer';
+ ws.onopen=()=>{if(lws!==ws)return;lwsState='live';setTimeout(()=>{if(lws===ws)lwsRetry=1000},30000)};
+ ws.onmessage=ev=>{if(lws!==ws)return;let d=ev.data;try{if(d instanceof ArrayBuffer){if(d.byteLength>65536)return;d=new TextDecoder().decode(d)}else if(typeof d!=='string')return}catch(x){return}lmsg(d)};
+ ws.onerror=()=>{try{ws.close()}catch(x){}};
+ ws.onclose=()=>{if(lws!==ws)return;lws=null;lwsState='idle';lretry()}}
+function lretry(){clearTimeout(lwsTimer);const d=Math.round(lwsRetry*(0.8+Math.random()*0.4));lwsRetry=Math.min(lwsRetry*2,30000);lwsTimer=setTimeout(lcheck,d)}
+function lclose(){clearTimeout(lwsTimer);const w=lws;lws=null;lwsState='idle';if(w){try{w.onclose=w.onmessage=w.onerror=w.onopen=null;w.close(1000,'discover closed')}catch(x){}}}
+function lcheck(){try{const want=typeof S!=='undefined'&&S.view==='home'&&!document.hidden&&!!document.querySelector('.rf-home #grid .dcx.tk2');
+ if(want){awayAt=0;LM=lmints();if(LM.size&&!lws)lopen()}else{if(!awayAt)awayAt=Date.now();if(lws&&Date.now()-awayAt>10000)lclose()}}catch(x){}}
+setInterval(lcheck,2000);document.addEventListener('visibilitychange',lcheck);
+window.__satTk2Live=()=>({state:lwsState,watching:LM.size,live:LV.size});
 })();
 </script>
 <style id="saturn-r112-css">
