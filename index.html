@@ -17194,6 +17194,8 @@ html body .prf.tr2 #pr-bal .pr-bal .pb-r:first-of-type .pb-k,html body .prf.tr2 
 html body .prf.tr2 #pr-bal .pr-bal .pb-r:not(.pb-t) b{font-size:30px!important;font-weight:800!important}
 html body .prf.tr2 #pr-bal .pr-bal .pb-h+.pb-r .pb-k{display:block!important;font-size:11px!important;margin:0 0 4px!important}
 html body .prf.tr2 #pr-perf{padding-top:0!important;margin-top:8px!important}
+html body .prf.tr2 .lv-up{animation:lvUp .8s ease-out}html body .prf.tr2 .lv-dn{animation:lvDn .8s ease-out}
+@keyframes lvUp{0%{background:#4fd08a40;border-radius:6px}100%{background:transparent}}@keyframes lvDn{0%{background:#ff6b6b40;border-radius:6px}100%{background:transparent}}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -17311,6 +17313,19 @@ img.cm-img{display:block;max-width:168px!important;max-height:168px!important;wi
 .p2-dot{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;box-shadow:0 0 0 2.5px #100e0c;pointer-events:none}
 .p2-dot.b{background:#4fd08a}.p2-dot.s{background:#ff6b6b}
 .p2-dot.m{width:13px;height:13px;margin:-6.5px 0 0 -6.5px;box-shadow:0 0 0 3px #100e0c,0 0 0 9px #4fd08a2e}.p2-dot.m.s{box-shadow:0 0 0 3px #100e0c,0 0 0 9px #ff6b6b2e}
+/* r163 live P&L rows */
+.p2-min{align-self:center;margin-left:auto;font:600 11.5px Inter,system-ui,sans-serif;color:#6f695f;white-space:nowrap}
+.p2-l2 .p2-in{color:#cfc8ba;font-weight:700}
+.p2-a .p2-pl{font:800 16.5px/1.1 Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;border-radius:6px;padding:1px 3px;margin-right:-3px}
+.p2-pl.b{color:#4fd08a}.p2-pl.s{color:#ff6b6b}.p2-pl.n{color:#6f695f}
+.p2-pc{display:inline-block;margin-top:5px;font:800 11.5px/1 Inter,system-ui,sans-serif!important;padding:4px 7px;border-radius:7px;color:#8f887c!important;background:#ffffff0d;font-variant-numeric:tabular-nums}
+.p2-pc.b{color:#4fd08a!important;background:#4fd08a18}.p2-pc.s{color:#ff6b6b!important;background:#ff6b6b18}
+.p2-up{animation:p2Up .7s ease-out}.p2-dn{animation:p2Dn .7s ease-out}
+@keyframes p2Up{0%{background:#4fd08a40}100%{background:transparent}}@keyframes p2Dn{0%{background:#ff6b6b40}100%{background:transparent}}
+html body .soc.p2 #soc-rows>.sf-i.p2r.p2-loss{display:none!important}
+.p2-wait{display:flex;align-items:center;justify-content:center;gap:10px;padding:26px 0;color:#8f887c;font:600 13px Inter,system-ui,sans-serif}
+.p2-wait i{width:8px;height:8px;border-radius:50%;background:#4fd08a;box-shadow:0 0 0 4px #4fd08a26;animation:p2Pu 1.4s ease-in-out infinite}
+@keyframes p2Pu{50%{opacity:.35}}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -18430,6 +18445,34 @@ function tags(w){try{const nm=document.querySelector('.prf.tr2 .pr-nm');if(!nm)r
  const html=(last?'<span class="'+(Date.now()/1000-last<3600?'g':'')+'">Active '+ago(last)+'</span>':'')+'<span>Solana</span>';if(el.innerHTML!==html)el.innerHTML=html}catch(e){}}
 if(typeof window.socPaintProfile==='function'){const SP=window.socPaintProfile;window.socPaintProfile=function(w){const r=SP.apply(this,arguments);tags(w);return r}}
 const LP=window.socLoadProfile;if(typeof LP==='function')window.socLoadProfile=function(w){const r=LP.apply(this,arguments);setTimeout(()=>tags(w),0);return r};
+/* ---------- r163 LIVE PROFILE: holdings value, P&L and call results move with the live price ----------
+   The trader page opens Saturn's /tokens/live socket for the tokens in Holdings and Calls. Each price update re-scales what the page already
+   computed (value x newPrice/oldPrice), so the definitions stay exactly the same; only the price is live. Closed calls are not touched. */
+const usdP=t=>{const v=Number(t&&t.price);return v>0?v:null};
+if(typeof window.prHoldRow==='function'){const HR=window.prHoldRow;window.prHoldRow=function(x){let h=HR.apply(this,arguments);try{const p0=usdP(x&&x.t);
+ if(p0&&x.val!=null)h=h.replace('<a class="pr-r"',`<a class="pr-r" data-lv="h" data-lm="${x.mint}" data-lp="${p0}" data-lval="${x.val}" data-lpl="${x.pl==null?'':x.pl}"`)}catch(e){}return h}}
+if(typeof window.prCallRow==='function'){const CR=window.prCallRow;window.prCallRow=function(c){let h=CR.apply(this,arguments);try{const p0=usdP(c&&c.t);
+ if(p0&&c.st!=='closed'&&c.mult!=null)h=h.replace('<a class="pr-r c"',`<a class="pr-r c" data-lv="c" data-lm="${c.mint}" data-lp="${p0}" data-lmu="${c.mult}"`)}catch(e){}return h}}
+const LW={ws:null,url:'wss://saturn-perps-staging.onrender.com/tokens/live',retry:1000,timer:0,ping:0,sent:'',away:0,px:new Map()};
+const lvMints=()=>[...new Set([...document.querySelectorAll('.prf [data-lm]')].map(e=>e.dataset.lm))].filter(m=>/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(m)).slice(0,40);
+function lvSub(){const w=LW.ws;if(!w||w.readyState!==1)return;const m=lvMints(),k=m.join();if(k===LW.sent)return;LW.sent=k;try{w.send(JSON.stringify({type:'sub',mints:m}))}catch(e){}}
+function lvOpen(){if(LW.ws||typeof WebSocket==='undefined')return;let ws;try{ws=new WebSocket(LW.url)}catch(e){lvRetry();return}LW.ws=ws;LW.sent='';
+ ws.onopen=()=>{if(LW.ws!==ws)return;lvSub();clearInterval(LW.ping);LW.ping=setInterval(()=>{try{ws.readyState===1&&ws.send('{"type":"ping"}')}catch(e){}},25000);setTimeout(()=>{if(LW.ws===ws)LW.retry=1000},30000)};
+ ws.onmessage=ev=>{if(LW.ws!==ws||typeof ev.data!=='string'||ev.data.length>8192)return;let j;try{j=JSON.parse(ev.data)}catch(e){return}if(j&&j.type==='tok'&&Number(j.p)>0&&typeof j.mint==='string'){LW.px.set(j.mint,Number(j.p));lvPaint(j.mint)}};
+ ws.onerror=()=>{try{ws.close()}catch(e){}};ws.onclose=()=>{clearInterval(LW.ping);if(LW.ws!==ws)return;LW.ws=null;lvRetry()}}
+function lvRetry(){clearTimeout(LW.timer);const d=Math.round(LW.retry*(0.8+Math.random()*0.4));LW.retry=Math.min(LW.retry*2,30000);LW.timer=setTimeout(lvCheck,d)}
+function lvClose(){clearTimeout(LW.timer);clearInterval(LW.ping);const w=LW.ws;LW.ws=null;LW.sent='';if(w){try{w.onclose=w.onmessage=w.onerror=w.onopen=null;w.close()}catch(e){}}}
+function lvCheck(){try{const on=typeof S!=='undefined'&&S.view==='profile-u'&&!document.hidden&&lvMints().length>0;
+ if(on){LW.away=0;if(!LW.ws)lvOpen();else lvSub()}else{if(!LW.away)LW.away=Date.now();if(LW.ws&&Date.now()-LW.away>10000)lvClose()}}catch(e){}}
+setInterval(lvCheck,2000);document.addEventListener('visibilitychange',lvCheck);
+const money=v=>'$'+(Math.abs(v)>=1000?Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0}):Math.abs(v).toFixed(2));
+function flash(el,up){el.classList.remove('lv-up','lv-dn');void el.offsetWidth;el.classList.add(up?'lv-up':'lv-dn')}
+function lvPaint(mint){const pS=LW.px.get(mint),su=typeof SOLUSD==='number'&&SOLUSD>0?SOLUSD:null;if(!pS||!su)return;const pU=pS*su;
+ document.querySelectorAll('.prf [data-lm="'+mint+'"]').forEach(r=>{const p0=Number(r.dataset.lp);if(!(p0>0))return;const k=pU/p0;if(!(k>0.05&&k<20))return;
+  if(r.dataset.lv==='h'){const v=Number(r.dataset.lval)*k,b=r.querySelector('.pr-vl b'),sm=r.querySelector('.pr-vl small');
+   if(b){const t=money(v);if(b.textContent!==t){const up=v>Number(b.dataset.v||r.dataset.lval);b.textContent=t;b.dataset.v=v;flash(b,up)}}
+   if(sm&&r.dataset.lpl!==''){const pl=((1+Number(r.dataset.lpl)/100)*k-1)*100,t=(pl>=0?'+':'−')+Math.abs(pl).toFixed(Math.abs(pl)<100?1:0)+'%';if(sm.textContent!==t){sm.textContent=t;sm.className=pl>=0?'up':'dn'}}}
+  else if(r.dataset.lv==='c'){const m=Number(r.dataset.lmu)*k,el=r.querySelector('.pr-res');if(el&&typeof prMult==='function'){const t=prMult(m);if(t&&el.textContent!==t){const up=m>Number(el.dataset.m||r.dataset.lmu);el.textContent=t;el.dataset.m=m;el.className='pr-res '+(m>=1?'up':'dn');flash(el,up)}}}})}
 })();
 </script>
 <script id="saturn-r160-pulse">
@@ -18446,41 +18489,50 @@ const LP=window.socLoadProfile;if(typeof LP==='function')window.socLoadProfile=f
 (function(){'use strict';
 if(window.__satR160||typeof window.SocialPage!=='function'||typeof window.socItem!=='function')return;window.__satR160=1;
 const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const BIG=x=>(x.usdAmt>=100)||(x.solAmt>=1);
+const MIN=1;                                  /* a "big buy" on Pulse: >= 1 SOL */
+const BIG=x=>x&&x.side==='buy'&&x.solAmt>=MIN;
+const LP=new Map(),NM=new Map();               /* live price (SOL) per token from the socket; names/symbols sent with trades */
+const entryOf=x=>x.pE>0?x.pE:(x.solAmt>0&&x.tokenAmt>0?x.solAmt/x.tokenAmt:null);
+/* live P&L of a buy: what the bought tokens are worth now vs what was paid */
+function pnl(x){const pe=entryOf(x),pn=LP.get(x.mint);if(!(pe>0)||!(pn>0))return null;const r=pn/pe;if(!(r>0.001&&r<1000))return null;
+ const su=typeof SOLUSD==='number'&&SOLUSD>0?SOLUSD:null,cost=x.usdAmt>0?x.usdAmt:(su?x.solAmt*su:null);return{pct:(r-1)*100,usd:cost!=null?cost*(r-1):null}}
+const fmtU=v=>{const a=Math.abs(v);return(v>=0?'+':'−')+'$'+(a>=1000?(a/1000).toFixed(2)+'K':a.toFixed(2))};
 const lvl=x=>{const u=x.usdAmt>0?x.usdAmt:(x.solAmt>0&&typeof SOLUSD==='number'&&SOLUSD>0?x.solAmt*SOLUSD:0);return u>0?Math.max(1,Math.min(5,Math.ceil(Math.log10(u+1)*2))):1};
 const money=x=>x.usdAmt>0?'$'+(x.usdAmt>=1000?(x.usdAmt/1000).toFixed(1)+'K':x.usdAmt.toFixed(2)):x.solAmt>0?socSol(x.solAmt):'—';
 const following=w=>{try{return!!w&&w!==socMe()&&SOC.fw.includes(w)}catch(x){return false}};
 const tokOf=m=>{try{return socTok(m)}catch(x){return null}};
-const TR=new Map();   /* signature -> trade (for the sheet) */
+const TR=new Map();window.__p2TR=TR;   /* signature -> trade (for the sheet) */
 try{if(typeof FEED==='object'&&FEED)FEED.MAXV=Math.max(FEED.MAXV||0,3000)}catch(x){}
 
 /* ---------- page shell: Big filter + heartbeat ---------- */
-const SP=window.SocialPage;window.SocialPage=function(){let h=SP.apply(this,arguments);try{
- const F=SOC.filt||'all';
+const SP=window.SocialPage;window.SocialPage=function(){if(!['profit','bigall'].includes(SOC.filt))SOC.filt='profit';let h=SP.apply(this,arguments);try{
+ const F=SOC.filt;
  h=h.replace('<div class="soc rf-soc">','<div class="soc rf-soc p2">');
- h=h.replace(/(<div class="rf-flt">[\s\S]*?)(<\/div><div id="soc-feed")/,(m,a,b)=>a+`<button type="button" data-soc="fset" data-v="big" class="${F==='big'?'on':''}">🐋 Big</button>`+b);
- h=h.replace('<div class="rf-flt">','<div class="p2-beat" id="p2-beat" aria-hidden="true"><svg viewBox="0 0 250 40" preserveAspectRatio="none"></svg><span class="p2-bt"><b><i></i><em>—</em></b><small>trades / min</small></span></div><div class="rf-flt">')}catch(x){}return h};
+ h=h.replace(/<div class="rf-flt">[\s\S]*?<\/div>(?=<div id="soc-feed")/,`<div class="rf-flt"><button type="button" data-soc="fset" data-v="profit" class="${F==='profit'?'on':''}">🔥 In profit</button><button type="button" data-soc="fset" data-v="bigall" class="${F==='bigall'?'on':''}">🐋 All big buys</button><span class="p2-min">buys ≥ ${MIN} SOL</span></div>`);
+ h=h.replace('<div class="rf-flt">','<div class="p2-beat" id="p2-beat" aria-hidden="true"><svg viewBox="0 0 250 40" preserveAspectRatio="none"></svg><span class="p2-bt"><b><i></i><em>—</em></b><small>big buys / min</small></span></div><div class="rf-flt">')}catch(x){}return h};
 
 /* ---------- one trade = one row ---------- */
-window.socItem=function(tr){TR.set(tr.signature,tr);const t=tokOf(tr.mint),buy=tr.side==='buy',big=BIG(tr),L=lvl(tr),k=e(tr.signature);
+window.socItem=function(tr){TR.set(tr.signature,tr);const t=tokOf(tr.mint),k=e(tr.signature),nmk=NM.get(tr.mint);
  let cn=0;try{cn=R18.n(tr.signature)||0}catch(x){}
- const tk=t?e(t.tick||t.name):e(short(tr.mint)),nm=tr.wallet?e(WP.name(tr.wallet)):'',fw=following(tr.wallet);
+ const tk=t?e(t.tick||t.name):nmk?e(nmk.symbol||nmk.name):e(short(tr.mint)),nm=tr.wallet?e(WP.name(tr.wallet)):'',fw=following(tr.wallet),whale=tr.solAmt>=5;
  const tav=(()=>{try{return prAv(tr.mint,t,46)}catch(x){return''}})(),wav=tr.wallet?(()=>{try{return socAv(tr.wallet,22)}catch(x){return''}})():'';
- return `<article class="sf-i p2r ${buy?'buy':'sell'}${big?' big':''}" data-p2="${k}" tabindex="0" role="button" aria-label="${buy?'Buy':'Sell'} ${tk}, ${e(money(tr))}${nm?', by '+nm:''}. Open trade">
+ const P=pnl(tr);
+ return `<article class="sf-i p2r buy${whale?' big':''}" data-p2="${k}" tabindex="0" role="button" aria-label="${tk} bought for ${e(money(tr))}${nm?' by '+nm:''}. Open trade">
  <span class="p2-ta"><span class="p2-t">${tav}</span>${wav?`<span class="p2-w">${wav}</span>`:''}</span>
- <span class="p2-b"><span class="p2-l1"><b>${tk}</b><i class="p2-sd ${buy?'b':'s'}">${buy?'BUY':'SELL'}</i>${big?'<i class="p2-big">🐋 BIG</i>':''}${cn?`<i class="p2-cn">💬 ${cn}</i>`:''}</span>
- <span class="p2-l2">${nm?`<span class="${fw?'fw':''}">${nm}</span> · `:''}<span class="p2-tm">${e(agoSec(tr.time))}</span></span></span>
- <span class="p2-a"><b class="${buy?'b':'s'}">${buy?'+':'−'}${e(money(tr))}</b><span class="p2-sz ${buy?'b':'s'}">${[1,2,3,4,5].map(i=>`<i class="${i<=L?'on':''}"></i>`).join('')}</span><small>${tr.solAmt>0&&tr.usdAmt>0?e(socSol(tr.solAmt)):''}</small></span></article>`};
+ <span class="p2-b"><span class="p2-l1"><b>${tk}</b>${whale?'<i class="p2-big">🐋 WHALE</i>':''}${cn?`<i class="p2-cn">💬 ${cn}</i>`:''}</span>
+ <span class="p2-l2">${nm?`<span class="${fw?'fw':''}">${nm}</span> · `:''}in <b class="p2-in">${e(money(tr))}</b> · <span class="p2-tm">${e(agoSec(tr.time))}</span></span></span>
+ <span class="p2-a"><b class="p2-pl ${P?(P.pct>=0?'b':'s'):'n'}">${P&&P.usd!=null?fmtU(P.usd):'—'}</b><small class="p2-pc ${P?(P.pct>=0?'b':'s'):''}">${P?(P.pct>=0?'+':'')+P.pct.toFixed(1)+'%':'live'}</small></span></article>`};
 
 /* ---------- Big filter: same list, only big trades (the feed's own filter only knows buy/sell) ---------- */
+const keep=x=>{if(!BIG(x))return false;if(SOC.filt!=='profit')return true;const P=pnl(x);return!P||P.pct>=-0.5};
 if(typeof window.socPaintFeed==='function'){const PF=window.socPaintFeed;window.socPaintFeed=function(){
- let r;try{if(SOC.filt==='big'){const T=SOC.tab==='global'?SOC.g:SOC.f,all=T.items;SOC.filt='all';T.items=(all||[]).filter(BIG);
-   try{r=PF.apply(this,arguments)}finally{T.items=all;SOC.filt='big';if(T.F)T.F.keys=new Set((all||[]).map(feedKey));const el=document.getElementById('soc-feed');if(el)el._tag=SOC.tab+'|big'}}
-  else r=PF.apply(this,arguments)}catch(x){r=PF.apply(this,arguments)}
+ let r;const T=SOC.tab==='global'?SOC.g:SOC.f,all=T&&T.items,f0=SOC.filt;
+ try{if(T&&Array.isArray(all)){SOC.filt='all';T.items=all.filter(keep);try{r=PF.apply(this,arguments)}finally{T.items=all;SOC.filt=f0;if(T.F)T.F.keys=new Set(all.map(feedKey));const el=document.getElementById('soc-feed');if(el)el._tag=SOC.tab+'|'+f0}}
+  else r=PF.apply(this,arguments)}catch(x){SOC.filt=f0;r=PF.apply(this,arguments)}
  beat();return r}}
 
 /* ---------- heartbeat (from the trades already loaded; nothing invented) ---------- */
-function beat(){try{const box=document.getElementById('p2-beat');if(!box)return;const T=SOC.tab==='global'?SOC.g:SOC.f,it=(T&&T.items)||[];
+function beat(){try{const box=document.getElementById('p2-beat');if(!box)return;const T=SOC.tab==='global'?SOC.g:SOC.f,it=((T&&T.items)||[]).filter(BIG);
  const now=Date.now()/1000,rec=it.filter(x=>x.time>0).slice(0,40).reverse();const svg=box.querySelector('svg'),num=box.querySelector('em');
  const m5=it.filter(x=>x.time>0&&now-x.time<=300).length;num.textContent=m5?String(Math.max(1,Math.round(m5/5))):'—';box.classList.toggle('quiet',!m5);
  if(!rec.length){svg.innerHTML='';return}
@@ -18571,15 +18623,18 @@ function lightbox(src,alt){if(!/^(https:|data:image\/|blob:)/.test(String(src||'
    when you have scrolled down it is counted in the "new trades ↑" pill instead, so nothing jumps under your thumb.
    Times on the rows ("4s", "2m") keep counting. Saturn's own 20 s RPC refresh keeps running as the fallback and fills anything missed. */
 const PWS={url:'wss://saturn-perps-staging.onrender.com/tokens/live',ws:null,retry:1000,timer:0,ping:0,sent:'',last:0,away:0};
-function pMints(){const T=SOC.tab==='global'?SOC.g:SOC.f,F=T&&T.F,s=new Set();
- if(SOC.tab==='global'){if(F)F.src.forEach(x=>{if(x.kind==='t'&&x.ref&&x.ref.id)s.add(x.ref.id)});((T&&T.items)||[]).slice(0,30).forEach(x=>{if(s.size<40)s.add(x.mint)})}
+function pMints(){const T=SOC.tab==='global'?SOC.g:SOC.f,s=new Set();   /* the tokens of the rows on screen: their live price drives the P&L */
+ document.querySelectorAll('#soc-feed .p2r[data-p2]').forEach(r=>{const tr=TR.get(r.dataset.p2);if(tr&&s.size<40&&r.offsetParent!==null)s.add(tr.mint)});
+ ((T&&T.items)||[]).filter(BIG).slice(0,40).forEach(x=>{if(s.size<40)s.add(x.mint)});
  return[...s].filter(m=>/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(m)).slice(0,40)}
 function pWallets(){try{return SOC.tab==='following'?SOC.fw.slice(0,40):[]}catch(x){return[]}}
 function pSub(){const w=PWS.ws;if(!w||w.readyState!==1)return;const m=pMints(),wl=pWallets(),k=m.join()+'|'+wl.join();if(k===PWS.sent)return;PWS.sent=k;
- try{w.send(JSON.stringify({type:'sub',mints:m,wallets:wl,trades:true}))}catch(x){}}
+ try{w.send(JSON.stringify({type:'sub',mints:m,wallets:wl,trades:true,bigMin:SOC.tab==='global'?MIN:0}))}catch(x){}}
 function pOpen(){if(PWS.ws||typeof WebSocket==='undefined')return;let ws;try{ws=new WebSocket(PWS.url)}catch(x){pRetry();return}PWS.ws=ws;PWS.sent='';
  ws.onopen=()=>{if(PWS.ws!==ws)return;pSub();clearInterval(PWS.ping);PWS.ping=setInterval(()=>{try{ws.readyState===1&&ws.send('{"type":"ping"}')}catch(x){}},25000);setTimeout(()=>{if(PWS.ws===ws)PWS.retry=1000},30000)};
- ws.onmessage=ev=>{if(PWS.ws!==ws||typeof ev.data!=='string'||ev.data.length>4096)return;let j;try{j=JSON.parse(ev.data)}catch(x){return}if(j&&j.type==='trade')pTrade(j)};
+ ws.onmessage=ev=>{if(PWS.ws!==ws||typeof ev.data!=='string'||ev.data.length>4096)return;let j;try{j=JSON.parse(ev.data)}catch(x){return}if(!j)return;
+  if(j.type==='tok'&&typeof j.mint==='string'&&Number(j.p)>0){LP.set(j.mint,Number(j.p));PDIRTY=1}
+  else if(j.type==='trade'){if(Number(j.p)>0){LP.set(j.mint,Number(j.p));PDIRTY=1}pTrade(j)}};
  ws.onerror=()=>{try{ws.close()}catch(x){}};
  ws.onclose=()=>{clearInterval(PWS.ping);if(PWS.ws!==ws)return;PWS.ws=null;pRetry()}}
 function pRetry(){clearTimeout(PWS.timer);const d=Math.round(PWS.retry*(0.8+Math.random()*0.4));PWS.retry=Math.min(PWS.retry*2,30000);PWS.timer=setTimeout(pCheck,d)}
@@ -18590,21 +18645,32 @@ setInterval(pCheck,2000);document.addEventListener('visibilitychange',pCheck);ad
 const B58=/^[1-9A-HJ-NP-Za-km-z]+$/;let pend=[],pT=0;
 function pTrade(j){if(!j||typeof j.sig!=='string'||!B58.test(j.sig)||typeof j.mint!=='string'||!B58.test(j.mint)||(j.side!=='buy'&&j.side!=='sell'))return;
  const sol=Number(j.sol),tok=Number(j.tok),su=typeof SOLUSD==='number'&&SOLUSD>0?SOLUSD:null;
- const it={signature:j.sig,mint:j.mint,side:j.side,solAmt:sol>0?sol:0,tokenAmt:tok>0?tok:0,usdAmt:sol>0&&su?sol*su:0,time:Number(j.at)>0?Math.floor(Number(j.at)):Math.floor(Date.now()/1000),wallet:typeof j.w==='string'&&B58.test(j.w)?j.w:null,live:true};
+ if(j.name||j.symbol)NM.set(j.mint,{name:j.name||'',symbol:j.symbol||''});
+ const it={pE:Number(j.p)>0?Number(j.p):0,signature:j.sig,mint:j.mint,side:j.side,solAmt:sol>0?sol:0,tokenAmt:tok>0?tok:0,usdAmt:sol>0&&su?sol*su:0,time:Number(j.at)>0?Math.floor(Number(j.at)):Math.floor(Date.now()/1000),wallet:typeof j.w==='string'&&B58.test(j.w)?j.w:null,live:true};
  pend.push(it);if(!pT)pT=setTimeout(pFlush,300)}
 function pFlush(){pT=0;const items=pend;pend=[];if(!items.length||S.view!=='social')return;
  const tab=SOC.tab==='global'?'g':'f',T=tab==='g'?SOC.g:SOC.f,F=T&&T.F;if(!F||T.st!=='ok')return;
- const fresh=[];for(const it of items){if(tab==='f'&&!(it.wallet&&SOC.fw.includes(it.wallet)))continue;const k=feedKey(it);if(F.pool.has(k))continue;F.pool.set(k,it);fresh.push(it)}
+ const fresh=[];for(const it of items){if(tab==='f'&&!(it.wallet&&SOC.fw.includes(it.wallet)))continue;if(!BIG(it))continue;const k=feedKey(it);if(F.pool.has(k))continue;F.pool.set(k,it);fresh.push(it)}
  if(!fresh.length)return;fresh.sort((a,b)=>b.time-a.time);
  const top=(window.scrollY||0)<160;
  const go=()=>{if(top||!T.items.length){T.items=fresh.concat(T.items.filter(x=>!fresh.some(f=>feedKey(f)===feedKey(x))));F.newN=0;const el=document.getElementById('soc-feed');if(el)el._tag=null;socPaintFeed()}
   else{F.newN=(F.newN||0)+fresh.length;F.pending=(F.pending||[]).concat(fresh);try{feedPaintPill(T)}catch(x){}}};
- try{socEnsureTokens(fresh.map(x=>x.mint)).then(go,go)}catch(x){go()}}
+ go();try{socEnsureTokens(fresh.map(x=>x.mint)).then(()=>{if(S.view==='social'&&(window.scrollY||0)<160){const el=document.getElementById('soc-feed');if(el)el._tag=null;socPaintFeed()}},()=>{})}catch(x){}}
 /* the "new trades ↑" pill: put the waiting live trades on top */
 document.addEventListener('click',ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest('#soc-new');if(!b)return;const T=SOC.tab==='global'?SOC.g:SOC.f,F=T&&T.F;if(!F||!F.pending||!F.pending.length)return;
  const keys=new Set(F.pending.map(feedKey));T.items=F.pending.sort((a,b)=>b.time-a.time).concat(T.items.filter(x=>!keys.has(feedKey(x))));F.pending=[]},true);
 /* live times on the rows */
 setInterval(()=>{if(S.view!=='social'||document.hidden)return;document.querySelectorAll('#soc-feed .p2r[data-p2]').forEach(r=>{const tr=TR.get(r.dataset.p2),el=r.querySelector('.p2-tm');if(tr&&el){const v=agoSec(tr.time);if(el.textContent!==v)el.textContent=v}})},5000);
+/* ---------- r163 the P&L moves: every second the visible rows recompute value from the live price; "In profit" hides rows that turn red ---------- */
+let PDIRTY=0;
+setInterval(()=>{if(S.view!=='social'||document.hidden)return;let hid=0,shown=0;
+ document.querySelectorAll('#soc-feed .p2r[data-p2]').forEach(r=>{const tr=TR.get(r.dataset.p2);if(!tr)return;const P=pnl(tr),a=r.querySelector('.p2-pl'),c=r.querySelector('.p2-pc');
+  if(P&&a&&c){const t1=P.usd!=null?fmtU(P.usd):'—',t2=(P.pct>=0?'+':'')+P.pct.toFixed(1)+'%',cls=P.pct>=0?'b':'s';
+   if(a.textContent!==t1){const up=a.dataset.v!=null&&P.usd!=null&&P.usd>Number(a.dataset.v);a.textContent=t1;a.className='p2-pl '+cls;a.classList.remove('p2-up','p2-dn');void a.offsetWidth;a.classList.add(up?'p2-up':'p2-dn');a.dataset.v=P.usd!=null?P.usd:''}
+   if(c.textContent!==t2){c.textContent=t2;c.className='p2-pc '+cls}}
+  const lose=SOC.filt==='profit'&&P&&P.pct<-0.5;r.classList.toggle('p2-loss',!!lose);lose?hid++:shown++});
+ const el=document.getElementById('soc-feed');if(el){let w=el.querySelector('.p2-wait');const none=!shown;if(none&&!w){w=document.createElement('div');w.className='p2-wait';w.innerHTML='<i></i>Watching for big buys in profit…';el.prepend(w)}else if(!none&&w)w.remove()}
+ if(PDIRTY){PDIRTY=0;pSub()}},1000);
 })();
 </script>
 <style id="saturn-r112-css">
