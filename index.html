@@ -17378,6 +17378,7 @@ html body .prf.tr2.tr3.tr3-on::after{display:block}
 .rc-more{font:600 12.5px/1 Inter,system-ui,sans-serif;color:#6f695f;padding:8px 0}
 .rc-note{font:500 12px/1.5 Inter,system-ui,sans-serif;color:#6f695f;margin-top:22px}
 .tr3-new{display:block;width:100%;margin:8px 0 2px;padding:11px 12px;border:0;border-radius:12px;background:#1a2a1f;color:#4fd08a;font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.tr3-new[hidden]{display:none}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -18838,7 +18839,7 @@ const X=window.__satTr164,e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':
 const B58=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const curW=()=>{if(typeof S==='undefined'||S.view!=='profile-u')return'';let w='';try{w=decodeURIComponent((location.hash.match(/^#\/u\/([^/?#]+)/)||[])[1]||'')}catch(x){}return B58.test(w)?w:''};
 const PP=window.ProfilePage;
-window.ProfilePage=function(w){let h=PP.apply(this,arguments);if(typeof h!=='string'||h.indexOf('class="prf tr2')<0)return h;T.open=true;T.filt='all';SNAP.k='';
+window.ProfilePage=function(w){let h=PP.apply(this,arguments);if(typeof h!=='string'||h.indexOf('class="prf tr2')<0)return h;if(SNAP.w!==w||Date.now()-(SNAP.at||0)>120000){T.open=true;T.filt='all';SNAP.k=''}SNAP.w=w;SNAP.at=Date.now();
  h=h.replace('class="prf tr2','class="prf tr2 tr3').replace('<div class="pr-fl">','<div id="tr3-lead" class="tr3-lead"></div><div class="pr-fl">').replace('<div id="pr-bal">','<div id="tr3"></div><div id="pr-bal">');return h};
 const T={range:'30d',open:true,filt:'all',px:new Map(),last:null};
 const su=()=>typeof SOLUSD==='number'&&SOLUSD>0?SOLUSD:null;
@@ -18899,16 +18900,16 @@ function row(o,isOpen){const t=o.t,nm=t?e(t.tick&&t.tick!=='?'?t.tick:t.name):e(
 /* r172 calm lists: the Open/Closed list keeps its rows and order while you look at it. Older positions found while history loads are added
    at the bottom; positions newer than what is on screen wait behind a "N new" button (an active trader closes a token every few seconds,
    so the list used to keep reshuffling). Open rows still re-value live; tap the button (or switch Open/Closed) to take the new ones in. */
-const SNAP={k:'',order:[],newest:0};
+const SNAP={k:'',order:[],newest:0,w:'',at:0};
 function spanTxt(s){s=Math.max(0,s);return s<90?Math.round(s)+'s':s<5400?Math.round(s/60)+'m':s<172800?Math.round(s/3600)+'h':Math.round(s/86400)+'d'}
 function snap(list,key){if(SNAP.k!==key){SNAP.k=key;SNAP.order=list.map(o=>o.k);SNAP.newest=list.reduce((m,o)=>Math.max(m,o.at||0),0);return{shown:list,pend:0}}
  const by=new Map(list.map(o=>[o.k,o])),have=new Set(SNAP.order);let pend=0;
  for(const o of list){if(have.has(o.k))continue;if((o.at||0)<=SNAP.newest){SNAP.order.push(o.k);have.add(o.k)}else pend++}
  return{shown:SNAP.order.map(k=>by.get(k)).filter(Boolean),pend}}
-function positions(M){const list=T.open?M.open:M.closed;let body;const w=curW(),S1=snap(list,w+'|'+(T.open?'o':'c'));
+function positions(M){SNAP.at=Date.now();const list=T.open?M.open:M.closed;let body;const w=curW(),S1=snap(list,w+'|'+(T.open?'o':'c'));
  if(T.filt==='perps')body='<div class="tr3-em">No perp positions from this wallet on Saturn yet</div>';
  else if(T.filt==='predictions')body='<div class="tr3-em">No predictions from this wallet on Saturn yet</div>';
- else body=(S1.pend?`<button type="button" class="tr3-new" data-tr3n="1">↑ ${S1.pend} new ${T.open?'open':'closed'} position${S1.pend===1?'':'s'} · show</button>`:'')+(S1.shown.length?S1.shown.map(o=>row(o,T.open)).join(''):`<div class="tr3-em">${T.open?'No open positions right now':'No closed positions yet'}</div>`);
+ else body=`<button type="button" class="tr3-new" data-tr3n="1"${S1.pend?'':' hidden'}>↑ ${S1.pend} new ${T.open?'open':'closed'} position${S1.pend===1?'':'s'} · show</button>`+(S1.shown.length?S1.shown.map(o=>row(o,T.open)).join(''):`<div class="tr3-em">${T.open?'No open positions right now':'No closed positions yet'}</div>`);
  return `<div class="tr3-sh"><h3>Positions</h3><span class="tr3-oc"><button type="button" data-tr3o="1" class="${T.open?'on':''}">Open ${M.open.length}</button><button type="button" data-tr3o="0" class="${T.open?'':'on'}">Closed ${M.closed.length}</button></span></div>
  <div class="tr3-chips">${[['all','All'],['tokens','Tokens'],['perps','Perps'],['predictions','Predictions']].map(([k,l])=>`<button type="button" data-tr3f="${k}" class="${T.filt===k?'on':''}">${l}</button>`).join('')}</div><div class="tr3-rows">${body}</div>`}
 document.addEventListener('click',ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest('[data-tr3n]');if(!b)return;ev.preventDefault();SNAP.k='';const w=curW();if(w)paint(w)});
@@ -18930,10 +18931,26 @@ function paint(w){const box=document.getElementById('tr3'),ld=document.getElemen
  if(P.te){setBal(null);box.innerHTML=`<div class="tr3-em">This wallet’s trades couldn’t be loaded right now. <button type="button" class="tr3-rt" data-soc="reload" data-w="${e(w)}">Retry</button></div>`;return}
  if(prHide(w,'p')){setBal(null);box.innerHTML='<div class="tr3-em">This trader keeps P&amp;L private.</div>';return}
  const M=model(w);if(!M)return;T.last=M;
- const old=new Map();box.querySelectorAll('.tr3-ro [data-v]').forEach(b=>{const k=b.closest('.tr3-ro').dataset.k;if(b.dataset.v!=='')old.set(k,Number(b.dataset.v))});
  setBal(M);
- box.innerHTML=`<section class="tr3-sec">${score(M)}</section><section class="tr3-sec">${chart(M)}</section><section class="tr3-sec">${positions(M)}</section>`;
- box.querySelectorAll('.tr3-ro [data-v]').forEach(b=>{const k=b.closest('.tr3-ro').dataset.k,v=b.dataset.v===''?null:Number(b.dataset.v);if(v!=null&&old.has(k)&&old.get(k)!==v)roll(b,old.get(k),v)});
+ /* r173: update in place. The page used to rebuild every row (pictures included) on each price tick / live trade, which made the list
+    flash and look like it was reshuffling. Now rows that are already on screen only get their numbers changed. */
+ let s1=box.querySelector('#tr3-s1'),s2=box.querySelector('#tr3-s2'),s3=box.querySelector('#tr3-s3');
+ if(!s1||!s2||!s3){box.innerHTML='<section class="tr3-sec" id="tr3-s1"></section><section class="tr3-sec" id="tr3-s2"></section><section class="tr3-sec" id="tr3-s3"></section>';s1=box.querySelector('#tr3-s1');s2=box.querySelector('#tr3-s2');s3=box.querySelector('#tr3-s3')}
+ const h1=score(M);if(s1._h!==h1){s1.innerHTML=h1;s1._h=h1}
+ const h2=chart(M);if(s2._h!==h2){s2.innerHTML=h2;s2._h=h2}
+ const tmp=document.createElement('div');tmp.innerHTML=positions(M);
+ const nr=[...tmp.querySelectorAll('.tr3-ro')],cr=[...s3.querySelectorAll('.tr3-ro')],np=tmp.querySelector('.tr3-new'),cp=s3.querySelector('.tr3-new');
+ const same=s3.firstChild&&nr.length===cr.length&&nr.every((r,i)=>r.dataset.k===cr[i].dataset.k)&&!!np===!!cp&&!tmp.querySelector('.tr3-em')===!s3.querySelector('.tr3-em');
+ if(!same){s3.innerHTML=tmp.innerHTML}
+ else{const sh0=s3.querySelector('.tr3-sh'),sh1=tmp.querySelector('.tr3-sh');if(sh0&&sh1&&sh0.innerHTML!==sh1.innerHTML)sh0.innerHTML=sh1.innerHTML;
+  const ch0=s3.querySelector('.tr3-chips'),ch1=tmp.querySelector('.tr3-chips');if(ch0&&ch1&&ch0.innerHTML!==ch1.innerHTML)ch0.innerHTML=ch1.innerHTML;
+  if(cp&&np){if(cp.textContent!==np.textContent)cp.textContent=np.textContent;cp.hidden=np.hidden}
+  nr.forEach((n,i)=>{const c=cr[i],ns=n.querySelector('.tr3-m small'),cs=c.querySelector('.tr3-m small');if(ns&&cs&&cs.textContent!==ns.textContent)cs.textContent=ns.textContent;
+   const nb=n.querySelector('.tr3-x b'),cb=c.querySelector('.tr3-x b'),nsm=n.querySelector('.tr3-x small'),csm=c.querySelector('.tr3-x small');
+   if(nb&&cb&&nb.dataset.v!==cb.dataset.v){const o=cb.dataset.v===''?null:Number(cb.dataset.v),v=nb.dataset.v===''?null:Number(nb.dataset.v);cb.className=nb.className;cb.dataset.v=nb.dataset.v;if(o!=null&&v!=null)roll(cb,o,v);else cb.textContent=nb.textContent}
+   if(nsm&&csm&&(csm.textContent!==nsm.textContent||csm.className!==nsm.className)){csm.textContent=nsm.textContent;csm.className=nsm.className}
+   const nm0=n.querySelector('.tr3-m b'),cm0=c.querySelector('.tr3-m b');if(nm0&&cm0&&cm0.textContent!==nm0.textContent)cm0.textContent=nm0.textContent;
+   const nt=n.querySelector('.tr3-tk img'),ct=c.querySelector('.tr3-tk img');if(nt&&!ct){c.querySelector('.tr3-tk').innerHTML=n.querySelector('.tr3-tk').innerHTML}})}
  try{X.lSub&&X.lSub()}catch(x){}}
 /* the message button sits in the button row (same button, moved; its mutual-follow check keeps working) */
 setInterval(()=>{const m=document.querySelector('.prf.tr3 .pr-nm .pr-msg'),row=document.querySelector('.prf.tr3 #cp-row .cp-row');if(m&&row)row.appendChild(m)},500);
