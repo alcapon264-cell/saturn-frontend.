@@ -18199,21 +18199,23 @@ function lapply(){try{if(typeof S==='undefined'||!Array.isArray(S.items))return 
  for(const [k,l] of LV)if(now-l.at>LIVE_TTL)LV.delete(k);return ch}catch(x){return false}}
 const RL2=window.renderList;window.renderList=function(){lapply();return RL2.apply(this,arguments)};
 function lpaint(){if(lpend)return;lpend=true;const w=Math.max(0,450-(Date.now()-lastPaint));setTimeout(()=>{lpend=false;lastPaint=Date.now();try{if(typeof S!=='undefined'&&S.view==='home'&&!document.hidden&&lapply())renderList()}catch(x){}},w)}
-function lmsg(d){if(typeof d!=='string'||d.length>65536)return;const m=/"mint"\s*:\s*"([1-9A-HJ-NP-Za-km-z]{32,44})"/.exec(d);if(!m||!LM.has(m[1]))return;
- let j;try{j=JSON.parse(d)}catch(x){return}if(!j||j.mint!==m[1])return;
- if(j.quoteMint&&j.quoteMint!=='So11111111111111111111111111111111111111112')return;
- const ps=Number(j.price),su=lsol();if(!(ps>0)||!Number.isFinite(ps)||!su)return;
+/* r158: the prices now come from Saturn's own relay (/tokens/live on Saturn's server), which keeps the upstream trade streams open on the
+   server and sends this phone ONLY the trades of the tokens on screen (so the phone no longer downloads every Pump.fun trade). */
+const TOK_WS='wss://saturn-perps-staging.onrender.com/tokens/live';let lsent='';
+function lsub(){if(!lws||lws.readyState!==1)return;const k=[...LM].sort().join(',');if(k===lsent)return;lsent=k;try{lws.send(JSON.stringify({type:'sub',mints:[...LM].slice(0,40)}))}catch(x){}}
+function lmsg(d){if(typeof d!=='string'||d.length>8192)return;let j;try{j=JSON.parse(d)}catch(x){return}if(!j||j.type!=='tok'||typeof j.mint!=='string'||!LM.has(j.mint))return;
+ const ps=Number(j.p),su=lsol();if(!(ps>0)||!Number.isFinite(ps)||!su)return;
  LV.set(j.mint,{p:ps*su,at:Date.now()});lpaint()}
-function lopen(){if(lws||typeof WebSocket==='undefined')return;let url;try{url=PUMP_CONFIG.STREAM_URL}catch(x){return}if(!url)return;
+function lopen(){if(lws||typeof WebSocket==='undefined')return;const url=TOK_WS;lsent='';
  let ws;try{ws=new WebSocket(url)}catch(x){lretry();return}lws=ws;lwsState='connecting';ws.binaryType='arraybuffer';
- ws.onopen=()=>{if(lws!==ws)return;lwsState='live';setTimeout(()=>{if(lws===ws)lwsRetry=1000},30000)};
+ ws.onopen=()=>{if(lws!==ws)return;lwsState='live';lsub();clearInterval(ws.__pg);ws.__pg=setInterval(()=>{try{ws.readyState===1&&ws.send('{"type":"ping"}')}catch(x){}},25000);setTimeout(()=>{if(lws===ws)lwsRetry=1000},30000)};
  ws.onmessage=ev=>{if(lws!==ws)return;let d=ev.data;try{if(d instanceof ArrayBuffer){if(d.byteLength>65536)return;d=new TextDecoder().decode(d)}else if(typeof d!=='string')return}catch(x){return}lmsg(d)};
  ws.onerror=()=>{try{ws.close()}catch(x){}};
- ws.onclose=()=>{if(lws!==ws)return;lws=null;lwsState='idle';lretry()}}
+ ws.onclose=()=>{clearInterval(ws.__pg);if(lws!==ws)return;lws=null;lwsState='idle';lretry()}}
 function lretry(){clearTimeout(lwsTimer);const d=Math.round(lwsRetry*(0.8+Math.random()*0.4));lwsRetry=Math.min(lwsRetry*2,30000);lwsTimer=setTimeout(lcheck,d)}
-function lclose(){clearTimeout(lwsTimer);const w=lws;lws=null;lwsState='idle';if(w){try{w.onclose=w.onmessage=w.onerror=w.onopen=null;w.close(1000,'discover closed')}catch(x){}}}
+function lclose(){clearTimeout(lwsTimer);const w=lws;lws=null;lwsState='idle';if(w){clearInterval(w.__pg);try{w.onclose=w.onmessage=w.onerror=w.onopen=null;w.close(1000,'discover closed')}catch(x){}}}
 function lcheck(){try{const want=typeof S!=='undefined'&&S.view==='home'&&!document.hidden&&!!document.querySelector('.rf-home #grid .dcx.tk2');
- if(want){awayAt=0;LM=lmints();if(LM.size&&!lws)lopen()}else{if(!awayAt)awayAt=Date.now();if(lws&&Date.now()-awayAt>10000)lclose()}}catch(x){}}
+ if(want){awayAt=0;LM=lmints();if(LM.size&&!lws)lopen();else lsub()}else{if(!awayAt)awayAt=Date.now();if(lws&&Date.now()-awayAt>10000)lclose()}}catch(x){}}
 setInterval(lcheck,2000);document.addEventListener('visibilitychange',lcheck);
 window.__satTk2Live=()=>({state:lwsState,watching:LM.size,live:LV.size});
 })();
