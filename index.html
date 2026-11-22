@@ -18057,7 +18057,9 @@ const DC=window.DiscoverCard;
 const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fin=v=>v!=null&&v!==''&&Number.isFinite(Number(v));
 const k=v=>{v=Number(v);const a=Math.abs(v),f=(x,u)=>(Math.abs(x)>=100?x.toFixed(0):x.toFixed(1))+u;return a>=1e9?f(v/1e9,'B'):a>=1e6?f(v/1e6,'M'):a>=1e3?f(v/1e3,'K'):String(Math.round(v))};
-const money=v=>{if(!fin(v))return'—';v=Number(v);const a=Math.abs(v);return '$'+(a>=1e9?(v/1e9).toFixed(1)+'B':a>=1e6?(v/1e6).toFixed(1)+'M':a>=1e3?(v/1e3).toFixed(1)+'K':v.toFixed(0))};
+/* r155: market cap with 4 significant digits ($295.9K, $3.204M, $57.62K) so real moves are visible instead of hidden by rounding */
+const p4=x=>{const a=Math.abs(x);return a>=100?x.toFixed(1):a>=10?x.toFixed(2):x.toFixed(3)};
+const money=v=>{if(!fin(v))return'—';v=Number(v);const a=Math.abs(v);return '$'+(a>=1e9?p4(v/1e9)+'B':a>=1e6?p4(v/1e6)+'M':a>=1e3?p4(v/1e3)+'K':v.toFixed(0))};
 const tx24=t=>{const o=(t.txns&&t.txns.h24)||null;if(!o)return null;const n=(Number(o.buys)||0)+(Number(o.sells)||0);return n>0?n:null};
 const U='<svg class="tk2-u" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6z"/></svg>';
 const X='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 3h3l-7 8 8 10h-6l-5-6-5 6H3l7-8-8-10h6l4 5z"/></svg>';
@@ -18147,6 +18149,10 @@ const MV0=movers;movers=function(){const m=document.getElementById('tk2-mv'),pos
 document.addEventListener('click',ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest('.tk2-w');if(!b||RM())return;setTimeout(()=>{document.querySelectorAll('.tk2-w[data-id="'+(window.CSS&&CSS.escape?CSS.escape(b.dataset.id):b.dataset.id)+'"]').forEach(x=>{x.classList.remove('tk2-spop');void x.offsetWidth;x.classList.add('tk2-spop')})},0)});
 document.addEventListener('click',ev=>{if(ev.target&&ev.target.closest&&ev.target.closest('.tk2-w'))setTimeout(stars,0)});
 document.documentElement.classList.add('tk2-on');
+/* r155: visible Solana rows are re-read every ~4 s instead of every 8 s. This only calls Saturn's existing Discover refresh
+   (SatDiscoverLive.tick: same DexScreener batch call, same guards: Discover open, tab visible, no search, its own busy flag);
+   when that refresh is backing off after a failure, nothing extra is sent. */
+setInterval(()=>{try{const D=window.SatDiscoverLive;if(!D||document.hidden||D.fail)return;if(!document.querySelector('.rf-home #grid .dcx.tk2'))return;if(Date.now()-(D.last||0)>3500)D.tick()}catch(x){}},4000);
 })();
 </script>
 <style id="saturn-r112-css">
