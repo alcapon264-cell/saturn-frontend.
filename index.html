@@ -17194,6 +17194,78 @@ html body .prf.tr2 #pr-bal .pr-bal .pb-r:first-of-type .pb-k,html body .prf.tr2 
 html body .prf.tr2 #pr-bal .pr-bal .pb-r:not(.pb-t) b{font-size:30px!important;font-weight:800!important}
 html body .prf.tr2 #pr-bal .pr-bal .pb-h+.pb-r .pb-k{display:block!important;font-size:11px!important;margin:0 0 4px!important}
 html body .prf.tr2 #pr-perf{padding-top:0!important;margin-top:8px!important}
+</style>
+<style id="saturn-r160-pulse-css">
+/* r160 Pulse redesign — no border lines */
+html body .soc.p2{position:relative;isolation:isolate}
+html body .soc.p2::before{content:"";position:absolute;left:-40px;right:-40px;top:-40px;height:320px;z-index:-1;pointer-events:none;background:radial-gradient(55% 45% at 25% 40%,#4fd08a12,transparent 70%),radial-gradient(40% 40% at 90% 20%,#e8b95a18,transparent 70%)}
+html body .soc.p2 *{border-color:transparent!important}
+html body .soc.p2 .rf-ph,html body .soc.p2 .rf-flt,html body .soc.p2 .rf-seg{border:0!important;box-shadow:none}
+html body .soc.p2 .rf-ph::after,html body .soc.p2 .rf-flt::after,html body .soc.p2 .rf-ph::before{display:none!important}
+.p2-beat{display:flex;align-items:center;gap:12px;margin:12px 0 2px}
+.p2-beat svg{flex:1;height:40px;min-width:0}
+.p2-bt{flex:none;text-align:right;line-height:1.1}
+.p2-bt b{display:flex;align-items:center;justify-content:flex-end;gap:6px;font:800 15px Inter,system-ui,sans-serif;color:#f1ebdf}
+.p2-bt b i{width:8px;height:8px;border-radius:50%;background:#4fd08a;box-shadow:0 0 0 4px #4fd08a26,0 0 10px #4fd08a}
+.p2-bt em{font-style:normal}
+.p2-bt small{font:600 11px Inter,system-ui,sans-serif;color:#8f887c}
+.p2-beat.quiet .p2-bt b i{background:#8f887c;box-shadow:none}
+html body .soc.p2 .rf-flt{display:flex!important;gap:8px!important;margin:10px 0 8px!important;padding:0!important;overflow-x:auto;scrollbar-width:none}
+html body .soc.p2 .rf-flt button{flex:none;white-space:nowrap;font:700 13px/1 Inter,system-ui,sans-serif!important;padding:9px 14px!important;border-radius:12px!important;background:#171512!important;color:#8f887c!important;border:0!important;box-shadow:none!important}
+html body .soc.p2 .rf-flt button::after{display:none!important}
+html body .soc.p2 .rf-flt button.on{background:#e8b95a!important;color:#1a1408!important}
+/* rows */
+html body .soc.p2 #soc-rows{margin:0 -20px}
+html body .soc.p2 #soc-rows>.sf-i.p2r,html body .soc.p2 .sf-i.p2r{display:flex!important;align-items:center;gap:12px;padding:13px 20px!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;cursor:pointer;-webkit-tap-highlight-color:transparent;contain-intrinsic-size:auto 76px}
+html body .soc.p2 #soc-rows>.sf-i.p2r:nth-child(even){background:#100e0c!important}
+html body .soc.p2 #soc-rows>.sf-i.p2r.big{background:linear-gradient(100deg,#2c2312,#120f0c 75%)!important}
+html body .soc.p2 #soc-rows>.sf-i.p2r:active{filter:brightness(1.3)}
+html body .soc.p2 .sf-i.p2r::before,html body .soc.p2 .sf-i.p2r::after{display:none!important}
+.p2r{animation:p2In .9s ease-out}
+@keyframes p2In{0%{opacity:0;transform:translateY(-6px)}30%{opacity:1;transform:none}}
+.p2-ta{position:relative;width:46px;height:46px;flex:none}
+.p2-t,.p2-t>*{display:grid!important;place-items:center;text-align:center;line-height:1;width:46px!important;height:46px!important;border-radius:14px!important;overflow:hidden;font-size:16px}
+.p2-t img{object-fit:cover}
+.p2-w{position:absolute;right:-6px;bottom:-6px;width:22px;height:22px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #0b0a09;background:#2b2d36}
+.p2-w>*{width:22px!important;height:22px!important;border-radius:50%!important;font-size:9px!important}
+.p2-b{flex:1;min-width:0;display:flex;flex-direction:column}
+.p2-l1{display:flex;align-items:center;gap:7px;min-width:0}
+.p2-l1 b{font:800 15.5px/1.2 Inter,system-ui,sans-serif;color:#f1ebdf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.p2-l1 i{flex:none;font-style:normal;font:800 9.5px/1 Inter,system-ui,sans-serif;letter-spacing:.07em;padding:4px 6px;border-radius:6px}
+.p2-sd.b{background:#1f3a22;color:#a8e89a}.p2-sd.s{background:#3a1d1a;color:#f4a08f}
+.p2-big{background:#e8b95a;color:#1a1408}
+.p2-cn{background:#ffffff0f;color:#cfc8ba;letter-spacing:0!important}
+.p2-l2{margin-top:4px;font:600 12.5px/1.2 Inter,system-ui,sans-serif;color:#8f887c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p2-l2 .fw{color:#e8b95a;font-weight:700}
+.p2-a{flex:none;min-width:84px;text-align:right;display:flex;flex-direction:column;align-items:flex-end}
+.p2-a b{font:800 16px/1.1 Inter,system-ui,sans-serif;letter-spacing:-.2px;font-variant-numeric:tabular-nums}
+.p2-a b.b{color:#4fd08a}.p2-a b.s{color:#ff6b6b}
+.p2-sz{display:flex;gap:2px;margin-top:6px}.p2-sz i{width:7px;height:4px;border-radius:2px;background:#24201a}
+.p2-sz.b i.on{background:#4fd08a}.p2-sz.s i.on{background:#ff6b6b}
+.p2-a small{margin-top:4px;font:600 11px/1 Inter,system-ui,sans-serif;color:#6f695f}
+.p2-end{padding:6px 0;color:#6f695f;font-size:13px}
+/* sheet */
+html.p2-lock,html.p2-lock body{overflow:hidden}
+.p2-sh{position:fixed;inset:0;z-index:9999}
+.p2-ov{position:absolute;inset:0;background:#000;opacity:0;transition:opacity .2s}
+.p2-pn{position:absolute;left:0;right:0;bottom:0;max-height:86vh;overflow:auto;background:#171512;border-radius:26px 26px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .22s cubic-bezier(.2,.8,.2,1);overscroll-behavior:contain}
+.p2-sh.on .p2-ov{opacity:.62}.p2-sh.on .p2-pn{transform:none}
+@media(min-width:700px){.p2-pn{left:50%;right:auto;width:480px;margin-left:-240px}}
+.p2-grab{display:block;width:44px;height:5px;border-radius:3px;background:#3a352d;margin:4px auto 12px;border:0;padding:0}
+.p2-sum .p2r{display:flex;align-items:center;gap:12px;padding:0 0 12px;cursor:default;animation:none}
+.p2-sum .p2-w{box-shadow:0 0 0 3px #171512}
+.p2-cmh{font:800 13px Inter,system-ui,sans-serif;color:#8f887c;margin:6px 0 8px}
+.p2-cm{min-height:40px}
+.p2-cm *{border-color:transparent!important}
+.p2-cm input,.p2-cm textarea{background:#0f0d0b!important;border:0!important;border-radius:14px!important;color:#f1ebdf}
+.p2-cm button{border:0!important}
+.p2-act{display:flex;gap:8px;margin-top:14px}
+.p2-act>*{height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;font:800 14.5px Inter,system-ui,sans-serif;text-decoration:none;border:0;cursor:pointer;white-space:nowrap}
+.p2-cp{flex:1.3;background:linear-gradient(180deg,#f0c870,#e0a94a);color:#1a1408}
+.p2-op{flex:1;background:#1f1c18;color:#f1ebdf;padding:0 10px;overflow:hidden;text-overflow:ellipsis}
+.p2-ic{width:50px;flex:none;background:#1f1c18;color:#a49d8f}
+.p2-ic>*{border-radius:50%!important}
+@media(prefers-reduced-motion:reduce){.p2r{animation:none}.p2-pn,.p2-ov{transition:none}}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -18313,6 +18385,99 @@ function tags(w){try{const nm=document.querySelector('.prf.tr2 .pr-nm');if(!nm)r
  const html=(last?'<span class="'+(Date.now()/1000-last<3600?'g':'')+'">Active '+ago(last)+'</span>':'')+'<span>Solana</span>';if(el.innerHTML!==html)el.innerHTML=html}catch(e){}}
 if(typeof window.socPaintProfile==='function'){const SP=window.socPaintProfile;window.socPaintProfile=function(w){const r=SP.apply(this,arguments);tags(w);return r}}
 const LP=window.socLoadProfile;if(typeof LP==='function')window.socLoadProfile=function(w){const r=LP.apply(this,arguments);setTimeout(()=>tags(w),0);return r};
+})();
+</script>
+<script id="saturn-r160-pulse">
+/* ===== Saturn r160 — Pulse redesign (additive; presentation + endless scroll) =====
+   Same live trades as before (same sources, same parsing, same comments, same copy-trade sheet). What changes:
+   - each trade is one clean row: the token picture leads, the trader's avatar sits in its corner, BUY/SELL tag, wallet · time,
+     the amount on the right with a 5-dot size meter, a 💬 count when the trade has comments; big trades (>= $100 or >= 1 SOL) get a gold row + 🐋 BIG
+   - a heartbeat line under the title: one spike per trade currently loaded (up = buy, down = sell, height = size) and a trades-per-minute count
+     from the trades' own on-chain times; a "🐋 Big" filter next to All / Buys / Sells
+   - tapping a trade opens a bottom sheet: the trade, its comments with the comment box (Saturn's existing comments), Copy this trader
+     (Saturn's existing copy-trade sheet), Open token, Trader, Tx ↗
+   - endless scrolling: older trades keep loading as you scroll (up to 3000 rows instead of 400); a failed page retries by itself with back-off.
+     There is no "Load more" / "Try again" button anywhere. */
+(function(){'use strict';
+if(window.__satR160||typeof window.SocialPage!=='function'||typeof window.socItem!=='function')return;window.__satR160=1;
+const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const BIG=x=>(x.usdAmt>=100)||(x.solAmt>=1);
+const lvl=x=>{const u=x.usdAmt>0?x.usdAmt:(x.solAmt>0&&typeof SOLUSD==='number'&&SOLUSD>0?x.solAmt*SOLUSD:0);return u>0?Math.max(1,Math.min(5,Math.ceil(Math.log10(u+1)*2))):1};
+const money=x=>x.usdAmt>0?'$'+(x.usdAmt>=1000?(x.usdAmt/1000).toFixed(1)+'K':x.usdAmt.toFixed(2)):x.solAmt>0?socSol(x.solAmt):'—';
+const following=w=>{try{return!!w&&w!==socMe()&&SOC.fw.includes(w)}catch(x){return false}};
+const tokOf=m=>{try{return socTok(m)}catch(x){return null}};
+const TR=new Map();   /* signature -> trade (for the sheet) */
+try{if(typeof FEED==='object'&&FEED)FEED.MAXV=Math.max(FEED.MAXV||0,3000)}catch(x){}
+
+/* ---------- page shell: Big filter + heartbeat ---------- */
+const SP=window.SocialPage;window.SocialPage=function(){let h=SP.apply(this,arguments);try{
+ const F=SOC.filt||'all';
+ h=h.replace('<div class="soc rf-soc">','<div class="soc rf-soc p2">');
+ h=h.replace(/(<div class="rf-flt">[\s\S]*?)(<\/div><div id="soc-feed")/,(m,a,b)=>a+`<button type="button" data-soc="fset" data-v="big" class="${F==='big'?'on':''}">🐋 Big</button>`+b);
+ h=h.replace('<div class="rf-flt">','<div class="p2-beat" id="p2-beat" aria-hidden="true"><svg viewBox="0 0 250 40" preserveAspectRatio="none"></svg><span class="p2-bt"><b><i></i><em>—</em></b><small>trades / min</small></span></div><div class="rf-flt">')}catch(x){}return h};
+
+/* ---------- one trade = one row ---------- */
+window.socItem=function(tr){TR.set(tr.signature,tr);const t=tokOf(tr.mint),buy=tr.side==='buy',big=BIG(tr),L=lvl(tr),k=e(tr.signature);
+ let cn=0;try{cn=R18.n(tr.signature)||0}catch(x){}
+ const tk=t?e(t.tick||t.name):e(short(tr.mint)),nm=tr.wallet?e(WP.name(tr.wallet)):'',fw=following(tr.wallet);
+ const tav=(()=>{try{return prAv(tr.mint,t,46)}catch(x){return''}})(),wav=tr.wallet?(()=>{try{return socAv(tr.wallet,22)}catch(x){return''}})():'';
+ return `<article class="sf-i p2r ${buy?'buy':'sell'}${big?' big':''}" data-p2="${k}" tabindex="0" role="button" aria-label="${buy?'Buy':'Sell'} ${tk}, ${e(money(tr))}${nm?', by '+nm:''}. Open trade">
+ <span class="p2-ta"><span class="p2-t">${tav}</span>${wav?`<span class="p2-w">${wav}</span>`:''}</span>
+ <span class="p2-b"><span class="p2-l1"><b>${tk}</b><i class="p2-sd ${buy?'b':'s'}">${buy?'BUY':'SELL'}</i>${big?'<i class="p2-big">🐋 BIG</i>':''}${cn?`<i class="p2-cn">💬 ${cn}</i>`:''}</span>
+ <span class="p2-l2">${nm?`<span class="${fw?'fw':''}">${nm}</span> · `:''}${e(agoSec(tr.time))}</span></span>
+ <span class="p2-a"><b class="${buy?'b':'s'}">${buy?'+':'−'}${e(money(tr))}</b><span class="p2-sz ${buy?'b':'s'}">${[1,2,3,4,5].map(i=>`<i class="${i<=L?'on':''}"></i>`).join('')}</span><small>${tr.solAmt>0&&tr.usdAmt>0?e(socSol(tr.solAmt)):''}</small></span></article>`};
+
+/* ---------- Big filter: same list, only big trades (the feed's own filter only knows buy/sell) ---------- */
+if(typeof window.socPaintFeed==='function'){const PF=window.socPaintFeed;window.socPaintFeed=function(){
+ let r;try{if(SOC.filt==='big'){const T=SOC.tab==='global'?SOC.g:SOC.f,all=T.items;SOC.filt='all';T.items=(all||[]).filter(BIG);
+   try{r=PF.apply(this,arguments)}finally{T.items=all;SOC.filt='big';if(T.F)T.F.keys=new Set((all||[]).map(feedKey));const el=document.getElementById('soc-feed');if(el)el._tag=SOC.tab+'|big'}}
+  else r=PF.apply(this,arguments)}catch(x){r=PF.apply(this,arguments)}
+ beat();return r}}
+
+/* ---------- heartbeat (from the trades already loaded; nothing invented) ---------- */
+function beat(){try{const box=document.getElementById('p2-beat');if(!box)return;const T=SOC.tab==='global'?SOC.g:SOC.f,it=(T&&T.items)||[];
+ const now=Date.now()/1000,rec=it.filter(x=>x.time>0).slice(0,40).reverse();const svg=box.querySelector('svg'),num=box.querySelector('em');
+ const m5=it.filter(x=>x.time>0&&now-x.time<=300).length;num.textContent=m5?String(Math.max(1,Math.round(m5/5))):'—';box.classList.toggle('quiet',!m5);
+ if(!rec.length){svg.innerHTML='';return}
+ const t0=rec[0].time,t1=Math.max(rec[rec.length-1].time,t0+1);let d='M0 20';
+ rec.forEach(x=>{const px=8+(x.time-t0)/(t1-t0)*232,h=Math.min(1,lvl(x)/5)*17,up=x.side==='buy';d+=` L${(px-4).toFixed(1)} 20 L${(px-1.5).toFixed(1)} ${(up?20-h:20+h).toFixed(1)} L${(px+1).toFixed(1)} ${(up?20+h*.3:20-h*.3).toFixed(1)} L${(px+3).toFixed(1)} 20`});d+=' L250 20';
+ const html=`<defs><linearGradient id="p2g" x1="0" x2="1"><stop offset="0" stop-color="#e8b95a" stop-opacity=".12"/><stop offset=".75" stop-color="#e8b95a" stop-opacity=".85"/><stop offset="1" stop-color="#4fd08a"/></linearGradient></defs><path d="${d}" fill="none" stroke="url(#p2g)" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+ if(svg._h!==html){svg._h=html;svg.innerHTML=html}}catch(x){}}
+
+/* ---------- endless scroll: no buttons; a failed page retries by itself ---------- */
+if(typeof window.feedPaintMore==='function'){const FM=window.feedPaintMore;let back=2000,rt=0;window.feedPaintMore=function(T){const F=T&&T.F,m=document.getElementById('soc-more');
+ if(F&&F.more==='error'&&m){m.innerHTML='<div class="soc-more-l" role="status"><i></i>Loading older activity…</div>';clearTimeout(rt);
+  const tab=SOC.tab==='following'?'f':'g';rt=setTimeout(()=>{if(S.view==='social'&&F.more==='error'){F.more='idle';feedMore(tab)}},back);back=Math.min(back*2,30000);return}
+ if(F&&F.more!=='error')back=2000;
+ const r=FM.apply(this,arguments);
+ if(F&&F.more==='end'&&m)m.innerHTML='<div class="soc-end p2-end">You’re all caught up</div>';
+ return r}}
+
+/* ---------- the trade sheet ---------- */
+let sh=null;
+function closeSheet(){if(!sh)return;const s=sh;sh=null;s.classList.remove('on');setTimeout(()=>s.remove(),220);document.documentElement.classList.remove('p2-lock')}
+function openSheet(sig){const tr=TR.get(sig);if(!tr)return;closeSheet();const t=tokOf(tr.mint),tid=t?t.id:tr.mint,tk=t?(t.tick||t.name):short(tr.mint),me=tr.wallet&&tr.wallet===socMe();
+ const el=document.createElement('div');el.className='p2-sh';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Trade');
+ let cm='';try{cm=R18.cm(tr.signature)}catch(x){}
+ el.innerHTML=`<div class="p2-ov" data-p2x="1"></div><div class="p2-pn"><button type="button" class="p2-grab" data-p2x="1" aria-label="Close"></button>
+  <div class="p2-sum">${socItem(tr).replace('class="sf-i p2r','class="p2r p2-in').replace(/ data-p2="[^"]*"| tabindex="0"| role="button"/g,'')}</div>
+  <div class="p2-cmh">Comments</div><div class="p2-cm">${cm}</div>
+  <div class="p2-act">${tr.wallet&&!me?`<button type="button" class="p2-cp" data-cp="open" data-w="${e(tr.wallet)}">⧉ Copy this trader</button>`:''}<a class="p2-op" href="#/token/${e(tid)}">Open token</a>${tr.wallet?`<a class="p2-ic" href="#/u/${e(tr.wallet)}" aria-label="Trader profile">${(()=>{try{return socAv(tr.wallet,26)}catch(x){return'👤'}})()}</a>`:''}<a class="p2-ic p2-tx" target="_blank" rel="noopener" href="https://solscan.io/tx/${e(tr.signature)}">Tx ↗</a></div></div>`;
+ document.body.append(el);sh=el;document.documentElement.classList.add('p2-lock');requestAnimationFrame(()=>el.classList.add('on'));
+ const b=el.querySelector('.p2-cm input,.p2-cm textarea');if(b)b.setAttribute('placeholder','Add a comment…')}
+document.addEventListener('click',ev=>{const t=ev.target;if(!t||!t.closest)return;
+ if(t.closest('[data-p2x]')){ev.preventDefault();closeSheet();return}
+ if(sh&&t.closest('.p2-sh a[href^="#/"]')){closeSheet();return}
+ if(sh&&t.closest('.p2-sh [data-cp]')){setTimeout(closeSheet,0);return}
+ const r=t.closest('#soc-feed .p2r[data-p2]');if(!r||t.closest('a,button,input,textarea'))return;ev.preventDefault();openSheet(r.dataset.p2)});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&sh)closeSheet();const r=ev.target&&ev.target.closest&&ev.target.closest('#soc-feed .p2r[data-p2]');if(r&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();openSheet(r.dataset.p2)}});
+addEventListener('hashchange',closeSheet);
+/* swipe the sheet down to close */
+let sy=null;document.addEventListener('touchstart',ev=>{const p=ev.target.closest&&ev.target.closest('.p2-pn');if(!p||p.scrollTop>0)return;sy=ev.touches[0].clientY},{passive:true});
+document.addEventListener('touchend',ev=>{if(sy==null)return;const dy=(ev.changedTouches[0]||{}).clientY-sy;sy=null;if(dy>90)closeSheet()},{passive:true});
+/* the comment count on rows follows new comments */
+setInterval(()=>{try{if(S.view!=='social'||document.hidden)return;document.querySelectorAll('#soc-feed .p2r[data-p2]').forEach(r=>{const n=R18.n(r.dataset.p2)||0,c=r.querySelector('.p2-cn');
+ if(n&&!c){const l=r.querySelector('.p2-l1');if(l)l.insertAdjacentHTML('beforeend',`<i class="p2-cn">💬 ${n}</i>`)}else if(c&&c.textContent!=='💬 '+n)c.textContent=n?'💬 '+n:'';});beat()}catch(x){}},5000);
 })();
 </script>
 <style id="saturn-r112-css">
