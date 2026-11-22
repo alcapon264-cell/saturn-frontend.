@@ -17121,6 +17121,79 @@ if(/[?&#]chartdebug=1/.test(location.search+location.hash)){
 .tk2-spop{animation:tk2Sp .38s ease-in-out}
 @keyframes tk2Sp{50%{transform:scale(1.6)}}
 @media(prefers-reduced-motion:reduce){.tk2-fu .tk2-ch,.tk2-fd .tk2-ch,.tk2-tpop,.tk2-spop{animation:none}}
+</style>
+<style id="saturn-r159-trader-css">
+/* r159 Trader profile (Pulse) redesign — presentation only, no border lines anywhere */
+html body .prf.tr2{position:relative;isolation:isolate}
+html body .prf.tr2::before{content:"";position:absolute;left:-40px;right:-40px;top:-30px;height:400px;z-index:-1;pointer-events:none;background:radial-gradient(60% 55% at 25% 30%,#e6b85c2e,transparent 70%),radial-gradient(45% 45% at 90% 15%,#7a4fd01f,transparent 70%)}
+html body .prf.tr2 *{border-color:transparent!important}
+html body .prf.tr2 .pr-bar{border:0!important}
+html body .prf.tr2 .pr-bar .pu-back{width:38px;height:38px;border-radius:50%;background:#ffffff0d!important;display:grid;place-items:center}
+/* avatar + name */
+html body .prf.tr2 .pr-id>:first-child{border:0!important;box-shadow:0 10px 30px #e6b85c30!important;outline:0!important}
+html body .prf.tr2 .pr-nm h1{font-weight:800!important;letter-spacing:-.3px}
+html body .prf.tr2 .pr-msg{width:34px;height:34px;border-radius:50%;background:#ffffff0f!important;display:inline-grid;place-items:center;border:0!important}
+html body .prf.tr2 .pr-hd{display:inline-flex!important;width:auto!important;max-width:max-content!important;font:700 11.5px/1 Inter,system-ui,sans-serif!important;padding:6px 10px;border-radius:9px;background:#ffffff0f;color:#cfc8ba!important;margin-top:8px}
+html body .prf.tr2 .tr2-tags{display:inline-flex;flex-wrap:wrap;gap:6px;margin:8px 0 0 6px;vertical-align:top}
+html body .prf.tr2 .pr-nm{display:block!important}
+html body .prf.tr2 .pr-nm>.pr-hd,html body .prf.tr2 .pr-nm>.tr2-tags{vertical-align:top}
+html body .prf.tr2 .tr2-tags span{font:700 11.5px/1 Inter,system-ui,sans-serif;padding:6px 10px;border-radius:9px;background:#ffffff0f;color:#cfc8ba}
+html body .prf.tr2 .tr2-tags .g{background:#4fd08a1f;color:#4fd08a}
+/* actions */
+html body .prf.tr2 #cp-row .cp-btn{background:linear-gradient(180deg,#f0c870,#e0a94a)!important;color:#1a1408!important;border:0!important;border-radius:15px!important;font-weight:800!important;box-shadow:0 8px 24px #e6b85c33}
+html body .prf.tr2 #cp-row .cp-btn.on{background:#1a1714!important;color:#f3efe6!important;box-shadow:none}
+html body .prf.tr2 .pu-fw{background:#1a1714!important;color:#f3efe6!important;border:0!important;border-radius:15px!important;font-weight:800!important}
+html body .prf.tr2 .pu-fw.on{background:#e6b85c1f!important;color:#f0c870!important}
+/* followers / following -> tiles */
+html body .prf.tr2 .pr-fl{gap:8px!important;margin-top:18px!important}
+html body .prf.tr2 .pr-fl .pr-fc{flex:1 1 0!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px;padding:11px 14px!important;border-radius:14px!important;background:#131110!important;font:600 11.5px/1.2 Inter,system-ui,sans-serif!important;color:#8d877a!important;text-transform:capitalize;border:0!important}
+html body .prf.tr2 .pr-fl .pr-fc b{font:800 18px/1 Inter,system-ui,sans-serif!important;color:#f3efe6!important}
+/* balance card */
+html body .prf.tr2 #pr-bal{margin-top:6px!important}
+html body .prf.tr2 .pr-bal{background:linear-gradient(135deg,#1b1610,#121010 60%)!important;border:0!important;border-radius:20px!important;padding:16px 16px 14px!important;margin-top:14px!important}
+html body .prf.tr2 .pr-bal .pb-r{border:0!important}
+html body .prf.tr2 .pr-bal .pb-r{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:6px}
+html body .prf.tr2 .pr-bal .pb-k{display:block!important;font:700 11px/1 Inter,system-ui,sans-serif!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:#8d877a!important}
+html body .prf.tr2 .pr-bal b{font-weight:800!important;letter-spacing:-.5px}
+html body .prf.tr2 .pr-bal .pb-u{color:#a49d8f!important}
+/* performance tiles */
+html body .prf.tr2 .pr-met{grid-template-columns:1fr 1fr!important;gap:8px!important;padding:10px 0 0!important}
+html body .prf.tr2 .pr-met>div{background:#131110!important;border-radius:16px!important;padding:12px 14px 13px!important;display:flex!important;flex-direction:column!important}
+html body .prf.tr2 .pr-met b{font:800 20px/1.1 Inter,system-ui,sans-serif!important;order:2;margin-top:5px}
+html body .prf.tr2 .pr-met b.up{color:#4fd08a!important}html body .prf.tr2 .pr-met b.dn{color:#ff6b6b!important}
+html body .prf.tr2 .pr-met span{order:1;margin:0!important;font:600 11.5px/1.2 Inter,system-ui,sans-serif!important;color:#8d877a!important}
+html body .prf.tr2 .pr-met .tr2-bar{order:3;display:block;height:5px;border-radius:3px;background:#24201a;margin-top:9px;overflow:hidden}
+html body .prf.tr2 .pr-met .tr2-bar i{display:block;height:100%;border-radius:3px;background:#e6b85c}
+html body .prf.tr2 .pr-ch0{background:#131110;border-radius:16px;padding:12px 14px!important;margin-top:8px!important}
+/* monthly P&L card */
+html body .prf.tr2 .pr-mh{margin:20px 0 8px!important;font:800 15px/1 Inter,system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#f3efe6!important}
+html body .prf.tr2 .pr-mh em{font:600 12px/1 Inter,system-ui,sans-serif!important;color:#8d877a!important}
+html body .prf.tr2 .pr-ch{background:#131110;border-radius:18px;padding:12px 12px 10px!important}
+html body .prf.tr2 .pr-bars{margin-top:4px!important;height:64px!important}
+html body .prf.tr2 .pr-bars i{height:64px!important}
+html body .prf.tr2 .pr-bars i:empty{height:4px!important;border-radius:2px!important;background:#1c1915!important}
+html body .prf.tr2 .pr-bars s{display:none!important}
+html body .prf.tr2 .pr-bars b{left:0;right:0;border-radius:4px!important}
+html body .prf.tr2 .pr-bars b.up{background:linear-gradient(#4fd08a,#2f9e64)!important}html body .prf.tr2 .pr-bars b.dn{background:linear-gradient(#e05555,#ff6b6b)!important}
+html body .prf.tr2 .pr-lt span{font:700 10.5px/1 Inter,system-ui,sans-serif!important;color:#6f695f!important}
+/* tabs -> pills */
+html body .prf.tr2 .pr-tabs{display:flex!important;gap:8px!important;margin-top:20px!important;border:0!important;box-shadow:none!important}
+html body .prf.tr2 .pr-tabs button{flex:none!important;font:700 13.5px/1 Inter,system-ui,sans-serif!important;padding:10px 14px!important;border-radius:13px!important;background:#131110!important;color:#8d877a!important;border:0!important;box-shadow:none!important}
+html body .prf.tr2 .pr-tabs button::after,html body .prf.tr2 .pr-tabs button::before{display:none!important}
+html body .prf.tr2 .pr-tabs button.on{background:#e6b85c!important;color:#1a1408!important}
+/* rows: joined, alternating, no dividers */
+html body .prf.tr2 #pu-body{margin-top:8px}
+html body .prf.tr2 .pr-r{border:0!important;box-shadow:none!important;margin:0!important;padding:12px 12px!important;border-radius:14px!important}
+html body .prf.tr2 .pr-r:nth-child(even){background:#0f0d0b}
+html body .prf.tr2 .pr-res{font:700 12px/1 Inter,system-ui,sans-serif!important;padding:5px 8px;border-radius:8px}
+html body .prf.tr2 .pr-res.up{color:#4fd08a!important;background:#4fd08a18}html body .prf.tr2 .pr-res.dn{color:#ff6b6b!important;background:#ff6b6b18}
+html body .prf.tr2 .pr-empty{background:#131110;border-radius:16px;padding:18px!important}
+html body .prf.tr2 #pr-bal{padding:0!important;min-height:0!important}
+html body .prf.tr2 #pr-bal .pr-bal{display:block!important;padding:16px 16px 14px!important}
+html body .prf.tr2 #pr-bal .pr-bal .pb-r:first-of-type .pb-k,html body .prf.tr2 #pr-bal .pb-r:not(.pb-t):first-of-type .pb-k{display:block!important;font-size:11px!important;margin:0 0 4px!important}
+html body .prf.tr2 #pr-bal .pr-bal .pb-r:not(.pb-t) b{font-size:30px!important;font-weight:800!important}
+html body .prf.tr2 #pr-bal .pr-bal .pb-h+.pb-r .pb-k{display:block!important;font-size:11px!important;margin:0 0 4px!important}
+html body .prf.tr2 #pr-perf{padding-top:0!important;margin-top:8px!important}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -18218,6 +18291,28 @@ function lcheck(){try{const want=typeof S!=='undefined'&&S.view==='home'&&!docum
  if(want){awayAt=0;LM=lmints();if(LM.size&&!lws)lopen();else lsub()}else{if(!awayAt)awayAt=Date.now();if(lws&&Date.now()-awayAt>10000)lclose()}}catch(x){}}
 setInterval(lcheck,2000);document.addEventListener('visibilitychange',lcheck);
 window.__satTk2Live=()=>({state:lwsState,watching:LM.size,live:LV.size});
+})();
+</script>
+<script id="saturn-r159-trader">
+/* ===== Saturn r159 — Trader profile (Pulse) redesign (additive; presentation only) =====
+   Same data and buttons as before (copy trade, follow, message, followers/following, balance, P&L, win rate, median hold, monthly P&L,
+   calls/holdings/activity); only the look changes, with no border lines. Two additions use data the page already loaded:
+   - "Closed trades" tile (count of this wallet's closed positions) and a fill bar under Win rate
+   - small tags under the name: "Active <time> ago" from the wallet's latest loaded trade, and "Solana". Nothing is invented. */
+(function(){'use strict';
+if(window.__satR159||typeof window.ProfilePage!=='function')return;window.__satR159=1;
+const PP=window.ProfilePage;window.ProfilePage=function(){const h=PP.apply(this,arguments);return typeof h==='string'?h.replace('<div class="prf soc-in','<div class="prf tr2 soc-in'):h};
+if(typeof window.prPerf==='function'){const PF=window.prPerf;window.prPerf=function(A){let h=PF.apply(this,arguments);try{
+ if(A&&Array.isArray(A.closed)&&A.closed.length){const wr=Math.round(A.wins/A.closed.length*100);
+  h=h.replace('<span>Win rate</span></div>','<span>Win rate</span><i class="tr2-bar"><i style="width:'+Math.max(0,Math.min(100,wr))+'%"></i></i></div>');
+  h=h.replace(/(<div class="pr-met">[\s\S]*?<span>Median hold<\/span><\/div>)/,'$1<div><b>'+A.closed.length+'</b><span>Closed trades</span></div>')}
+ else h=h.replace(/(<div class="pr-met">[\s\S]*?<span>Median hold<\/span><\/div>)/,'$1<div><b class="na">—</b><span>Closed trades</span></div>')}catch(e){}return h}}
+const ago=s=>{const d=Math.max(0,Date.now()/1000-s);return d<90?'just now':d<3600?Math.round(d/60)+'m ago':d<86400?Math.round(d/3600)+'h ago':Math.round(d/86400)+'d ago'};
+function tags(w){try{const nm=document.querySelector('.prf.tr2 .pr-nm');if(!nm)return;let el=nm.querySelector('.tr2-tags');if(!el){el=document.createElement('span');el.className='tr2-tags';const hd=nm.querySelector('.pr-hd');if(!hd)return;hd.insertAdjacentElement('afterend',el)}
+ const P=(typeof SOC!=='undefined'&&SOC.pf)?SOC.pf[w]:null;let last=0;if(P&&Array.isArray(P.trades))for(const x of P.trades){const t=Number(x&&(x.time||x.t||x.blockTime));if(t>last)last=t}
+ const html=(last?'<span class="'+(Date.now()/1000-last<3600?'g':'')+'">Active '+ago(last)+'</span>':'')+'<span>Solana</span>';if(el.innerHTML!==html)el.innerHTML=html}catch(e){}}
+if(typeof window.socPaintProfile==='function'){const SP=window.socPaintProfile;window.socPaintProfile=function(w){const r=SP.apply(this,arguments);tags(w);return r}}
+const LP=window.socLoadProfile;if(typeof LP==='function')window.socLoadProfile=function(w){const r=LP.apply(this,arguments);setTimeout(()=>tags(w),0);return r};
 })();
 </script>
 <style id="saturn-r112-css">
