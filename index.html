@@ -18951,23 +18951,25 @@ async function claim(){const w=WalletService.address;if(!w||RC.st!=='ready'||RC.
   RC.msg='Claimed '+sol(RC.got)+' SOL back to your wallet.';try{toast(RC.msg)}catch(x){}}
  catch(x){const m=String(x&&x.message||x||'');RC.msg=(RC.got>0n?'Claimed '+sol(RC.got)+' SOL so far. ':'')+(/reject|denied|declin|cancel|closed/i.test(m)?'You cancelled in your wallet.':m.slice(0,160))}
  RC.st='idle';RC.at=0;await scan(true)}
-function card(){const w=WalletService.address,u=typeof SOLUSD==='number'&&SOLUSD>0?SOLUSD:null;
- let amt='—',body='',btn='';
- if(!w){body='Connect a wallet to find SOL left behind by your trades.';btn='<button type="button" class="rc-btn" data-act="wallet">Connect wallet</button>'}
- else if(RC.st==='loading'||RC.st==='idle'){body='Checking your token accounts on Solana…'}
- else if(RC.st==='error'){body=e(RC.msg);btn='<button type="button" class="rc-btn d" data-rc="scan">Try again</button>'}
- else if(RC.st==='empty'){amt='0';body='No unclaimed SOL — every token account in this wallet still holds tokens.';btn='<button type="button" class="rc-btn d" data-rc="scan">Check again</button>'}
- else if(RC.st==='ready'){amt=sol(RC.tot);body=`Locked in <b>${RC.list.length}</b> empty token account${RC.list.length===1?'':'s'} left by your trades. Claim it back to your wallet.`;btn=`<button type="button" class="rc-btn" data-rc="claim">Claim ${sol(RC.tot)} SOL</button>`}
- else if(RC.st==='claiming'){amt=sol(RC.tot);body=`Step ${RC.step} of ${RC.steps} — approve it in your wallet…`;btn='<button type="button" class="rc-btn" disabled>Claiming…</button>'}
- const usd=u&&(RC.st==='ready'||RC.st==='claiming')?'<div class="rc-usd">≈ $'+(Number(RC.tot)/1e9*u).toFixed(2)+'</div>':'';
- const rows=RC.st==='ready'||RC.st==='claiming'?RC.list.slice(0,8).map(x=>{let t=null;try{t=window.__satTr164?window.__satTr164.tokOf(x.mint):socTok(x.mint)}catch(_){}
-  return `<div class="rc-r"><span class="rc-av">${prAv(x.mint,t,36)}</span><span class="rc-n"><b>${t?e(t.tick&&t.tick!=='?'?t.tick:t.name):e(short(x.mint))}</b><small>empty account</small></span><span class="rc-v">${sol(x.lam)} SOL</span></div>`}).join('')+(RC.list.length>8?`<div class="rc-more">+ ${RC.list.length-8} more</div>`:''):'';
- const sigs=RC.sigs.length?'<div class="rc-sigs">'+RC.sigs.map((s,i)=>`<a href="https://solscan.io/tx/${e(s)}" target="_blank" rel="noopener noreferrer">Step ${i+1} ↗</a>`).join('')+'</div>':'';
- return `<section class="rc" id="rc-card"><div class="rc-k">Unclaimed SOL</div><div class="rc-amt"><b>${amt}</b><small>SOL</small></div>${usd}<p class="rc-p">${body}</p>${btn}${RC.msg?`<p class="rc-msg" role="status">${e(RC.msg)}</p>`:''}${sigs}${rows?'<div class="rc-list">'+rows+'</div>':''}<p class="rc-note">You approve every step in your own wallet. The SOL goes back to this wallet — Saturn takes no fee. Each step closes up to ${BATCH} empty accounts and costs about 0.000005 SOL in network fee.</p></section>`}
+/* r170: drawn in the original Trading cashback design (Ready to claim · Claim · status · two rows · footer) */
+function card(){const w=WalletService.address;
+ const amtH=v=>{const n=String(v).length;return '<div class="rx-amt '+(n<=2?'a1':n<=4?'a2':n<=6?'a3':'a4')+'"><b>'+v+'</b><small>SOL</small></div>'};
+ let amt='—',st='',btn='<button type="button" class="rx-cta" disabled>Claim</button>';
+ if(!w){st='Connect a wallet to see your cashback';btn='<button type="button" class="rx-cta" data-act="wallet">Connect wallet</button>'}
+ else if(RC.st==='loading'||RC.st==='idle')st='Checking your wallet…';
+ else if(RC.st==='error'){st=RC.msg;btn='<button type="button" class="rx-cta" data-rc="scan">Try again</button>'}
+ else if(RC.st==='empty'){amt='0';st='Nothing to claim yet'}
+ else if(RC.st==='ready'){amt=sol(RC.tot);st='SOL left in empty token accounts from your trades';btn='<button type="button" class="rx-cta" data-rc="claim">Claim</button>'}
+ else if(RC.st==='claiming'){amt=sol(RC.tot);st='Step '+RC.step+' of '+RC.steps+' — approve it in your wallet';btn='<button type="button" class="rx-cta" disabled>Claiming…</button>'}
+ const sigs=RC.sigs.length?'<p class="rx-pst">'+RC.sigs.map((x,i)=>`<a href="https://solscan.io/tx/${e(x)}" target="_blank" rel="noopener noreferrer" style="color:#e8b95a;margin:0 6px">Step ${i+1} ↗</a>`).join('')+'</p>':'';
+ const n=RC.st==='ready'||RC.st==='claiming'?RC.list.length:RC.st==='empty'?0:null;
+ return `<div class="rx rx-det" id="rc-card"><section class="rx-hero rx-c"><div class="rx-k">Ready to claim</div>${amtH(amt)}${btn}${RC.msg&&RC.st!=='error'?`<p class="rx-msg" role="status">${e(RC.msg)}</p>`:''}<p class="rx-pst" role="status">${e(st)}</p>${sigs}</section>`
+  +`<div class="rx-kv2"><div><span>Empty accounts</span><b>${n==null?'—':n}</b></div><div><span>Unclaimed</span><b>${n==null?'—':sol(RC.tot)+' SOL'}</b></div></div>`
+  +'<p class="rx-foot">Trade <i>·</i> Cashback builds <i>·</i> Claim</p></div>'}
 function paint(){const el=document.getElementById('rc-card');if(el){el.outerHTML=card()}
  const hv=document.getElementById('rc-hub');if(hv)hv.textContent=RC.st==='ready'?sol(RC.tot)+' SOL':''}
 const RB=window.RewardsBase;window.RewardsBase=function(){const sub=(location.hash.slice(2).split('/')[1]||'').split('?')[0];
- if(sub==='cashback'){setTimeout(()=>scan(false),0);return '<div class="rh rx">'+card()+'</div>'}
+ if(sub==='cashback'){setTimeout(()=>scan(false),0);return card()}
  let h=RB.apply(this,arguments);try{if(!sub&&typeof h==='string'){setTimeout(()=>scan(false),0);
   h=h.replace('<span class="rx-mt">Trading cashback</span>','<span class="rx-mt">Trading cashback</span><span class="rx-mv" id="rc-hub">'+(RC.st==='ready'?sol(RC.tot)+' SOL':'')+'</span>')}}catch(x){}return h};
 document.addEventListener('click',ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest('[data-rc]');if(!b)return;ev.preventDefault();if(b.dataset.rc==='claim')claim();else scan(true)});
