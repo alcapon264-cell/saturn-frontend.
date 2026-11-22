@@ -17480,15 +17480,44 @@ let tgtAt=0;async function fillTargets(){if(Date.now()-tgtAt<10000)return;const 
 let tickT=0;function tickers(){clearInterval(tickT);const run=()=>{fillTargets();const now=Date.now()/1000;qa('[data-pm-end]').forEach(el=>{const s=Math.max(0,Math.floor(+el.dataset.pmEnd-now));el.textContent='● '+String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');el.classList.toggle('done',s===0)});
   if(qa('[data-pm-end]').some(el=>+el.dataset.pmEnd<=now)&&!P.rolling){P.rolling=1;setTimeout(()=>{P.rolling=0;P.ud={};if(/^#\/predict/.test(location.hash))rerun(true)},4000)}};run();tickT=setInterval(run,1000);btc()}
 /* Saturn's own live index price for the coin (Saturn Perps data service) — shown with its source, never invented */
-let pxT=0;async function btc(){clearTimeout(pxT);if(!qa('[data-pm-px]').length)return;
- /* r144.3: live coin prices every second from Saturn's server (Hyperliquid's live feed); the old 15 s market list is only the fallback */
- let live=false;try{const r=await fetch(API+'/v1/pm/px',{credentials:'omit',cache:'no-store'});const v=r.ok?await r.json():null;if(v&&v.ok&&v.prices){const m={};for(const [k,x] of Object.entries(v.prices))if(n(x)&&x>0)m[k]=x;if(Object.keys(m).length){P.px={at:Date.now(),m,src:'live'};live=true}}}catch(e){}
- if(!live)try{const r=await fetch(API+'/v1/perps/markets',{credentials:'omit'}).then(x=>x.json());const m={};for(const x of (r.markets||[]))if(n(x.price))m[String(x.market).toLowerCase()]=x.price;P.px={at:Date.now(),m}}catch(e){}
- const now=Date.now(),fresh=P.px&&now-P.px.at<15000;
- qa('[data-pm-px]').forEach(el=>{const v=fresh?P.px.m[el.dataset.pmPx]:null;el.textContent=n(v)?usd(v):'—';el.classList.toggle('stale',!n(v))});
+/* r157 LIVE COIN PRICE STRAIGHT FROM HYPERLIQUID. The page subscribes to Hyperliquid's public market socket itself
+   (best bid/offer "bbo" for only the coins on screen; mid = (bid+ask)/2), so the Up/Down price, the "above/below target" line and the chart end move
+   on every Hyperliquid block instead of once a second through Saturn's server. If no bbo arrives within 6 s it subscribes to "allMids" instead.
+   Saturn's /v1/pm/px (1 s) stays as the fallback whenever the socket is not delivering. Display only; Polymarket resolves with its own source. */
+const HLW={ws:null,url:'wss://api.hyperliquid.xyz/ws',coins:new Set(),last:0,retry:1000,timer:0,ping:0,fb:0,mode:'bbo',raf:0,away:0};
+const hlNeed=()=>new Set(qa('[data-pm-px]').map(e=>String(e.dataset.pmPx||'').toUpperCase()).filter(x=>/^[A-Z]{2,6}$/.test(x)));
+function hlSet(k,v){if(!(v>0)||!isFinite(v))return;if(!P.px||P.px.src!=='live')P.px={at:Date.now(),m:Object.assign({},P.px&&P.px.m),src:'live'};P.px.m[k]=v;P.px.at=Date.now();HLW.last=Date.now();
+ if(!HLW.raf)HLW.raf=requestAnimationFrame(()=>{HLW.raf=0;paintPx()})}
+function hlSub(ws,type,coin){try{ws.send(JSON.stringify({method:'subscribe',subscription:coin?{type,coin}:{type}}))}catch(e){}}
+function hlOpen(){const need=hlNeed();if(!need.size||HLW.ws||typeof WebSocket==='undefined')return;let ws;try{ws=new WebSocket(HLW.url)}catch(e){hlRetry();return}
+ HLW.ws=ws;HLW.coins=need;HLW.mode='bbo';
+ ws.onopen=()=>{if(HLW.ws!==ws)return;need.forEach(c=>hlSub(ws,'bbo',c));
+  clearTimeout(HLW.fb);HLW.fb=setTimeout(()=>{if(HLW.ws===ws&&Date.now()-HLW.last>6000){HLW.mode='mids';hlSub(ws,'allMids')}},6000);
+  clearInterval(HLW.ping);HLW.ping=setInterval(()=>{try{ws.readyState===1&&ws.send('{"method":"ping"}')}catch(e){}},30000);setTimeout(()=>{if(HLW.ws===ws)HLW.retry=1000},30000)};
+ ws.onmessage=ev=>{if(HLW.ws!==ws||typeof ev.data!=='string'||ev.data.length>200000)return;let j;try{j=JSON.parse(ev.data)}catch(e){return}if(!j)return;
+  if(j.channel==='bbo'&&j.data&&Array.isArray(j.data.bbo)){const c=String(j.data.coin||'');if(!HLW.coins.has(c))return;const b=j.data.bbo[0],a=j.data.bbo[1],bp=b&&Number(b.px),ap=a&&Number(a.px);
+   const mid=bp>0&&ap>0?(bp+ap)/2:bp>0?bp:ap;hlSet(c.toLowerCase(),mid)}
+  else if(j.channel==='allMids'&&j.data&&j.data.mids){for(const c of HLW.coins)hlSet(c.toLowerCase(),Number(j.data.mids[c]))}};
+ ws.onerror=()=>{try{ws.close()}catch(e){}};
+ ws.onclose=()=>{if(HLW.ws!==ws)return;HLW.ws=null;clearInterval(HLW.ping);clearTimeout(HLW.fb);hlRetry()}}
+function hlRetry(){clearTimeout(HLW.timer);const d=Math.round(HLW.retry*(0.8+Math.random()*0.4));HLW.retry=Math.min(HLW.retry*2,30000);HLW.timer=setTimeout(hlCheck,d)}
+function hlClose(){clearTimeout(HLW.timer);clearInterval(HLW.ping);clearTimeout(HLW.fb);const w=HLW.ws;HLW.ws=null;if(w){try{w.onclose=w.onmessage=w.onerror=w.onopen=null;w.close()}catch(e){}}}
+function hlCheck(){const need=hlNeed();if(need.size&&!document.hidden){HLW.away=0;if(HLW.ws&&[...need].some(c=>!HLW.coins.has(c))){hlClose()}if(!HLW.ws)hlOpen()}
+ else{if(!HLW.away)HLW.away=Date.now();if(HLW.ws&&Date.now()-HLW.away>10000)hlClose()}}
+setInterval(hlCheck,2000);document.addEventListener('visibilitychange',hlCheck);addEventListener('online',hlCheck);
+const hlFresh=()=>HLW.ws&&Date.now()-HLW.last<2500;
+window.__satHL={state:()=>({open:!!HLW.ws,coins:[...HLW.coins],mode:HLW.mode,ageMs:HLW.last?Date.now()-HLW.last:null}),kick:()=>{hlClose();HLW.retry=1000;hlCheck()}};
+function paintPx(){const now=Date.now(),fresh=P.px&&now-P.px.at<15000;
+ qa('[data-pm-px]').forEach(el=>{const v=fresh?P.px.m[el.dataset.pmPx]:null,t=n(v)?usd(v):'—';if(el.textContent!==t)el.textContent=t;el.classList.toggle('stale',!n(v))});
  qa('[data-pm-diff]').forEach(el=>{const [a,t]=el.dataset.pmDiff.split('|'),v=fresh?P.px.m[a]:null,tg=Number(t);
-  if(!n(v)||!t){el.textContent='';return}const d=v-tg;el.innerHTML=`<b class="${d>=0?'up':'dn'}">${usd(Math.abs(d))}</b> ${d>=0?'above':'below'} target`});
- pushLive();qa('[data-pm-spark]').forEach(markEnd);pxT=setTimeout(btc,live?(q('.pm-udfull')?700:1000):3000)}
+  if(!n(v)||!t){el.textContent='';return}const d=v-tg,h=`<b class="${d>=0?'up':'dn'}">${usd(Math.abs(d))}</b> ${d>=0?'above':'below'} target`;if(el.innerHTML!==h)el.innerHTML=h});
+ pushLive();qa('[data-pm-spark]').forEach(markEnd)}
+let pxT=0;async function btc(){clearTimeout(pxT);if(!qa('[data-pm-px]').length)return;hlCheck();
+ if(hlFresh()){paintPx();pxT=setTimeout(btc,2000);return}
+ /* r144.3: live coin prices every second from Saturn's server (Hyperliquid's live feed); the old 15 s market list is only the fallback */
+ let live=false;try{const r=await fetch(API+'/v1/pm/px',{credentials:'omit',cache:'no-store'});const v=r.ok?await r.json():null;if(v&&v.ok&&v.prices){const m={};for(const [k,x] of Object.entries(v.prices))if(n(x)&&x>0)m[k]=x;if(Object.keys(m).length&&!hlFresh()){P.px={at:Date.now(),m,src:'live'};live=true}}}catch(e){}
+ if(!live&&!hlFresh())try{const r=await fetch(API+'/v1/perps/markets',{credentials:'omit'}).then(x=>x.json());const m={};for(const x of (r.markets||[]))if(n(x.price))m[String(x.market).toLowerCase()]=x.price;P.px={at:Date.now(),m}}catch(e){}
+ paintPx();pxT=setTimeout(btc,hlFresh()?2000:live?(q('.pm-udfull')?700:1000):3000)}
 async function sparks(my){for(const el of qa('[data-pm-spark]')){if(el.dataset.d)continue;el.dataset.d='1';const [a,ws]=el.dataset.pmSpark.split('|');
   el._cd=[];el._lv=el._lv||[];
   const kb=a+'|'+ws;P.lvb=P.lvb||{};el._lv=P.lvb[kb]||(P.lvb[kb]=el._lv);
@@ -17502,7 +17531,7 @@ function drawLive(el,tail){const pts=livePts(el,tail);const html=line(pts,'#f39b
  el.dataset.last=pts.length?pts[pts.length-1].p:'';markEnd(el)}
 function pushLive(){if(!P.px||P.px.src!=='live')return;const now=Date.now()/1000;
  for(const el of qa('[data-pm-spark]')){const [a,ws]=el.dataset.pmSpark.split('|'),v=P.px.m[a];if(!n(v)||!el.dataset.d)continue;const lv=el._lv||(el._lv=[]);
-  const L=lv[lv.length-1];if(L&&now-L.t<0.35)continue;lv.push({t:now,p:v});while(lv.length&&lv[0].t<+ws-60)lv.shift();if(lv.length>1200)lv.splice(0,lv.length-1200);
+  const L=lv[lv.length-1];if(L&&now-L.t<0.25)continue;lv.push({t:now,p:v});while(lv.length&&lv[0].t<+ws-60)lv.shift();if(lv.length>1200)lv.splice(0,lv.length-1200);
   if(el.closest('.pm-udfull'))flow(el);else drawLive(el)}}
 /* r152 FLOWING LINE (Up/Down page): Saturn's own orange line now moves every frame instead of once a second.
    The view is a rolling 90-second window that slides left continuously; the line is drawn ~1.2 s behind real time so the newest
