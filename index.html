@@ -18714,6 +18714,73 @@ function hook(el){if(!el||el.__ax176)return;el.__ax176=1;
 const mo=new MutationObserver(()=>{const b=document.getElementById('ax-b');if(b)hook(b)});
 mo.observe(document.documentElement,{childList:true,subtree:true});hook(document.getElementById('ax-b'));
 })();
+
+/* ===== r177 CHART HISTORY + RETURN FILL: Saturn's server keeps 1-second candles (in SOL) for every Pump.fun / PumpSwap token it sees on the
+   live trade stream (/v1/tok/candles). The token chart now loads them for every timeframe up to 1h, converts to USD with the same SOL price the
+   chart already uses, and fills the slots the history service (GeckoTerminal) has nothing for — brand-new tokens included. When you come back
+   to Saturn after leaving, the chart re-reads this history so the time you were away is drawn from real trades instead of one long line.
+   Every candle is a real trade price; seconds without trades stay empty. ===== */
+(function(){'use strict';
+if(window.__satCh177||typeof SChart==='undefined'||typeof CanvasSChart==='undefined')return;window.__satCh177=1;
+const API='https://saturn-perps-staging.onrender.com/v1/tok/candles',C=CanvasSChart,OK_TF=[1,5,15,60,300,900,3600];
+const evm=t=>{try{return!!(window.MCH&&MCH.isEvm(t))}catch(e){return false}};
+const MINT=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/;let inflight=null,lastAt=new Map();
+async function fill(force){try{
+ const t=SChart.cur&&SChart.cur();if(!t||!t.id||evm(t)||!MINT.test(t.id)||SChart.mint!==t.id||!SChart.cv)return;
+ const tfName=SChart.tf,tf=SChart.tfDef()[1];if(!OK_TF.includes(tf))return;
+ const k=t.id+'|'+tfName,la=lastAt.get(k)||0;if(!force&&Date.now()-la<8000)return;if(inflight===k)return;inflight=k;lastAt.set(k,Date.now());
+ const su=typeof SOLUSD==='number'&&SOLUSD>0?SOLUSD:0;if(!su)return;
+ const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),9000);let j=null;
+ try{const r=await fetch(API+'?mint='+encodeURIComponent(t.id)+'&tf='+tf,{signal:ctl.signal,referrerPolicy:'no-referrer',cache:'no-store'});if(r.ok)j=await r.json()}finally{clearTimeout(to)}
+ if(!j||!j.ok||!Array.isArray(j.candles)||!j.candles.length||SChart.mint!==t.id||SChart.tf!==tfName)return;
+ const H=C.hist[tfName],m=new Map();(H&&H.candles||[]).forEach(c=>m.set(c.t,c));
+ const nowS=Date.now()/1000;let add=0;
+ for(const a of j.candles){if(!Array.isArray(a)||a.length<6)continue;const[ts,o,h,l,c,v]=a;if(!(ts>0)||ts>nowS+60||!(o>0&&h>0&&l>0&&c>0))continue;
+  const ex=m.get(ts);if(ex&&ex.src!=='sat')continue;   /* the history service's own candle wins where it has one */
+  m.set(ts,{t:ts,o:o*su,h:h*su,l:l*su,c:c*su,v:v>0?v*su:null,src:'sat'});add++}
+ if(!add)return;
+ const arr=[...m.values()].sort((a,b)=>a.t-b.t);C.hist[tfName]={at:H&&H.at||Date.now(),candles:arr.length>6000?arr.slice(-6000):arr};C._cc=null;
+ try{SChart.histSt='ok'}catch(e){}SChart.sched()}catch(e){}finally{inflight=null}}
+const _lh=SChart.loadHist;SChart.loadHist=function(){const r=_lh.apply(this,arguments);setTimeout(()=>fill(false),0);return r};
+/* coming back to Saturn (or this tab): fill the time you were away, then keep it topped up while the chart is open */
+let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden){hiddenAt=Date.now();return}
+ if(SChart.cv&&SChart.mint){fill(true);if(Date.now()-hiddenAt>15000){try{SChart.loadHist(true)}catch(e){}}}});
+addEventListener('pageshow',()=>{if(SChart.cv&&SChart.mint)fill(true)});
+setInterval(()=>{if(!document.hidden&&SChart.cv&&SChart.mint)fill(false)},20000);
+window.SatChart177={fill};
+})();
+
+/* ===== r177 FLOWING ACTIVITY COLUMN (the buy/sell column inside the chart): the pills used to sit still and only jumped up one step when the next
+   trade arrived. Now they drift upward all the time, newest at the bottom, and fade out at the top of the column, so the column keeps moving
+   between trades. A new trade slides in at the bottom and gently pushes the others up. Same real trades, same colours and values. ===== */
+(function(){'use strict';
+const F=window.SatFeedCol;if(!F||window.__satFc177)return;window.__satFc177=1;
+const RM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+const RISE_S=18;   /* seconds a pill takes to travel the whole column with no new trades */
+const usdTxt=v=>{if(!(v>0)||!isFinite(v))return'';if(v<0.01)return'<$0.01';if(v<1000)return'$'+v.toFixed(2);if(v<100000)return'$'+Math.round(v).toLocaleString('en-US');if(v<1e6)return'$'+Math.round(v/1e3)+'K';if(v<1e9)return'$'+(v/1e6).toFixed(1).replace(/\.0$/,'')+'M';return''};
+const st={L:[],Lat:0,raf:0,last:0,disp:new Map()};
+function node(x){const n=document.createElement('div');n.className='sat-fi '+(x.side==='buy'?'b':'s');n.dataset.side=x.side;n.style.transition='none';n.style.opacity='0';
+ n.innerHTML='<svg viewBox="0 0 8 8" aria-hidden="true">'+(x.side==='buy'?'<path d="M4 0.8 7.4 7H0.6z"/>':'<path d="M4 7.2 0.6 1h6.8z"/>')+'</svg><span></span>';n.lastChild.textContent=usdTxt(x.usd);return n}
+function frame(ts){st.raf=0;const el=F.el;if(!el||!el.isConnected||document.hidden)return;
+ const dt=st.last?Math.min(.1,(ts-st.last)/1000):0;st.last=ts;
+ if(ts-st.Lat>400){st.L=F.list();st.Lat=ts}
+ const nowS=Date.now()/1000,step=F.step||20,colH=(F.spot&&F.spot[1])||(F.cap||4)*step,top=colH-(step-3),speed=Math.max(top,step)/RISE_S,keep=new Set();
+ let prev=-Infinity;
+ for(const x of st.L){const age=Math.max(0,nowS-x.time);let y=Math.max(age*speed,prev+step);if(prev===-Infinity)y=age*speed;
+  if(y>top+step*.9)break;prev=y;keep.add(x.id);
+  let n=F.items.get(x.id);if(!n){if(!usdTxt(x.usd))continue;n=node(x);el.appendChild(n);F.items.set(x.id,n);st.disp.set(x.id,Math.max(0,y-(age<3?12:0)))}
+  let d=st.disp.has(x.id)?st.disp.get(x.id):y;d+=(y-d)*Math.min(1,dt*7||1);st.disp.set(x.id,d);
+  const born=Math.min(1,age/0.45),fadeTop=Math.max(0,Math.min(1,(top+step*.9-d)/(step*1.6)));
+  n.style.transform='translateY('+(-d).toFixed(2)+'px)';n.style.opacity=String((born*fadeTop*.98+.02*(born>0)).toFixed(3));
+  const txt=usdTxt(x.usd);if(n.lastChild.textContent!==txt)n.lastChild.textContent=txt}
+ for(const[id,n]of F.items)if(!keep.has(id)){F.items.delete(id);st.disp.delete(id);n.remove()}
+ el.hidden=!F.items.size;
+ if(F.items.size)st.raf=requestAnimationFrame(frame)}
+const _r=F.render;
+F.render=function(){if(RM())return _r.apply(this,arguments);if(!st.raf&&this.el&&!document.hidden){st.last=0;st.raf=requestAnimationFrame(frame)}};
+const _d=F.detach;F.detach=function(){if(st.raf){cancelAnimationFrame(st.raf);st.raf=0}st.disp.clear();return _d.apply(this,arguments)};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&F.el)F.render()});
+})();
 </script>
 <script id="saturn-r159-trader">
 /* ===== Saturn r159 — Trader profile (Pulse) redesign (additive; presentation only) =====
