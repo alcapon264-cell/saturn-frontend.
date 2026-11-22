@@ -17377,6 +17377,7 @@ html body .prf.tr2.tr3.tr3-on::after{display:block}
 .rc-v{flex:none;font:700 13.5px/1 Inter,system-ui,sans-serif;color:#4fd08a}
 .rc-more{font:600 12.5px/1 Inter,system-ui,sans-serif;color:#6f695f;padding:8px 0}
 .rc-note{font:500 12px/1.5 Inter,system-ui,sans-serif;color:#6f695f;margin-top:22px}
+.tr3-new{display:block;width:100%;margin:8px 0 2px;padding:11px 12px;border:0;border-radius:12px;background:#1a2a1f;color:#4fd08a;font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -18837,7 +18838,7 @@ const X=window.__satTr164,e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':
 const B58=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const curW=()=>{if(typeof S==='undefined'||S.view!=='profile-u')return'';let w='';try{w=decodeURIComponent((location.hash.match(/^#\/u\/([^/?#]+)/)||[])[1]||'')}catch(x){}return B58.test(w)?w:''};
 const PP=window.ProfilePage;
-window.ProfilePage=function(w){let h=PP.apply(this,arguments);if(typeof h!=='string'||h.indexOf('class="prf tr2')<0)return h;T.open=true;T.filt='all';
+window.ProfilePage=function(w){let h=PP.apply(this,arguments);if(typeof h!=='string'||h.indexOf('class="prf tr2')<0)return h;T.open=true;T.filt='all';SNAP.k='';
  h=h.replace('class="prf tr2','class="prf tr2 tr3').replace('<div class="pr-fl">','<div id="tr3-lead" class="tr3-lead"></div><div class="pr-fl">').replace('<div id="pr-bal">','<div id="tr3"></div><div id="pr-bal">');return h};
 const T={range:'30d',open:true,filt:'all',px:new Map(),last:null};
 const su=()=>typeof SOLUSD==='number'&&SOLUSD>0?SOLUSD:null;
@@ -18853,7 +18854,7 @@ const hold=s=>s<90?'a minute':s<3600?Math.round(s/60)+' minutes':s<86400?(Math.r
    open   = it still holds a meaningful part (>= 2% of what it bought) -> valued live
    closed = it sold and holds nothing meaningful (dust is ignored)      -> realized result, FROZEN (never moves with the price) */
 const FROZE=new Map();
-function agg(trades){const by=new Map();for(const x of [...trades].sort((a,b)=>(a.time||0)-(b.time||0))){if(!x||!x.mint)continue;let r=by.get(x.mint);if(!r)by.set(x.mint,r={mint:x.mint,eT:0,eS:0,sT:0,sS:0,t0:null,tb:null,t1:null});
+function agg(trades){const by=new Map();for(const x of [...trades].sort((a,b)=>(a.time||0)-(b.time||0))){if(!x||!x.mint)continue;let r=by.get(x.mint);if(!r)by.set(x.mint,r={mint:x.mint,eT:0,eS:0,sT:0,sS:0,t0:null,tb:null,t1:null,n:0});r.n++;
  if(x.side==='buy'&&x.tokenAmt>0&&x.solAmt>0){r.eT+=x.tokenAmt;r.eS+=x.solAmt;if(r.t0==null)r.t0=x.time||null;r.tb=x.time||r.tb}
  else if(x.side==='sell'&&x.tokenAmt>0){r.sT+=x.tokenAmt;r.sS+=x.solAmt||0;r.t1=x.time||r.t1}}return[...by.values()]}
 function model(w){const P=SOC.pf[w];if(!P||!Array.isArray(P.trades))return null;const now=Date.now()/1000,open=[],closed=[],cl=[];
@@ -18866,41 +18867,51 @@ function model(w){const P=SOC.pf[w];if(!P||!Array.isArray(P.trades))return null;
    open.push({k:'o'+r.mint,mint:r.mint,t,q,cost,avg,ns,pnl:val!=null?val-cost:null,pct:val!=null&&cost>0?(val/cost-1)*100:null,from:mcAt(avg),to:mc,at:r.tb||r.t0})}
   else if(r.sT>0){const frac=Math.min(1,r.sT/r.eT),cs=r.eS*frac,real=r.sS-cs,fk=r.mint+'|'+r.sS.toFixed(9)+'|'+r.eS.toFixed(9);
    let fz=FROZE.get(fk);if(!fz||(fz.from==null&&mc!=null)){fz={from:mcAt(avg),to:mcAt(r.sS/r.sT)};FROZE.set(fk,fz);if(FROZE.size>3000)FROZE.delete(FROZE.keys().next().value)}
-   closed.push({k:'c'+r.mint,mint:r.mint,t,pnl:real,pct:cs>0?real/cs*100:null,from:fz.from,to:fz.to,at:r.t1||r.tb});cl.push({t1:r.t1,real,t0:r.t0})}}
+   closed.push({k:'c'+r.mint,mint:r.mint,t,pnl:real,pct:cs>0?real/cs*100:null,from:fz.from,to:fz.to,at:r.t1||r.tb,held:r.t0!=null&&r.t1!=null&&r.t1>=r.t0?r.t1-r.t0:null,n:r.n});cl.push({t1:r.t1,real,t0:r.t0})}}
  open.sort((a,b)=>(b.at||0)-(a.at||0));closed.sort((a,b)=>(b.at||0)-(a.at||0));
  const hs=cl.filter(r=>r.t0!=null&&r.t1!=null&&r.t1>=r.t0).map(r=>r.t1-r.t0).sort((a,b)=>a-b),med=hs.length?hs[Math.floor(hs.length/2)]:null;
  const A={closed:cl,wins:cl.filter(r=>r.real>0).length,med};
  const d30=now-30*86400,c30=cl.filter(r=>r.t1!=null&&r.t1>=d30),tr30=P.trades.filter(x=>x.time>=d30).length,oldest=P.trades.reduce((m,x)=>x.time&&x.time<m?x.time:m,now);
  const unreal=open.reduce((s,o)=>s+(o.pnl||0),0),known=open.some(o=>o.pnl!=null);
- return{A,open,closed,c30,tr30,cover:now-oldest>=29*86400,unreal,known,P}}
+ return{A,open,closed,c30,tr30,cover:now-oldest>=29*86400,oldest,unreal,known,P}}
 /* ---------- paint ---------- */
 function lead(M){const p=[];if(M.known&&M.open.length){const v=M.unreal;p.push(`${v>=0?'Up':'Down'} <em class="${v>=0?'g':'r'}" data-tr3="lead">${e(money(v).replace(/^[+−]/,''))}</em> in open trades right now`)}
  if(M.A.closed.length)p.push(`wins <i>${Math.round(M.A.wins/M.A.closed.length*100)}%</i> of closed trades`);if(M.A.med!=null)p.push(`usually holds about <i>${hold(M.A.med)}</i>`);
  if(!p.length)return M.P.trades.length?'Trading, but no finished trades yet.':'No trades found for this wallet yet.';
  let s=p.join(p.length>2?', ':' and ').replace(/, ([^,]*)$/,' and $1');return s.charAt(0).toUpperCase()+s.slice(1)+'.'}
 function score(M){const u=su(),real=M.c30.reduce((s,r)=>s+r.real,0),wr=M.c30.length?Math.round(M.c30.filter(r=>r.real>0).length/M.c30.length*100)+'%':'—';
- return `<div class="tr3-sh"><h3>Scoreboard</h3><small>${M.cover?'last 30 days':'recent trades'}</small></div><div class="tr3-score"><div><b class="${M.c30.length?(real>=0?'g':'r'):''}">${M.c30.length?e(money(real)):'—'}</b><span>Profit</span></div><div><b>${wr}</b><span>Win rate</span></div><div><b>${M.tr30}</b><span>Trades</span></div></div>`}
+ return `<div class="tr3-sh"><h3>Scoreboard</h3><small>${M.cover?'last 30 days':'last '+e(spanTxt(Date.now()/1000-M.oldest))+' of trades'}</small></div><div class="tr3-score"><div><b class="${M.c30.length?(real>=0?'g':'r'):''}">${M.c30.length?e(money(real)):'—'}</b><span>Profit</span></div><div><b>${wr}</b><span>Win rate</span></div><div><b>${M.tr30}</b><span>Trades</span></div></div>`}
 function series(M){const now=Date.now()/1000,span={'7d':7*86400,'30d':30*86400}[T.range],t0=span?now-span:null,cl=M.A.closed.filter(r=>r.t1!=null).sort((a,b)=>a.t1-b.t1);
- const inR=t0?cl.filter(r=>r.t1>=t0):cl;const start=t0||(inR.length?Math.min(inR[0].t1,...M.P.trades.map(x=>x.time||now)):now-86400);let c=0;const pts=[{t:start,v:0}];
+ const inR=t0?cl.filter(r=>r.t1>=t0):cl;/* r172: the line starts where this wallet's loaded history starts, not 30 days back (a flat line then a cliff) */const start=Math.max(t0||0,M.oldest&&M.oldest<now?M.oldest:now-3600);let c=0;const pts=[{t:start,v:0}];
  inR.forEach(r=>{c+=r.real;pts.push({t:r.t1,v:c})});pts.push({t:now,v:c+(M.known?M.unreal:0),live:1});return pts}
 function chart(M){const pts=series(M),u=su()||1,W=353,H=150,vs=pts.map(p=>p.v*u),mn=Math.min(0,...vs),mx=Math.max(0,...vs),rg=(mx-mn)||1,t0=pts[0].t,t1=pts[pts.length-1].t;
  const x=t=>(t-t0)/((t1-t0)||1)*(W-10)+2,y=v=>12+(1-(v-mn)/rg)*(H-34);const d=pts.map((p,i)=>(i?'L':'M')+x(p.t).toFixed(1)+' '+y(p.v*u).toFixed(1)).join(' ');
  const end=vs[vs.length-1],up=end>=0,col=up?'#4fd08a':'#ff6b6b',lx=x(t1),ly=y(end),z=y(0);
- const lab=[0,.25,.5,.75,1].map(k=>{const t=t0+(t1-t0)*k;return k===1?'Today':new Date(t*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'})});
+ const short_=t1-t0<172800,lab=[0,.25,.5,.75,1].map(k=>{const t=t0+(t1-t0)*k;return k===1?'Now':short_?new Date(t*1000).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):new Date(t*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'})});
  const empty=pts.length<=2&&!M.known;
  return `<div class="tr3-sh"><h3>Profit</h3><span class="tr3-tf">${['7d','30d','All'].map(k=>`<button type="button" data-tr3r="${k.toLowerCase()==='all'?'all':k}" class="${(T.range===k||(k==='All'&&T.range==='all'))?'on':''}">${k}</button>`).join('')}</span></div>
  <div class="tr3-lc">${empty?'<div class="tr3-em">No finished trades in this range yet</div>':`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Profit over time"><defs><linearGradient id="tr3f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".16"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><line x1="0" y1="${z.toFixed(1)}" x2="${W}" y2="${z.toFixed(1)}" stroke="#ffffff1c" stroke-dasharray="2 5" vector-effect="non-scaling-stroke"/><path d="${d} L${lx.toFixed(1)} ${H} L${x(t0).toFixed(1)} ${H}Z" fill="url(#tr3f)"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><i class="tr3-dot" style="left:${(lx/W*100).toFixed(2)}%;top:${(ly/H*100).toFixed(2)}%;background:${col}"></i><span class="tr3-end ${up?'g':'r'}" data-tr3="end" style="top:${Math.max(0,ly/H*100-16).toFixed(1)}%">${e(su()?fmtUsd(end):(end>=0?'+':'−')+Math.abs(end).toFixed(3)+' SOL')}</span><span class="tr3-z" style="top:${(z/H*100-10).toFixed(1)}%">$0</span>`}</div>
  ${empty?'':`<div class="tr3-ax">${lab.map(l=>`<span>${e(l)}</span>`).join('')}</div>`}`}
 function row(o,isOpen){const t=o.t,nm=t?e(t.tick&&t.tick!=='?'?t.tick:t.name):e(short(o.mint)),u=su();
  const cm=v=>v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).toFixed(v<1e7?2:1)+'M':v>=1e3?'$'+Math.round(v/1e3)+'K':'$'+Math.round(v);const path=o.from!=null&&o.to!=null?cm(o.from)+' → '+cm(o.to):isOpen&&o.avg>0?'in at '+prPx(o.avg)+' SOL':'';
- const sub=['Token',path,o.at?ago(o.at):''].filter(Boolean).join(' · ');const cls=o.pnl==null?'':o.pnl>=0?'g':'r';
+ const sub=(isOpen?['Token',path,o.at?'bought '+(ago(o.at)==='now'?'just now':ago(o.at)+' ago'):'']:[path||'Token',o.n>2?o.n+' trades':o.held!=null?'held '+spanTxt(o.held):'',o.at?'closed '+(ago(o.at)==='now'?'just now':ago(o.at)+' ago'):'']).filter(Boolean).join(' · ');const cls=o.pnl==null?'':o.pnl>=0?'g':'r';
  return `<a class="tr3-ro" href="#/token/${e(t?t.id:o.mint)}" data-k="${e(o.k)}"${isOpen?` data-m="${e(o.mint)}"`:''}><span class="tr3-tk">${prAv(o.mint,t,42)}</span><span class="tr3-m"><b>${nm}</b><small>${e(sub)}</small></span><span class="tr3-x"><b class="${cls}" data-v="${o.pnl==null?'':o.pnl}">${o.pnl==null?'—':e(money(o.pnl))}</b><small class="${cls}">${o.pct==null?(isOpen?'price loading':''):pctT(o.pct)}</small></span></a>`}
-function positions(M){const list=T.open?M.open:M.closed;let body;
+/* r172 calm lists: the Open/Closed list keeps its rows and order while you look at it. Older positions found while history loads are added
+   at the bottom; positions newer than what is on screen wait behind a "N new" button (an active trader closes a token every few seconds,
+   so the list used to keep reshuffling). Open rows still re-value live; tap the button (or switch Open/Closed) to take the new ones in. */
+const SNAP={k:'',order:[],newest:0};
+function spanTxt(s){s=Math.max(0,s);return s<90?Math.round(s)+'s':s<5400?Math.round(s/60)+'m':s<172800?Math.round(s/3600)+'h':Math.round(s/86400)+'d'}
+function snap(list,key){if(SNAP.k!==key){SNAP.k=key;SNAP.order=list.map(o=>o.k);SNAP.newest=list.reduce((m,o)=>Math.max(m,o.at||0),0);return{shown:list,pend:0}}
+ const by=new Map(list.map(o=>[o.k,o])),have=new Set(SNAP.order);let pend=0;
+ for(const o of list){if(have.has(o.k))continue;if((o.at||0)<=SNAP.newest){SNAP.order.push(o.k);have.add(o.k)}else pend++}
+ return{shown:SNAP.order.map(k=>by.get(k)).filter(Boolean),pend}}
+function positions(M){const list=T.open?M.open:M.closed;let body;const w=curW(),S1=snap(list,w+'|'+(T.open?'o':'c'));
  if(T.filt==='perps')body='<div class="tr3-em">No perp positions from this wallet on Saturn yet</div>';
  else if(T.filt==='predictions')body='<div class="tr3-em">No predictions from this wallet on Saturn yet</div>';
- else body=list.length?list.map(o=>row(o,T.open)).join(''):`<div class="tr3-em">${T.open?'No open positions right now':'No closed positions yet'}</div>`;
+ else body=(S1.pend?`<button type="button" class="tr3-new" data-tr3n="1">↑ ${S1.pend} new ${T.open?'open':'closed'} position${S1.pend===1?'':'s'} · show</button>`:'')+(S1.shown.length?S1.shown.map(o=>row(o,T.open)).join(''):`<div class="tr3-em">${T.open?'No open positions right now':'No closed positions yet'}</div>`);
  return `<div class="tr3-sh"><h3>Positions</h3><span class="tr3-oc"><button type="button" data-tr3o="1" class="${T.open?'on':''}">Open ${M.open.length}</button><button type="button" data-tr3o="0" class="${T.open?'':'on'}">Closed ${M.closed.length}</button></span></div>
  <div class="tr3-chips">${[['all','All'],['tokens','Tokens'],['perps','Perps'],['predictions','Predictions']].map(([k,l])=>`<button type="button" data-tr3f="${k}" class="${T.filt===k?'on':''}">${l}</button>`).join('')}</div><div class="tr3-rows">${body}</div>`}
+document.addEventListener('click',ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest('[data-tr3n]');if(!b)return;ev.preventDefault();SNAP.k='';const w=curW();if(w)paint(w)});
 /* r167 header: balance (on-chain SOL + live value of held tokens) and live open P&L, left-aligned, no sentence */
 function balHtml(w,M){const P=SOC.pf[w];if(!P)return'';if(prHide(w,'b'))return'<div class="tr3-bal"><div><small>Balance</small><div class="tr3-bv p">Private</div></div></div>';
  const u=su();if(P.sol==null&&!P.se)return'<div class="tr3-bal"><div><small>Balance</small><div class="tr3-bv"><i class="tr3-skl"></i></div></div></div>';
@@ -18933,7 +18944,7 @@ window.__tr3Mints=()=>{const M=T.last,w=curW(),P=w&&SOC.pf[w],s=new Set(M?M.open
 let tk=0;window.__tr3Px=(m,p)=>{if(!(p>0))return;const was=T.px.get(m);T.px.set(m,p);if(was===p)return;if(!tk)tk=setTimeout(()=>{tk=0;const w=curW();if(w)paint(w)},600)};
 /* clicks */
 document.addEventListener('click',ev=>{const t=ev.target&&ev.target.closest&&ev.target.closest('[data-tr3r],[data-tr3o],[data-tr3f]');if(!t)return;ev.preventDefault();
- if(t.dataset.tr3r)T.range=t.dataset.tr3r;else if(t.dataset.tr3o)T.open=t.dataset.tr3o==='1';else T.filt=t.dataset.tr3f;const w=curW();if(w)paint(w)});
+ if(t.dataset.tr3r)T.range=t.dataset.tr3r;else if(t.dataset.tr3o){T.open=t.dataset.tr3o==='1';SNAP.k=''}else T.filt=t.dataset.tr3f;const w=curW();if(w)paint(w)});
 /* every profile repaint (data arrived, history page loaded, live trade) also repaints this view */
 const SPF=window.socPaintProfile;window.socPaintProfile=function(w){const r=SPF.apply(this,arguments);try{if(document.querySelector('.prf.tr3')){const pu=document.getElementById('pu-body');if(pu)pu.innerHTML='';paint(w)}}catch(x){}return r};
 /* a gentle refresh for prices without socket ticks (market list / GeckoTerminal) and the "ago" times */
