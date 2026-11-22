@@ -17587,6 +17587,17 @@ html body .soc.p2 .p2r.p2-enter{animation:p2Enter 1s cubic-bezier(.2,.8,.2,1)}
 .stk-rt{margin-top:16px;border:0;border-radius:14px;padding:12px 18px;background:#1c1915;color:#f1ebdf;font:700 14px/1 Inter,system-ui,sans-serif;cursor:pointer}
 .stk-ft{font:500 11.5px/1.5 Inter,system-ui,sans-serif;color:#5d574d;margin-top:18px}
 @media(prefers-reduced-motion:reduce){.stk-p b.fu,.stk-p b.fd,.stk-r.sk *{animation:none}}
+/* r178 Perps Markets in the Stocks style */
+.px-mbar{margin:16px 0 0}
+.px-mcats.stk-ch{margin-top:0;justify-content:flex-start;gap:8px;padding:0 1px}
+.px-mcats.stk-ch button{height:auto;font:700 13.5px/1 Inter,system-ui,sans-serif;color:#8f887c;padding:10px 14px;border-radius:12px;background:#141210}
+.px-mcats.stk-ch button.on{background:#e8b95a;color:#1a1408}
+.px-mlist.px8-ls{margin-top:10px}
+a.px8.stk-r{border:0!important;padding:13px 0}
+.px8 .stk-n b{display:flex;align-items:center}
+.px8-lv{font:800 10.5px/1 Inter,system-ui,sans-serif;color:#e8b95a;background:#e8b95a1c;padding:4px 6px;border-radius:6px;margin-left:8px}
+.px8 .stk-n small u{text-decoration:none;color:#5d574d}
+.px8-star{flex:none;margin-left:auto;margin-right:8px;width:34px;height:34px;border:0;border-radius:50%;background:#141210;color:#e8b95a;font:800 17px/34px Inter,system-ui,sans-serif;cursor:pointer;padding:0}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -19536,6 +19547,70 @@ document.addEventListener('click',ev=>{const t=ev.target&&ev.target.closest&&ev.
  if(t.dataset.stkF){ST.filt=t.dataset.stkF;document.querySelectorAll('.stk-ch button').forEach(b=>{const on=b.dataset.stkF===ST.filt;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});const ls=document.getElementById('stk-ls');if(ls)ls.innerHTML=body()}
  else if(t.dataset.stk==='retry'){ST.err=false;const ls=document.getElementById('stk-ls');if(ls)ls.innerHTML=body();load(true);wsOpen()}});
 window.__satStocks={ST,load,market};
+})();
+
+/* ===== r178 PERPS MARKETS in the Stocks page style: same chips, a status line ("Markets open 24/7 · N of M up today"), rows with the coin
+   picture, ticker + leverage badge, full name · 24h volume, and the price with the same ↑/↓ pill. ★ Watchlist (tap ☆ on a market's trade
+   screen) is saved on this device. Rows update in place when prices refresh (no rebuild, no flashing). Every value comes from the same Perps
+   data as before; nothing is added that the service does not provide. ===== */
+(function boot178(){'use strict';
+const SP=window.SaturnPerps;if(window.__satPx178)return;if(!SP||!SP.__state){if((boot178.n=(boot178.n||0)+1)<120)setTimeout(boot178,250);return}window.__satPx178=1;
+const PX=SP.__state,desc=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');if(!desc||!desc.set)return;
+const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>typeof v==='number'&&isFinite(v);
+const WK='sat-px-watch';let W=new Set();try{W=new Set(JSON.parse(localStorage.getItem(WK)||'[]'))}catch(x){}
+const saveW=()=>{try{localStorage.setItem(WK,JSON.stringify([...W]))}catch(x){}};
+const st={watch:false,raw:''};
+const fmtVol=v=>v>=1e9?'$'+(v/1e9).toFixed(1)+'B':v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(1)+'K':'$'+Math.round(v);
+const mOf=sym=>(PX._mall||[]).find(m=>m&&m.symbol===sym)||null;
+const pill=c=>num(c)?`<span class="stk-pl ${c>=0?'u':'d'}">${c>=0?'↑':'↓'} ${Math.abs(c).toFixed(2)}%</span>`:'<span class="stk-pl n">—</span>';
+/* one original row (Perps markup) -> the new row */
+function conv(a){const sym=a.dataset.sym,m=mOf(sym),img=a.querySelector('.px-lg img'),base=(a.querySelector('.px-mt b')||{}).textContent||sym,pb=a.querySelector('.px-mp b');
+ const name=m&&m.name&&String(m.name).toUpperCase()!==String(base).toUpperCase()?m.name:'Perpetual',stock=m&&m.category==='stock';
+ const sub=e(name)+(stock?' · stock':'')+(m&&num(m.volume24h)?' <u>· '+e(fmtVol(m.volume24h))+' vol</u>':'');
+ const lev=m&&num(m.maxLeverage)?`<span class="px8-lv">${e(String(m.maxLeverage))}x</span>`:'';
+ const n=document.createElement('a');n.className='px-mrow stk-r px8';n.href=a.getAttribute('href');n.dataset.sym=sym;
+ n.innerHTML=`<span class="stk-av">${img?`<img src="${e(img.getAttribute('src'))}" alt="" width="46" height="46" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:'<i></i>'}${W.has(sym)?'<em aria-label="On your watchlist">★</em>':''}</span><span class="stk-n"><b>${e(base)}${lev}</b><small>${sub}</small></span><span class="stk-p"><b>${e(pb?pb.textContent:'—')}</b>${pill(m?m.change24h:null)}</span>`;
+ return n}
+function apply(el,h){st.raw=h;
+ const tpl=document.createElement('template');desc.set.call(tpl,h);const rows=[...tpl.content.querySelectorAll('a.px-mrow[data-sym]')];
+ if(!rows.length){desc.set.call(el,h);status();return}
+ let want=rows.map(conv);if(st.watch)want=want.filter(n=>W.has(n.dataset.sym));
+ if(!want.length){desc.set.call(el,`<div class="stk-em"><p>${st.watch?'No markets on your watchlist yet. Open a market and tap ☆ to add it.':'No markets in this category right now.'}</p></div>`);status();return}
+ const have=new Map();[...el.querySelectorAll(':scope>a.px8[data-sym]')].forEach(r=>have.set(r.dataset.sym,r));
+ [...el.children].forEach(c=>{if(!(c.matches&&c.matches('a.px8[data-sym]')))c.remove()});
+ want.forEach((n,i)=>{const o=have.get(n.dataset.sym);let node=n;
+  if(o){have.delete(n.dataset.sym);node=o;
+   const ob=o.querySelector('.stk-p b'),nb=n.querySelector('.stk-p b');if(ob.textContent!==nb.textContent){const a=parseFloat(ob.textContent.replace(/[^0-9.]/g,'')),b=parseFloat(nb.textContent.replace(/[^0-9.]/g,''));ob.textContent=nb.textContent;if(isFinite(a)&&isFinite(b)&&a!==b){ob.classList.remove('fu','fd');void ob.offsetWidth;ob.classList.add(b>a?'fu':'fd')}}
+   const op=o.querySelector('.stk-pl'),np=n.querySelector('.stk-pl');if(op.outerHTML!==np.outerHTML)op.outerHTML=np.outerHTML;
+   const on=o.querySelector('.stk-n'),nn=n.querySelector('.stk-n');if(on.innerHTML!==nn.innerHTML)on.innerHTML=nn.innerHTML;
+   const oa=o.querySelector('.stk-av'),na=n.querySelector('.stk-av'),oi=oa.querySelector('img'),ni=na.querySelector('img');
+   if((oi&&oi.getAttribute('src'))!==(ni&&ni.getAttribute('src'))||!!oa.querySelector('em')!==!!na.querySelector('em'))oa.innerHTML=na.innerHTML}
+  if(el.children[i]!==node)el.insertBefore(node,el.children[i]||null)});
+ have.forEach(r=>r.remove());status()}
+/* status line under the chips */
+function status(){const L=document.getElementById('px-mlist');if(!L)return;const bar=L.previousElementSibling&&L.previousElementSibling.classList.contains('px-mbar')?L.previousElementSibling:document.querySelector('.px-mbar');if(!bar)return;
+ let s=document.getElementById('px8-st');if(!s){s=document.createElement('div');s.id='px8-st';s.className='stk-st';bar.after(s)}
+ const all=(PX._mall||[]).filter(m=>m&&num(m.change24h)),up=all.filter(m=>m.change24h>=0).length;
+ const h='<b class="o">Markets open 24/7</b>'+(all.length?'<span>'+up+' of '+all.length+' up today</span>':'');if(s.innerHTML!==h)s.innerHTML=h}
+/* chips: add ★ Watchlist; the other chips keep their own behaviour */
+function chips(){const C=document.getElementById('px-mcats');if(!C)return;C.classList.add('stk-ch');
+ let b=C.querySelector('[data-px8="watch"]');if(!b){b=document.createElement('button');b.type='button';b.dataset.px8='watch';b.textContent='★ Watchlist';C.appendChild(b)}
+ const on=st.watch;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);
+ if(on)C.querySelectorAll('[data-px="mcat"]').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-pressed','false')})}
+function hook(el){if(!el||el.__px178)return;el.__px178=1;el.classList.add('px8-ls');
+ const first=desc.get.call(el);
+ Object.defineProperty(el,'innerHTML',{configurable:true,get(){return desc.get.call(this)},set(h){try{apply(this,String(h))}catch(x){desc.set.call(this,h)}}});
+ try{apply(el,first)}catch(x){}}
+function star(){const th=document.querySelector('.px-th');if(!th||th.querySelector('.px8-star'))return;const m=/^#\/perps\/trade\/([^/?]+)/.exec(location.hash);const sym=m?decodeURIComponent(m[1]):(PX.draft&&PX.draft.market);if(!sym)return;
+ const b=document.createElement('button');b.type='button';b.className='px8-star';b.dataset.px8='star';b.dataset.sym=sym;const on=W.has(sym);b.textContent=on?'★':'☆';b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Remove from watchlist':'Add to watchlist');
+ const live=th.querySelector('#px-live');if(live)th.insertBefore(b,live);else th.appendChild(b)}
+new MutationObserver(()=>{const L=document.getElementById('px-mlist');if(L){hook(L);chips();status()}star()}).observe(document.documentElement,{childList:true,subtree:true});
+document.addEventListener('click',ev=>{const t=ev.target&&ev.target.closest&&ev.target.closest('[data-px8],[data-px="mcat"]');if(!t)return;
+ if(t.dataset.px==='mcat'){if(st.watch){st.watch=false;chips()}return}
+ ev.preventDefault();
+ if(t.dataset.px8==='watch'){st.watch=!st.watch;chips();const L=document.getElementById('px-mlist');if(L&&st.raw)apply(L,st.raw)}
+ else if(t.dataset.px8==='star'){const s=t.dataset.sym;if(W.has(s))W.delete(s);else W.add(s);saveW();const on=W.has(s);t.textContent=on?'★':'☆';t.setAttribute('aria-pressed',on);t.setAttribute('aria-label',on?'Remove from watchlist':'Add to watchlist')}},true);
 })();
 </script>
 <style id="saturn-r112-css">
