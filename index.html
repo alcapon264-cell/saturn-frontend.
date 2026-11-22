@@ -18621,7 +18621,17 @@ const tok0=m=>{try{return socTok(m)}catch(x){return null}};
 /* ---------- token names/prices for coins the market list doesn't know (GeckoTerminal) ---------- */
 const GT=new Map(),GQ=new Set(),NM=new Map();let gT=0,gBusy=false,gWait=0;
 const num=v=>v==null||v===''||!isFinite(+v)?null:+v;
-function need(ms){for(const m of ms)if(B58.test(m)&&!tok0(m)&&!GT.has(m))GQ.add(m);if(GQ.size&&!gT&&!gBusy)gT=setTimeout(gRun,200)}
+function need(ms){for(const m of ms){if(!B58.test(m))continue;const t=tok0(m);if(!t&&!GT.has(m))GQ.add(m);if(!(t&&t.img)&&!SM.has(m))SQ.add(m)}if(GQ.size&&!gT&&!gBusy)gT=setTimeout(gRun,200);if(SQ.size&&!sT&&!sBusy)sT=setTimeout(sRun,300)}
+/* r166 pictures/names from Saturn's server (stream metadata -> IPFS picture, Pump.fun fallback) for coins without a picture */
+const SM=new Map(),SQ=new Set(),STRY=new Map();let sT=0,sBusy=false,VER=0;
+async function sRun(){sT=0;if(sBusy)return;sBusy=true;let got=false;
+ try{for(let round=0;SQ.size&&round<15;round++){const c=[...SQ].slice(0,40);let j=null;
+  try{const r=await fetch('https://saturn-perps-staging.onrender.com/v1/tok/meta?m='+c.join(','),{headers:{accept:'application/json'},referrerPolicy:'no-referrer'});if(r.ok)j=await r.json()}catch(x){}
+  if(!j||!j.ok){await new Promise(r=>setTimeout(r,5000));if(round>3)break;continue}
+  const M=j.meta||{};for(const m of c){const v=M[m];if(v&&(v.name||v.symbol||v.image)){SM.set(m,{name:String(v.name||'').slice(0,40),symbol:String(v.symbol||'').slice(0,16),image:/^https:\/\//.test(v.image||'')?v.image:null});SQ.delete(m);got=true}
+   else{const n=(STRY.get(m)||0)+1;STRY.set(m,n);if(n>=4||!j.pending){SM.set(m,null);SQ.delete(m)}}}
+  if(got){VER++;repaint();got=false}if(j.pending)await new Promise(r=>setTimeout(r,1200))}}
+ finally{sBusy=false}}
 async function gRun(){gT=0;if(gBusy)return;gBusy=true;let got=false;
  try{while(GQ.size){if(Date.now()<gWait)await new Promise(r=>setTimeout(r,gWait-Date.now()));const c=[...GQ].slice(0,30);c.forEach(m=>GQ.delete(m));
   let r;try{r=await fetch(`${CHART_CONFIG.HISTORY_API}/networks/solana/tokens/multi/${c.join(',')}`,{headers:{accept:'application/json'},referrerPolicy:'no-referrer'})}catch(x){r=null}
@@ -18631,29 +18641,44 @@ async function gRun(){gT=0;if(gBusy)return;gBusy=true;let got=false;
    GT.set(id,{id,ca:id,name:a.name||a.symbol||short(id),tick:a.symbol||'?',img,price:num(a.price_usd),mc:mc!=null?mc:fdv,chg:null,pcg:{},pair:'',gt:1});got=true});
   c.forEach(m=>{if(!GT.has(m))GT.set(m,null)})}}
  finally{gBusy=false}if(got)repaint()}
-function tokOf(m){const t=tok0(m);if(t)return t;const g=GT.get(m);if(g)return g;const n=NM.get(m);return n?{id:m,ca:m,name:n.name||n.symbol,tick:n.symbol||n.name,img:null,price:null,mc:null,pcg:{},pair:''}:null}
+function tokOf(m){const s=SM.get(m);let t=tok0(m)||GT.get(m)||null;
+ if(!t){const n=NM.get(m)||(s&&(s.name||s.symbol)?s:null);if(n)t={id:m,ca:m,name:n.name||n.symbol,tick:n.symbol||n.name,img:null,price:null,mc:null,pcg:{},pair:''}}
+ if(t&&s&&s.image&&!t.img)t={...t,img:s.image};return t}
 const tname=(m,t)=>t?e(t.tick&&t.tick!=='?'?t.tick:t.name):e(short(m));
-/* ---------- history: first page fast, the rest in the background, more on scroll ---------- */
-const H=new Map(),P1=40,PG=50,AUTO=250,CAP=1500;
+/* ---------- history: first page fast, the rest in the background (paced to stay under Saturn's RPC limit), more on scroll ----------
+   r166: (1) transactions the RPC didn't return (busy / rate limited) are retried later instead of being silently dropped;
+         (2) pages are paced (~2 tx/s) so a profile never trips the RPC limit and loses trades;
+         (3) Saturn's server also records every Pump.fun / PumpSwap buy and sell from the live stream (made anywhere, not only in Saturn):
+             those are merged in at once, so a profile shows the trader's recent activity even before the chain history arrives. */
+const H=new Map(),P1=40,PG=40,AUTO=240,CAP=1500,API='https://saturn-perps-staging.onrender.com';
 const key=x=>(x.signature||'')+'|'+x.mint;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function parseTx(w,sig,tx,out){const ms=new Set();[...(tx.meta.preTokenBalances||[]),...(tx.meta.postTokenBalances||[])].forEach(b=>{if(b.owner===w&&b.mint!==SOLM)ms.add(b.mint)});
+ ms.forEach(m=>{const p=parseTradeFromTx(tx,m,w);if(p)out.push({...p,signature:sig,mint:m})})}
+async function fetchTxs(w,list){const F=window.SATURN_FTX,rs=await F.many(list),out=[],miss=[];
+ rs.forEach((tx,i)=>{if(tx&&tx.meta){if(!tx.meta.err)parseTx(w,list[i],tx,out)}else miss.push(list[i])});return{out,miss}}
 async function page(w,before,limit){const sigs=await solRpc('getSignaturesForAddress',[w,before?{limit,before}:{limit}]);if(!Array.isArray(sigs))throw new Error('rpc');
- const txs=await socTxs(sigs.filter(s=>!s.err)),out=[];
- txs.forEach(({s,tx})=>{const ms=new Set();[...(tx.meta.preTokenBalances||[]),...(tx.meta.postTokenBalances||[])].forEach(b=>{if(b.owner===w&&b.mint!==SOLM)ms.add(b.mint)});
-  ms.forEach(m=>{const p=parseTradeFromTx(tx,m,w);if(p)out.push({...p,signature:s,mint:m})})});
- return{out,n:sigs.length,last:sigs.length?sigs[sigs.length-1].signature:null}}
+ const r=await fetchTxs(w,sigs.filter(s=>!s.err).map(s=>s.signature));
+ return{out:r.out,miss:r.miss,n:sigs.length,last:sigs.length?sigs[sigs.length-1].signature:null}}
+async function streamTrades(w){try{const r=await fetch(API+'/v1/tok/trader?w='+encodeURIComponent(w),{headers:{accept:'application/json'},referrerPolicy:'no-referrer'});if(!r.ok)return[];const j=await r.json();
+ return((j&&j.trades)||[]).filter(x=>x&&B58.test(x.mint||'')&&(x.side==='buy'||x.side==='sell')&&typeof x.sig==='string').map(x=>{if(x.name||x.symbol)NM.set(x.mint,{name:String(x.name||'').slice(0,40),symbol:String(x.symbol||'').slice(0,16)});
+  return{time:Number(x.at)||0,side:x.side,mint:x.mint,solAmt:Number(x.sol)>0?Number(x.sol):0,tokenAmt:Number(x.tok)>0?Number(x.tok):0,signature:x.sig,src:'stream'}})}catch(x){return[]}}
+function merge(w,list){const h=H.get(w),c=SOC.wt.get(w);if(!h||!c)return 0;const add=list.filter(x=>!h.keys.has(key(x)));add.forEach(x=>{h.keys.add(key(x));c.items.push(x)});
+ if(add.length){c.items.sort((a,b)=>(b.time||0)-(a.time||0));const ms=add.map(x=>x.mint);need(ms);try{socEnsureTokens(ms).then(()=>{if(curW()===w)repaint()},()=>{})}catch(x){}}return add.length}
 window.socWalletTrades=async function(w,force){const c=SOC.wt.get(w),h=H.get(w);
  if(c&&h&&!force&&Date.now()-c.ts<60000){setTimeout(()=>auto(w),300);return c.items}
- const p=await page(w,null,P1),items=p.out.sort((a,b)=>(b.time||0)-(a.time||0));
- H.set(w,{before:p.last,done:p.n<P1,busy:false,read:p.n,keys:new Set(items.map(key)),err:0});SOC.wt.set(w,{ts:Date.now(),items});
+ const st=streamTrades(w),p=await page(w,null,P1),items=p.out.sort((a,b)=>(b.time||0)-(a.time||0));
+ H.set(w,{before:p.last,done:p.n<P1,busy:false,read:p.n,keys:new Set(items.map(key)),err:0,miss:p.miss.slice()});SOC.wt.set(w,{ts:Date.now(),items});
+ const s1=await Promise.race([st,sleep(1500).then(()=>null)]);if(s1)merge(w,s1);else st.then(v=>{if(merge(w,v)&&curW()===w)repaint()});
  setTimeout(()=>auto(w),300);return items};
 async function more(w){const h=H.get(w),c=SOC.wt.get(w);if(!h||!c||h.busy||h.done||h.read>=CAP)return false;h.busy=true;
- try{const p=await page(w,h.before,PG);h.err=0;h.before=p.last||h.before;h.read+=p.n;if(p.n<PG||!p.last)h.done=true;
-  const add=p.out.filter(x=>!h.keys.has(key(x)));add.forEach(x=>{h.keys.add(key(x));c.items.push(x)});
-  if(add.length){c.items.sort((a,b)=>(b.time||0)-(a.time||0));const ms=add.map(x=>x.mint);try{await socEnsureTokens(ms)}catch(x){}need(ms)}
-  return true}
+ try{const p=await page(w,h.before,PG);h.err=0;h.before=p.last||h.before;h.read+=p.n;if(p.n<PG||!p.last)h.done=true;h.miss.push(...p.miss);merge(w,p.out);return true}
  catch(x){h.err++;return false}
  finally{h.busy=false;if(curW()===w)repaint()}}
-async function auto(w){for(let i=0;i<20;i++){const h=H.get(w);if(!h||h.done||h.read>=AUTO||curW()!==w||h.err>2)return;const ok=await more(w);if(!ok)await new Promise(r=>setTimeout(r,2500));else await new Promise(r=>setTimeout(r,350))}}
+async function retryMiss(w){const h=H.get(w);if(!h||!h.miss.length||h.busy)return;h.busy=true;try{const list=h.miss.splice(0,30),r=await fetchTxs(w,list);h.miss.push(...r.miss.filter(()=>(h.tries=(h.tries||0)+1)<400));merge(w,r.out)}catch(x){}finally{h.busy=false;if(curW()===w)repaint()}}
+async function auto(w){if(auto.on&&auto.on===w)return;auto.on=w;try{for(let i=0;i<40;i++){const h=H.get(w);if(!h||curW()!==w)return;
+  if(h.miss.length&&(h.done||h.read>=AUTO||i%3===2)){await retryMiss(w);await sleep(12000);continue}
+  if(h.done||h.read>=AUTO||h.err>3)return;const ok=await more(w);await sleep(ok?(i<1?800:15000):5000)}}finally{if(auto.on===w)auto.on=null}}
 let rpT=0;function repaint(){if(rpT)return;rpT=setTimeout(()=>{rpT=0;const w=curW();if(!w)return;const P=SOC.pf[w];if(!P)return;try{socPaintProfile(w)}catch(x){}},250)}
 /* ---------- rows ---------- */
 const ago=s=>{if(!s)return'—';const d=Math.max(0,Date.now()/1000-s);return d<60?Math.floor(d)+'s ago':d<3600?Math.floor(d/60)+'m ago':d<86400?Math.floor(d/3600)+'h ago':Math.floor(d/86400)+'d ago'};
@@ -18680,7 +18705,7 @@ window.socPaintProfile=function(w){const r=SPF.apply(this,arguments);try{const P
    el.insertAdjacentHTML('beforeend',`<div class="tr2-end">${done?`${P.trades.length} trades · full history loaded`:`<i></i>Loading older trades… · ${P.trades.length} so far`}</div>`)}
   if(el&&SOC.ptab!=='pos'){const s=el.querySelector('.tr2-cnt');if(!s&&P.trades.length){const n=new Set(P.trades.map(x=>x.mint)).size;el.insertAdjacentHTML('afterbegin',`<div class="tr2-cnt"><span class="tr2-live"><i></i>Live</span>${P.trades.length} trades · ${n} token${n===1?'':'s'}</div>`)}}}}catch(x){}
  NEW.clear();return r};
-addEventListener('scroll',()=>{const w=curW();if(!w||SOC.ptab!=='act')return;const h=H.get(w);if(!h||h.done||h.busy)return;
+addEventListener('scroll',()=>{const w=curW();if(!w||(SOC.ptab!=='act'&&!document.querySelector('.prf.tr3')))return;const h=H.get(w);if(!h||h.done||h.busy)return;
  if(innerHeight+scrollY>document.documentElement.scrollHeight-900)more(w)},{passive:true});
 /* times keep counting; open calls show the live market cap (entry MC x live multiple from the r163 price feed) */
 setInterval(()=>{if(!curW()||document.hidden)return;document.querySelectorAll('.prf .tr2-ago').forEach(s=>{const v=ago(+s.dataset.t);if(s.textContent!==v)s.textContent=v});
@@ -18701,8 +18726,9 @@ function lTrade(j){const w=curW();if(!w||j.w!==w||typeof j.sig!=='string'||!SIG.
  const c=SOC.wt.get(w),h=H.get(w),P=SOC.pf[w];if(!c||!h||!P||P.trades!==c.items)return;
  const it={time:Number(j.at)>0?Math.floor(Number(j.at)):Math.floor(Date.now()/1000),side:j.side,mint:j.mint,solAmt:Number(j.sol)>0?Number(j.sol):0,tokenAmt:Number(j.tok)>0?Number(j.tok):0,signature:j.sig,live:true};
  const k=key(it);if(h.keys.has(k))return;h.keys.add(k);c.items.unshift(it);c.items.sort((a,b)=>(b.time||0)-(a.time||0));NEW.add(k);need([it.mint]);
- try{socEnsureTokens([it.mint]).then(repaint,repaint)}catch(x){}repaint()}
-window.__satTr164={H,GT,L,tokOf,need,repaint,lSub};
+ try{socEnsureTokens([it.mint]).then(repaint,repaint)}catch(x){}repaint();
+ if(it.side==='sell'||it.side==='buy'){clearTimeout(lTrade.ht);lTrade.ht=setTimeout(()=>{try{socHoldingsCached(w,true).then(v=>{const Q=SOC.pf[w];if(Q&&curW()===w){Q.hold=v;repaint()}},()=>{})}catch(x){}},2500)}}
+window.__satTr164={H,GT,L,tokOf,need,repaint,lSub,ver:()=>VER};
 })();
 
 /* ===== r165 Trader profile v10 design: calm, flat, centered =====
@@ -18728,14 +18754,28 @@ const pctT=p=>(p<0?'−':'+')+Math.abs(p).toFixed(Math.abs(p)<10?1:Math.abs(p)<1
 const ago=s=>{const d=Math.max(0,Date.now()/1000-s);return d<60?'now':d<3600?Math.floor(d/60)+'m':d<86400?Math.floor(d/3600)+'h':Math.floor(d/86400)+'d'};
 const hold=s=>s<90?'a minute':s<3600?Math.round(s/60)+' minutes':s<86400?(Math.round(s/3600)===1?'1 hour':Math.round(s/3600)+' hours'):(Math.round(s/86400)===1?'1 day':Math.round(s/86400)+' days');
 /* positions from this wallet's trades */
-function model(w){const P=SOC.pf[w];if(!P||!Array.isArray(P.trades))return null;const A=prCalc(P.trades,P.hold),now=Date.now()/1000,open=[],closed=[];
- for(const r of A.all){if(!(r.eT>0))continue;const t=tokOf(r.mint),ns=nowSol(r.mint),mc=t&&t.mc!=null?t.mc:null,entry=r.eS/r.eT;
+/* r166: one row per token, decided from the wallet's own buys/sells AND what it still holds on-chain:
+   open   = it still holds a meaningful part (>= 2% of what it bought) -> valued live
+   closed = it sold and holds nothing meaningful (dust is ignored)      -> realized result, FROZEN (never moves with the price) */
+const FROZE=new Map();
+function agg(trades){const by=new Map();for(const x of [...trades].sort((a,b)=>(a.time||0)-(b.time||0))){if(!x||!x.mint)continue;let r=by.get(x.mint);if(!r)by.set(x.mint,r={mint:x.mint,eT:0,eS:0,sT:0,sS:0,t0:null,tb:null,t1:null});
+ if(x.side==='buy'&&x.tokenAmt>0&&x.solAmt>0){r.eT+=x.tokenAmt;r.eS+=x.solAmt;if(r.t0==null)r.t0=x.time||null;r.tb=x.time||r.tb}
+ else if(x.side==='sell'&&x.tokenAmt>0){r.sT+=x.tokenAmt;r.sS+=x.solAmt||0;r.t1=x.time||r.t1}}return[...by.values()]}
+function model(w){const P=SOC.pf[w];if(!P||!Array.isArray(P.trades))return null;const now=Date.now()/1000,open=[],closed=[],cl=[];
+ const hm=new Map((P.hold||[]).map(h=>[h.mint,h.amt])),holdKnown=Array.isArray(P.hold)&&!P.he&&P.hold.length<25;
+ for(const r of agg(P.trades)){if(!(r.eT>0))continue;const t=tokOf(r.mint),ns=nowSol(r.mint),mc=t&&t.mc!=null?t.mc:null,avg=r.eS/r.eT;
   const mcAt=px=>mc!=null&&ns>0&&px>0?mc*(px/ns):null;
-  if(r.hold>0&&r.bT>0){const q=Math.min(r.hold,r.bT),cost=r.bS*(q/r.bT),avg=r.bS/r.bT,val=ns>0?q*ns:null;
+  const h=hm.has(r.mint)?hm.get(r.mint):holdKnown?0:null;
+  const isOpen=(h==null||h>=r.eT*0.02)&&r.sT<r.eT*0.98;
+  if(isOpen){const q=h!=null?Math.min(h,r.eT):Math.max(0,r.eT-r.sT),cost=q*avg,val=ns>0?q*ns:null;
    open.push({k:'o'+r.mint,mint:r.mint,t,q,cost,avg,ns,pnl:val!=null?val-cost:null,pct:val!=null&&cost>0?(val/cost-1)*100:null,from:mcAt(avg),to:mc,at:r.tb||r.t0})}
-  else if(r.ok&&!(r.hold>0)){const sold=r.sT>0?r.sS/r.sT:null,cost=r.eS;closed.push({k:'c'+r.mint,mint:r.mint,t,pnl:r.real,pct:cost>0?r.real/cost*100:null,from:mcAt(entry),to:mcAt(sold),at:r.t1||r.tb})}}
+  else if(r.sT>0){const frac=Math.min(1,r.sT/r.eT),cs=r.eS*frac,real=r.sS-cs,fk=r.mint+'|'+r.sS.toFixed(9)+'|'+r.eS.toFixed(9);
+   let fz=FROZE.get(fk);if(!fz||(fz.from==null&&mc!=null)){fz={from:mcAt(avg),to:mcAt(r.sS/r.sT)};FROZE.set(fk,fz);if(FROZE.size>3000)FROZE.delete(FROZE.keys().next().value)}
+   closed.push({k:'c'+r.mint,mint:r.mint,t,pnl:real,pct:cs>0?real/cs*100:null,from:fz.from,to:fz.to,at:r.t1||r.tb});cl.push({t1:r.t1,real,t0:r.t0})}}
  open.sort((a,b)=>(b.at||0)-(a.at||0));closed.sort((a,b)=>(b.at||0)-(a.at||0));
- const d30=now-30*86400,c30=A.closed.filter(r=>r.t1!=null&&r.t1>=d30),tr30=P.trades.filter(x=>x.time>=d30).length,oldest=P.trades.reduce((m,x)=>x.time&&x.time<m?x.time:m,now);
+ const hs=cl.filter(r=>r.t0!=null&&r.t1!=null&&r.t1>=r.t0).map(r=>r.t1-r.t0).sort((a,b)=>a-b),med=hs.length?hs[Math.floor(hs.length/2)]:null;
+ const A={closed:cl,wins:cl.filter(r=>r.real>0).length,med};
+ const d30=now-30*86400,c30=cl.filter(r=>r.t1!=null&&r.t1>=d30),tr30=P.trades.filter(x=>x.time>=d30).length,oldest=P.trades.reduce((m,x)=>x.time&&x.time<m?x.time:m,now);
  const unreal=open.reduce((s,o)=>s+(o.pnl||0),0),known=open.some(o=>o.pnl!=null);
  return{A,open,closed,c30,tr30,cover:now-oldest>=29*86400,unreal,known,P}}
 /* ---------- paint ---------- */
@@ -18816,7 +18856,10 @@ const fmtU=v=>{const a=Math.abs(v);return(v>=0?'+':'−')+'$'+(a>=1000?(a/1000).
 const lvl=x=>{const u=x.usdAmt>0?x.usdAmt:(x.solAmt>0&&typeof SOLUSD==='number'&&SOLUSD>0?x.solAmt*SOLUSD:0);return u>0?Math.max(1,Math.min(5,Math.ceil(Math.log10(u+1)*2))):1};
 const money=x=>x.usdAmt>0?'$'+(x.usdAmt>=1000?(x.usdAmt/1000).toFixed(1)+'K':x.usdAmt.toFixed(2)):x.solAmt>0?socSol(x.solAmt):'—';
 const following=w=>{try{return!!w&&w!==socMe()&&SOC.fw.includes(w)}catch(x){return false}};
-const tokOf=m=>{try{return socTok(m)}catch(x){return null}};
+const X64=()=>window.__satTr164||null;
+const tokOf=m=>{try{const x=X64();return x?x.tokOf(m):socTok(m)}catch(x){return null}};   /* r166: also names + pictures for coins the market list lacks */
+let NEEDQ=new Set(),NEEDT=0;const needT=m=>{NEEDQ.add(m);if(!NEEDT)NEEDT=setTimeout(()=>{NEEDT=0;const x=X64(),l=[...NEEDQ];NEEDQ=new Set();try{x&&x.need(l)}catch(e){}},400)};
+let PVER=0;setInterval(()=>{try{const x=X64();if(!x||S.view!=='social'||document.hidden)return;const v=x.ver();if(v!==PVER){PVER=v;const el=document.getElementById('soc-feed');if(el)el._tag=null;socPaintFeed()}}catch(e){}},3000);
 const TR=new Map();window.__p2TR=TR;   /* signature -> trade (for the sheet) */
 try{if(typeof FEED==='object'&&FEED)FEED.MAXV=Math.max(FEED.MAXV||0,3000)}catch(x){}
 
@@ -18828,7 +18871,7 @@ const SP=window.SocialPage;window.SocialPage=function(){if(!['profit','bigall'].
  h=h.replace('<div class="rf-flt">','<div class="p2-beat" id="p2-beat" aria-hidden="true"><svg viewBox="0 0 250 40" preserveAspectRatio="none"></svg><span class="p2-bt"><b><i></i><em>—</em></b><small>big buys / min</small></span></div><div class="rf-flt">')}catch(x){}return h};
 
 /* ---------- one trade = one row ---------- */
-window.socItem=function(tr){TR.set(tr.signature,tr);const t=tokOf(tr.mint),k=e(tr.signature),nmk=NM.get(tr.mint);
+window.socItem=function(tr){TR.set(tr.signature,tr);needT(tr.mint);const t=tokOf(tr.mint),k=e(tr.signature),nmk=NM.get(tr.mint);
  let cn=0;try{cn=R18.n(tr.signature)||0}catch(x){}
  const tk=t?e(t.tick||t.name):nmk?e(nmk.symbol||nmk.name):e(short(tr.mint)),nm=tr.wallet?e(WP.name(tr.wallet)):'',fw=following(tr.wallet),whale=tr.solAmt>=5;
  const tav=(()=>{try{return prAv(tr.mint,t,46)}catch(x){return''}})(),wav=tr.wallet?(()=>{try{return socAv(tr.wallet,22)}catch(x){return''}})():'';
