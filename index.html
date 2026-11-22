@@ -17550,6 +17550,38 @@ html body .soc.p2 .p2r.p2-enter{animation:p2Enter 1s cubic-bezier(.2,.8,.2,1)}
 .ep-gd{display:grid;grid-template-columns:1fr 1fr;row-gap:22px;column-gap:8px;margin-top:28px}
 .ep-gd small{display:block;font:600 11.5px/1 Inter,system-ui,sans-serif;color:#8f887c}.ep-gd b{display:block;font:800 16px/1 Inter,system-ui,sans-serif;margin-top:8px;color:#f1ebdf}.ep-gd b.g{color:#4fd08a}
 .ep-gd em{display:block;font:600 11.5px/1 Inter,system-ui,sans-serif;font-style:normal;color:#6f695f;margin-top:5px}
+</style>
+<style id="saturn-r174-stocks-css">
+/* r174 Stocks tab (no border lines) */
+.px-cat.stk-4{gap:20px}
+.stk{padding-bottom:110px}
+.stk-ch{display:flex;gap:8px;margin-top:16px;overflow-x:auto;scrollbar-width:none}
+.stk-ch button{flex:none;font:700 13.5px/1 Inter,system-ui,sans-serif;color:#8f887c;padding:10px 14px;border-radius:12px;background:#141210;border:0;cursor:pointer}
+.stk-ch button.on{background:#e8b95a;color:#1a1408}
+.stk-st{display:flex;align-items:center;gap:8px;margin-top:14px;font:600 12.5px/1.2 Inter,system-ui,sans-serif;color:#6f695f}
+.stk-st b{display:inline-flex;align-items:center;gap:6px;font-weight:700}.stk-st b::before{content:"";width:7px;height:7px;border-radius:50%}
+.stk-st b.o{color:#4fd08a}.stk-st b.o::before{background:#4fd08a}.stk-st b.c{color:#a39c90}.stk-st b.c::before{background:#6f695f}
+.stk-ls{margin-top:10px}
+.stk-r{display:flex;align-items:center;gap:13px;padding:13px 0;color:inherit;text-decoration:none}
+.stk-av{position:relative;flex:none;width:46px;height:46px}
+.stk-av img,.stk-av i{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;object-fit:cover;background:#2a2620;font:800 14px/1 Inter,system-ui,sans-serif;font-style:normal;color:#f1ebdf}
+.stk-av b{position:absolute;right:-2px;bottom:-2px;width:16px;height:16px;border-radius:50%;border:3px solid #0b0a09;background:linear-gradient(135deg,#9945ff,#14f195)}
+.stk-av em{position:absolute;left:-4px;top:-4px;width:18px;height:18px;border-radius:50%;background:#0b0a09;color:#e8b95a;font:900 11px/18px Inter,system-ui,sans-serif;text-align:center;font-style:normal}
+.stk-n{flex:1;min-width:0}.stk-n b{display:block;font:800 16px/1.1 Inter,system-ui,sans-serif;color:#f1ebdf;letter-spacing:.01em}
+.stk-n small{display:block;font:600 12.5px/1 Inter,system-ui,sans-serif;color:#8f887c;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stk-p{flex:none;text-align:right}.stk-p b{display:block;font:800 18px/1 Inter,system-ui,sans-serif;color:#f1ebdf;font-variant-numeric:tabular-nums;border-radius:6px}
+.stk-pl{display:inline-block;margin-top:7px;font:800 12.5px/1 Inter,system-ui,sans-serif;padding:6px 9px;border-radius:8px}
+.stk-pl.u{color:#4fd08a;background:#163a24}.stk-pl.d{color:#ff6b6b;background:#3a1717}.stk-pl.n{color:#8f887c;background:#1a1714}
+.stk-p b.fu{animation:stkU .9s ease-out}.stk-p b.fd{animation:stkD .9s ease-out}
+@keyframes stkU{0%{background:#4fd08a33}100%{background:transparent}}@keyframes stkD{0%{background:#ff6b6b33}100%{background:transparent}}
+.stk-r.sk .stk-av i,.stk-r.sk b,.stk-r.sk small,.stk-r.sk .stk-pl{background:#161412;color:transparent;animation:stkP 1.2s ease-in-out infinite}
+.stk-r.sk .stk-n b{width:70px;height:14px;border-radius:6px}.stk-r.sk .stk-n small{width:110px;height:11px;border-radius:5px}.stk-r.sk .stk-p b{width:80px;height:16px;margin-left:auto}.stk-r.sk .stk-pl{width:62px;height:24px}
+.stk-r.sk .stk-av b{display:none}
+@keyframes stkP{50%{opacity:.5}}
+.stk-em{padding:30px 4px;text-align:left}.stk-em b{display:block;font:700 18px/1.3 Inter,system-ui,sans-serif;color:#f1ebdf}.stk-em p{font:500 14px/1.5 Inter,system-ui,sans-serif;color:#8f887c;margin-top:8px}
+.stk-rt{margin-top:16px;border:0;border-radius:14px;padding:12px 18px;background:#1c1915;color:#f1ebdf;font:700 14px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.stk-ft{font:500 11.5px/1.5 Inter,system-ui,sans-serif;color:#5d574d;margin-top:18px}
+@media(prefers-reduced-motion:reduce){.stk-p b.fu,.stk-p b.fd,.stk-r.sk *{animation:none}}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -19320,6 +19352,76 @@ window.socLoad=async function(force){if(S.view!=='social'||SOC.tab!=='global')re
  if(!force&&T.st==='ok'&&T.F){socPaintFeed();return}
  const F=feedNew([]);F.more='end';(T.items||[]).forEach(x=>F.pool.set(feedKey(x),x));T.F=F;T.st='ok';T.prov=false;T.cached=false;T.ts=Date.now();T.items=(T.items||[]).filter(BIG);
  socPaintFeed();if(force){try{pClose()}catch(x){}}try{pCheck()}catch(x){}};
+})();
+</script>
+<script id="saturn-r174-stocks">
+/* ===== r174 Stocks: tokenized US stocks & ETFs on Solana (xStocks), as a 4th Discover tab after Prediction =====
+   Data: Saturn's server (/v1/stocks) reads Jupiter's verified token list and keeps only the real xStocks (verified, "Xs…" issuer mints,
+   "<TICKER>x" symbols). Live price + 24h change come from the same read; nothing is invented. Tapping a stock opens its token page
+   (chart, buy/sell) like any Solana token. ★ Watchlist = the tokens you follow in Saturn (the star on a token page). */
+(function(){'use strict';
+if(window.__satStocks)return;window.__satStocks=1;
+const API='https://saturn-perps-staging.onrender.com/v1/stocks';
+const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ST={list:null,at:0,err:false,filt:'all',busy:false,poll:0};
+const isStocks=()=>/^#\/stocks(?:[/?]|$)/.test(location.hash);
+/* --- the Stocks tab on every Discover tab bar (Tokens / Perps / Prediction) --- */
+function addTab(){document.querySelectorAll('.px-cat').forEach(c=>{if(c.querySelector('a[href="#/stocks"]'))return;const links=c.querySelectorAll('a[role="tab"]');if(!links.length)return;
+ const a=document.createElement('a');a.href='#/stocks';a.setAttribute('role','tab');a.setAttribute('aria-selected','false');a.textContent='Stocks';links[links.length-1].after(a);c.classList.add('stk-4')})}
+let tabT=0;new MutationObserver(()=>{if(!tabT)tabT=requestAnimationFrame(()=>{tabT=0;addTab()})}).observe(document.documentElement,{childList:true,subtree:true});
+/* --- US market hours (NYSE): 9:30–16:00 ET on weekdays, closed on exchange holidays, 13:00 close on early-close days --- */
+const HOL=new Set(['2026-11-26','2026-12-25','2027-01-01','2027-01-18','2027-02-15','2027-03-26','2027-05-31','2027-06-18','2027-07-05','2027-09-06','2027-11-25','2027-12-24']);
+const EARLY=new Set(['2026-11-27','2026-12-24','2027-11-26']);
+function nyParts(d){const p={};new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(d).forEach(x=>p[x.type]=x.value);
+ return{date:p.year+'-'+p.month+'-'+p.day,wd:p.weekday,mins:(Number(p.hour)%24)*60+Number(p.minute)}}
+const trading=q=>!['Sat','Sun'].includes(q.wd)&&!HOL.has(q.date);
+function market(){const now=new Date(),q=nyParts(now),close=EARLY.has(q.date)?780:960;
+ if(trading(q)&&q.mins>=570&&q.mins<close)return{open:true,txt:'closes '+(close===780?'1:00 PM':'4:00 PM')+' ET'};
+ if(trading(q)&&q.mins<570)return{open:false,txt:'opens today 9:30 AM ET'};
+ for(let i=1;i<10;i++){const n=nyParts(new Date(now.getTime()+i*86400000));if(trading(n))return{open:false,txt:'opens '+(i===1?'tomorrow':n.wd)+' 9:30 AM ET'}}
+ return{open:false,txt:''}}
+/* --- data --- */
+async function load(force){if(ST.busy)return;if(!force&&ST.list&&Date.now()-ST.at<25000)return;ST.busy=true;
+ try{const r=await fetch(API,{headers:{accept:'application/json'},referrerPolicy:'no-referrer',cache:'no-store'});const j=r.ok?await r.json():null;
+  if(j&&j.ok&&Array.isArray(j.stocks)){ST.list=j.stocks.filter(s=>s&&/^Xs[1-9A-HJ-NP-Za-km-z]{30,42}$/.test(s.mint)&&s.price>0);ST.at=Date.now();ST.err=false}else if(!ST.list)ST.err=true}
+ catch(x){if(!ST.list)ST.err=true}
+ finally{ST.busy=false;if(isStocks())paint()}}
+/* --- view --- */
+const money=v=>'$'+(v>=1000?v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):v.toFixed(2));
+const fol=()=>{try{return Array.isArray(follows)?follows:[]}catch(x){return[]}};
+function rowsOf(){const L=ST.list||[],f=fol();return ST.filt==='equity'?L.filter(s=>s.kind==='equity'):ST.filt==='etf'?L.filter(s=>s.kind==='etf'):ST.filt==='watch'?L.filter(s=>f.includes(s.mint)):L}
+function av(s){const t=e(s.ticker.slice(0,2));return `<span class="stk-av">${s.icon?`<img src="${e(s.icon)}" alt="" width="46" height="46" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('i'),{textContent:'${t}'}))">`:`<i>${t}</i>`}<b aria-hidden="true"></b>${fol().includes(s.mint)?'<em aria-label="On your watchlist">★</em>':''}</span>`}
+function pill(c){if(c==null||!isFinite(c))return'<span class="stk-pl n">—</span>';const up=c>=0;return `<span class="stk-pl ${up?'u':'d'}">${up?'↑':'↓'} ${Math.abs(c).toFixed(2)}%</span>`}
+function row(s){return `<a class="stk-r" href="#/token/${e(s.mint)}" data-m="${e(s.mint)}">${av(s)}<span class="stk-n"><b>${e(s.ticker)}</b><small>${e(s.name)}</small></span><span class="stk-p"><b data-v="${s.price}">${money(s.price)}</b>${pill(s.chg24)}</span></a>`}
+function body(){if(ST.err&&!ST.list)return'<div class="stk-em"><b>Stocks are unavailable right now</b><p>Saturn couldn’t reach its stock prices. Nothing is shown rather than old or made-up prices.</p><button type="button" class="stk-rt" data-stk="retry">Try again</button></div>';
+ if(!ST.list)return Array.from({length:7},()=>'<div class="stk-r sk"><span class="stk-av"><i></i></span><span class="stk-n"><b></b><small></small></span><span class="stk-p"><b></b><span class="stk-pl"></span></span></div>').join('');
+ const r=rowsOf();if(!r.length)return `<div class="stk-em"><p>${ST.filt==='watch'?'No stocks on your watchlist yet. Open a stock and tap ★ to add it.':'Nothing here right now.'}</p></div>`;return r.map(row).join('')}
+function page(){const m=market();
+ return `<div class="stk"><div class="px-cat stk-4" role="tablist" aria-label="Discover category"><a href="#/" role="tab" aria-selected="false">Tokens</a><a href="#/perps" role="tab" aria-selected="false">Perps</a><a href="#/predict" role="tab" aria-selected="false">Prediction</a><a href="#/stocks" class="on" role="tab" aria-selected="true" aria-current="page">Stocks</a></div>
+ <div class="stk-ch" role="tablist" aria-label="Filter stocks">${[['all','All'],['equity','Equities'],['etf','ETFs'],['watch','★ Watchlist']].map(([k,l])=>`<button type="button" role="tab" data-stk-f="${k}" aria-selected="${ST.filt===k}" class="${ST.filt===k?'on':''}">${l}</button>`).join('')}</div>
+ <div class="stk-st" id="stk-st">${m.open?'<b class="o">US market open</b>':'<b class="c">US market closed</b>'}<span>${e(m.txt)}</span></div>
+ <div class="stk-ls" id="stk-ls">${body()}</div>
+ <p class="stk-ft">Tokenized stocks (xStocks) on Solana, each backed 1:1 by the real share. They trade 24/7 here; prices outside US market hours can differ from the exchange.</p></div>`}
+function paint(){const a=document.getElementById('app');if(!a||!isStocks())return;
+ const ls=document.getElementById('stk-ls');if(!ls){a.innerHTML=page();return}
+ /* update in place when the same stocks are on screen (no flashing pictures) */
+ const want=rowsOf().map(s=>s.mint),have=[...ls.querySelectorAll('.stk-r[data-m]')].map(r=>r.dataset.m);
+ if(ST.list&&want.length&&want.join()===have.join()){const by=new Map((ST.list||[]).map(s=>[s.mint,s]));
+  ls.querySelectorAll('.stk-r[data-m]').forEach(r=>{const s=by.get(r.dataset.m);if(!s)return;const b=r.querySelector('.stk-p b');const v=money(s.price);
+   if(b&&b.textContent!==v){const up=s.price>Number(b.dataset.v);b.textContent=v;b.dataset.v=s.price;b.classList.remove('fu','fd');void b.offsetWidth;b.classList.add(up?'fu':'fd')}
+   const p=r.querySelector('.stk-pl'),np=pill(s.chg24);if(p&&p.outerHTML!==np)p.outerHTML=np})}
+ else ls.innerHTML=body();
+ const st=document.getElementById('stk-st');if(st){const m=market(),h=(m.open?'<b class="o">US market open</b>':'<b class="c">US market closed</b>')+'<span>'+e(m.txt)+'</span>';if(st.innerHTML!==h)st.innerHTML=h}}
+function show(){if(!isStocks())return;try{S.view='stocks'}catch(x){}try{PoolTimer.stop()}catch(x){}
+ const a=document.getElementById('app');if(a)a.innerHTML=page();try{scrollTo(0,0)}catch(x){}load(false);
+ clearInterval(ST.poll);ST.poll=setInterval(()=>{if(!isStocks()){clearInterval(ST.poll);return}if(!document.hidden)load(true);paint()},30000)}
+/* the app's router draws Home for an unknown page first; this runs right after it and puts Stocks in its place */
+addEventListener('hashchange',()=>{if(isStocks())setTimeout(show,0)});
+if(isStocks())setTimeout(show,60);
+document.addEventListener('click',ev=>{const t=ev.target&&ev.target.closest&&ev.target.closest('[data-stk-f],[data-stk]');if(!t)return;ev.preventDefault();
+ if(t.dataset.stkF){ST.filt=t.dataset.stkF;document.querySelectorAll('.stk-ch button').forEach(b=>{const on=b.dataset.stkF===ST.filt;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});const ls=document.getElementById('stk-ls');if(ls)ls.innerHTML=body()}
+ else if(t.dataset.stk==='retry'){ST.err=false;const ls=document.getElementById('stk-ls');if(ls)ls.innerHTML=body();load(true)}});
+window.__satStocks={ST,load,market};
 })();
 </script>
 <style id="saturn-r112-css">
