@@ -17266,6 +17266,51 @@ html.p2-lock,html.p2-lock body{overflow:hidden}
 .p2-ic{width:50px;flex:none;background:#1f1c18;color:#a49d8f}
 .p2-ic>*{border-radius:50%!important}
 @media(prefers-reduced-motion:reduce){.p2r{animation:none}.p2-pn,.p2-ov{transition:none}}
+/* r161 comment pictures: small thumbnails, tap to view full size */
+img.cm-img{display:block;max-width:168px!important;max-height:168px!important;width:auto!important;height:auto!important;border-radius:12px!important;object-fit:cover;margin-top:6px;cursor:zoom-in;border:0!important}
+.p2-lb{position:fixed;inset:0;z-index:10050;background:#000e;display:grid;place-items:center;padding:24px;opacity:0;transition:opacity .18s}
+.p2-lb.on{opacity:1}
+.p2-lb img{max-width:100%;max-height:88vh;border-radius:12px;object-fit:contain}
+.p2-lbx{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:14px;width:40px;height:40px;border-radius:50%;border:0;background:#ffffff1f;color:#fff;font:700 18px Inter,system-ui,sans-serif}
+/* the sheet's chat, cleaner */
+.p2-sh .p2-cmh{display:flex;align-items:center;justify-content:space-between}
+.p2-cx{width:30px;height:30px;border-radius:50%;border:0;background:#ffffff0f;color:#a49d8f;font:700 13px Inter,system-ui,sans-serif;cursor:pointer}
+.p2-show{display:block;margin:10px auto 0;border:0;border-radius:14px;padding:10px 16px;background:#1f1c18;color:#f1ebdf;font:700 13px Inter,system-ui,sans-serif}
+.p2-show[hidden]{display:none}
+.p2-sh.nochat .p2-cm,.p2-sh.nochat .p2-cmh{display:none!important}
+.p2-sh .r18cm .cm-list{max-height:none}
+.p2-sh .r18cm [class*=cm-empty],.p2-sh .r18cm .cm-list>div:only-child:not(.cm-m){text-align:center!important;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 10px;color:#8f887c}
+.p2-sh .r18cm .cm-list svg{max-width:64px;max-height:40px}
+.p2-sh .r18-cin{display:flex!important;align-items:center;gap:8px;background:#0f0d0b!important;border-radius:16px!important;padding:6px!important;margin-top:8px}
+.p2-sh .r18-cin .in{flex:1;min-width:0;background:transparent!important;border:0!important;color:#f1ebdf!important;font:500 15px Inter,system-ui,sans-serif!important;padding:8px 4px!important;box-shadow:none!important}
+.p2-sh .cm-att{width:38px;height:38px;border-radius:12px!important;border:0!important;background:#1f1c18!important;color:#a49d8f!important;display:grid;place-items:center;flex:none}
+.p2-sh .cm-send{width:38px;height:38px;border-radius:12px!important;border:0!important;background:#e8b95a!important;color:#1a1408!important;display:grid;place-items:center;flex:none}
+.p2-sh .cm-m{background:transparent}
+/* full view */
+.p2-top{display:none}
+.p2-sh.full .p2-pn{top:0;max-height:none;height:100%;border-radius:0;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+@media(min-width:700px){.p2-sh.full .p2-pn{top:0}}
+.p2-sh.full .p2-grab{display:none}
+.p2-sh.full .p2-top{display:flex;align-items:center;justify-content:space-between;margin:2px 0 12px;font:800 15px Inter,system-ui,sans-serif;color:#f1ebdf}
+.p2-tb{width:38px;height:38px;border-radius:50%;border:0;background:#ffffff0d;color:#f1ebdf;font:700 16px Inter,system-ui,sans-serif;cursor:pointer}
+.p2-chart[hidden]{display:none}
+.p2-chart{margin:4px 0 12px}
+.p2-cv-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.p2-cv-k{display:flex;gap:4px;background:#0f0d0b;border-radius:11px;padding:3px}
+.p2-cv-k button{border:0;background:transparent;color:#8f887c;font:700 11.5px Inter,system-ui,sans-serif;padding:6px 10px;border-radius:8px;cursor:pointer}
+.p2-cv-k button.on{background:#26221b;color:#e8b95a}
+.p2-cv-n{font:700 13px Inter,system-ui,sans-serif;font-style:normal;color:#cfc8ba}
+.p2-cv{position:relative;height:min(44vh,380px);min-height:220px;background:#100e0c;border-radius:18px;overflow:hidden}
+.p2-cv-s{position:absolute;inset:6px 0 0;width:100%;height:calc(100% - 6px)}
+.p2-cv-m{height:100%;display:grid;place-items:center;color:#8f887c;font:600 13px Inter,system-ui,sans-serif;text-align:center;padding:0 20px}
+.p2-cv-tag{position:absolute;transform:translate(-50%,-150%);font:800 11px Inter,system-ui,sans-serif;padding:4px 8px;border-radius:8px;white-space:nowrap;pointer-events:none}
+.p2-cv-tag.b{background:#4fd08a;color:#08200f}.p2-cv-tag.s{background:#ff6b6b;color:#2a0808}
+.p2-cv-f{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:9px;font:600 12.5px Inter,system-ui,sans-serif;color:#8f887c}
+.p2-cv-f b{color:#f1ebdf}.p2-cv-f b.u{color:#4fd08a}.p2-cv-f b.d{color:#ff6b6b}
+
+.p2-dot{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;box-shadow:0 0 0 2.5px #100e0c;pointer-events:none}
+.p2-dot.b{background:#4fd08a}.p2-dot.s{background:#ff6b6b}
+.p2-dot.m{width:13px;height:13px;margin:-6.5px 0 0 -6.5px;box-shadow:0 0 0 3px #100e0c,0 0 0 9px #4fd08a2e}.p2-dot.m.s{box-shadow:0 0 0 3px #100e0c,0 0 0 9px #ff6b6b2e}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -18459,25 +18504,67 @@ function closeSheet(){if(!sh)return;const s=sh;sh=null;s.classList.remove('on');
 function openSheet(sig){const tr=TR.get(sig);if(!tr)return;closeSheet();const t=tokOf(tr.mint),tid=t?t.id:tr.mint,tk=t?(t.tick||t.name):short(tr.mint),me=tr.wallet&&tr.wallet===socMe();
  const el=document.createElement('div');el.className='p2-sh';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Trade');
  let cm='';try{cm=R18.cm(tr.signature)}catch(x){}
- el.innerHTML=`<div class="p2-ov" data-p2x="1"></div><div class="p2-pn"><button type="button" class="p2-grab" data-p2x="1" aria-label="Close"></button>
+ el.innerHTML=`<div class="p2-ov" data-p2x="1"></div><div class="p2-pn"><button type="button" class="p2-grab" data-p2full="1" aria-label="Expand to full view"></button><div class="p2-top"><button type="button" class="p2-tb" data-p2half="1" aria-label="Back to the list">⌄</button><span>Trade</span><button type="button" class="p2-tb" data-p2x="1" aria-label="Close">✕</button></div>
   <div class="p2-sum">${socItem(tr).replace('class="sf-i p2r','class="p2r p2-in').replace(/ data-p2="[^"]*"| tabindex="0"| role="button"/g,'')}</div>
-  <div class="p2-cmh">Comments</div><div class="p2-cm">${cm}</div>
+  <div class="p2-chart" hidden></div><div class="p2-cmh"><span>Comments</span><button type="button" class="p2-cx" data-p2chat="hide" aria-label="Hide the chat">✕</button></div><div class="p2-cm">${cm}</div><button type="button" class="p2-show" data-p2chat="show" hidden>💬 Show chat</button>
   <div class="p2-act">${tr.wallet&&!me?`<button type="button" class="p2-cp" data-cp="open" data-w="${e(tr.wallet)}">⧉ Copy this trader</button>`:''}<a class="p2-op" href="#/token/${e(tid)}">Open token</a>${tr.wallet?`<a class="p2-ic" href="#/u/${e(tr.wallet)}" aria-label="Trader profile">${(()=>{try{return socAv(tr.wallet,26)}catch(x){return'👤'}})()}</a>`:''}<a class="p2-ic p2-tx" target="_blank" rel="noopener" href="https://solscan.io/tx/${e(tr.signature)}">Tx ↗</a></div></div>`;
- document.body.append(el);sh=el;document.documentElement.classList.add('p2-lock');requestAnimationFrame(()=>el.classList.add('on'));
+ el._tr=tr;document.body.append(el);sh=el;document.documentElement.classList.add('p2-lock');requestAnimationFrame(()=>el.classList.add('on'));
  const b=el.querySelector('.p2-cm input,.p2-cm textarea');if(b)b.setAttribute('placeholder','Add a comment…')}
 document.addEventListener('click',ev=>{const t=ev.target;if(!t||!t.closest)return;
  if(t.closest('[data-p2x]')){ev.preventDefault();closeSheet();return}
+ if(t.closest('[data-p2full]')){ev.preventDefault();full(!(sh&&sh.classList.contains('full')));return}
+ if(t.closest('[data-p2half]')){ev.preventDefault();full(false);return}
+ const cx=t.closest('[data-p2chat]');if(cx&&sh){ev.preventDefault();const hide=cx.dataset.p2chat==='hide';sh.classList.toggle('nochat',hide);sh.querySelector('.p2-show').hidden=!hide;return}
+ const tf=t.closest('[data-p2tf]');if(tf&&sh){ev.preventDefault();chart(sh._tr,tf.dataset.p2tf);return}
+ const im=t.closest('img.cm-img');if(im){ev.preventDefault();lightbox(im.currentSrc||im.src,im.alt);return}
  if(sh&&t.closest('.p2-sh a[href^="#/"]')){closeSheet();return}
  if(sh&&t.closest('.p2-sh [data-cp]')){setTimeout(closeSheet,0);return}
  const r=t.closest('#soc-feed .p2r[data-p2]');if(!r||t.closest('a,button,input,textarea'))return;ev.preventDefault();openSheet(r.dataset.p2)});
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&sh)closeSheet();const r=ev.target&&ev.target.closest&&ev.target.closest('#soc-feed .p2r[data-p2]');if(r&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();openSheet(r.dataset.p2)}});
 addEventListener('hashchange',closeSheet);
 /* swipe the sheet down to close */
-let sy=null;document.addEventListener('touchstart',ev=>{const p=ev.target.closest&&ev.target.closest('.p2-pn');if(!p||p.scrollTop>0)return;sy=ev.touches[0].clientY},{passive:true});
-document.addEventListener('touchend',ev=>{if(sy==null)return;const dy=(ev.changedTouches[0]||{}).clientY-sy;sy=null;if(dy>90)closeSheet()},{passive:true});
+let sy=null,st0=0;document.addEventListener('touchstart',ev=>{const p=ev.target.closest&&ev.target.closest('.p2-pn');if(!p)return;sy=ev.touches[0].clientY;st0=p.scrollTop},{passive:true});
+document.addEventListener('touchend',ev=>{if(sy==null||!sh)return;const p=sh.querySelector('.p2-pn'),dy=(ev.changedTouches[0]||{}).clientY-sy;sy=null;if(ev.target.closest&&ev.target.closest('.p2-cv'))return;
+ if(dy<-60&&!sh.classList.contains('full'))full(true);else if(dy>90&&st0<=0&&p.scrollTop<=0){if(sh.classList.contains('full'))full(false);else closeSheet()}},{passive:true});
 /* the comment count on rows follows new comments */
 setInterval(()=>{try{if(S.view!=='social'||document.hidden)return;document.querySelectorAll('#soc-feed .p2r[data-p2]').forEach(r=>{const n=R18.n(r.dataset.p2)||0,c=r.querySelector('.p2-cn');
  if(n&&!c){const l=r.querySelector('.p2-l1');if(l)l.insertAdjacentHTML('beforeend',`<i class="p2-cn">💬 ${n}</i>`)}else if(c&&c.textContent!=='💬 '+n)c.textContent=n?'💬 '+n:'';});beat()}catch(x){}},5000);
+/* ---------- r161 full view: swipe the sheet up (or tap its handle) -> full page with this token's chart and the trade marked ---------- */
+function full(on){if(!sh)return;sh.classList.toggle('full',!!on);const c=sh.querySelector('.p2-chart');if(on){c.hidden=false;if(!c._done){c._done=1;chart(sh._tr,'1m')}}}
+const TF={'1m':['minute',1,180,'3h'],'5m':['minute',5,200,'16h'],'1h':['hour',1,168,'7d']};
+const fmtP=v=>!(v>0)?'—':v>=1?'$'+v.toFixed(v>=100?2:4):'$'+v.toPrecision(4);
+async function chart(tr,tf){if(!sh||!tr)return;const box=sh.querySelector('.p2-chart');if(!box)return;const t=tokOf(tr.mint),d=TF[tf]||TF['1m'];
+ const head=`<div class="p2-cv-h"><span class="p2-cv-k">${Object.keys(TF).map(k=>`<button type="button" data-p2tf="${k}" class="${k===tf?'on':''}">${k.toUpperCase()}</button>`).join('')}</span><em class="p2-cv-n"></em></div>`;
+ box.innerHTML=head+'<div class="p2-cv"><div class="p2-cv-m">Loading chart…</div></div><div class="p2-cv-f"></div>';
+ const my=box._my=(box._my||0)+1;
+ try{if(!t||!t.pair)throw new Error('This token has no chart data yet.');const net=chNet(t);if(!net)throw new Error('Chart not supported on this network.');
+  const u=`${CHART_CONFIG.HISTORY_API}/networks/${net}/pools/${encodeURIComponent(t.pair)}/ohlcv/${d[0]}?aggregate=${d[1]}&limit=${d[2]}&currency=usd&token=${encodeURIComponent(tr.mint)}`;
+  const r=await fetch(u,{headers:{accept:'application/json'},referrerPolicy:'no-referrer'});if(!r.ok)throw new Error(r.status===429?'Chart is busy, try again in a moment.':'Chart unavailable.');
+  const j=await r.json(),L=j&&j.data&&j.data.attributes&&j.data.attributes.ohlcv_list;if(!Array.isArray(L)||L.length<2)throw new Error('Not enough chart data yet.');
+  if(box._my!==my||!sh)return;
+  const P=L.map(a=>({t:+a[0],c:+a[4]})).filter(x=>x.t>0&&x.c>0).sort((a,b)=>a.t-b.t);if(P.length<2)throw new Error('Not enough chart data yet.');
+  draw(box,tr,P,tf)}
+ catch(x){if(box._my!==my)return;const m=box.querySelector('.p2-cv');if(m)m.innerHTML='<div class="p2-cv-m">'+e(x&&x.message||'Chart unavailable.')+'</div>'}}
+function draw(box,tr,P,tf){const W=360,H=220,t0=P[0].t,t1=P[P.length-1].t,ps=P.map(p=>p.c),mn=Math.min(...ps),mx=Math.max(...ps),rg=(mx-mn)||mx*.01||1;
+ const X=t=>(t-t0)/((t1-t0)||1)*(W-12)+4,Y=v=>H-14-((v-mn)/rg)*(H-34);
+ const dd=P.map((p,i)=>(i?'L':'M')+X(p.t).toFixed(1)+' '+Y(p.c).toFixed(1)).join(' '),up=ps[ps.length-1]>=ps[0],col=up?'#4fd08a':'#ff6b6b';
+ /* this trader's trades of this token among the trades loaded in Pulse; the opened trade is the big marker */
+ const mine=[...TR.values()].filter(x=>x.mint===tr.mint&&x.wallet&&x.wallet===tr.wallet&&x.time>=t0-60&&x.time<=t1+3600);
+ const near=tm=>{let b=P[0];for(const p of P){if(Math.abs(p.t-tm)<Math.abs(b.t-tm))b=p}return b};
+ const tp=tr.tokenAmt>0&&tr.usdAmt>0?tr.usdAmt/tr.tokenAmt:null;
+ const mk=x=>{const p=near(x.time),cx=X(Math.min(Math.max(x.time,t0),t1))/W*100,cy=Y(p.c)/H*100,b=x.side==='buy',main=x.signature===tr.signature;
+  return `<i class="p2-dot ${b?'b':'s'}${main?' m':''}" style="left:${cx.toFixed(2)}%;top:${cy.toFixed(2)}%"></i>`};
+ const inRange=tr.time>=t0-60&&tr.time<=t1+3600;
+ const svg=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="p2-cv-s"><defs><linearGradient id="p2cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".25"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><path d="${dd} L${X(t1).toFixed(1)} ${H} L${X(t0).toFixed(1)} ${H}Z" fill="url(#p2cg)"/><path d="${dd}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`+mine.filter(x=>x.signature!==tr.signature).map(mk).join('')+(inRange?mk(tr):'');
+ const cv=box.querySelector('.p2-cv');cv.innerHTML=svg+(inRange?`<span class="p2-cv-tag ${tr.side==='buy'?'b':'s'}" style="left:${(X(tr.time)/W*100).toFixed(1)}%;top:${(Y(near(tr.time).c)/H*100).toFixed(1)}%;transform:translate(${X(tr.time)/W>.75?-100:X(tr.time)/W<.2?0:-50}%,-150%)">${tr.side==='buy'?'Bought':'Sold'} ${e(money(tr))}</span>`:'');
+ const now=ps[ps.length-1],chg=tp?(now/tp-1)*100:null;
+ box.querySelector('.p2-cv-n').textContent='Price '+fmtP(now);
+ box.querySelector('.p2-cv-f').innerHTML=(tp?`<span>${tr.side==='buy'?'Bought':'Sold'} at <b>${fmtP(tp)}</b></span><span>Since then <b class="${chg>=0?'u':'d'}">${chg>=0?'+':''}${chg.toFixed(1)}%</b></span>`:'')+(mine.length>1?`<span>${mine.length} trades by this wallet</span>`:'')+(inRange?'':'<span>This trade is older than this chart range</span>')}
+/* ---------- tap a comment picture -> view it full size ---------- */
+function lightbox(src,alt){if(!/^(https:|data:image\/|blob:)/.test(String(src||'')))return;const lb=document.createElement('div');lb.className='p2-lb';lb.setAttribute('role','dialog');lb.setAttribute('aria-label','Image');
+ lb.innerHTML=`<button type="button" class="p2-lbx" aria-label="Close">✕</button><img alt="${e(alt||'')}">`;lb.querySelector('img').src=src;
+ const close=()=>{lb.classList.remove('on');setTimeout(()=>lb.remove(),180);document.removeEventListener('keydown',k)},k=ev=>{if(ev.key==='Escape')close()};
+ lb.addEventListener('click',close);document.addEventListener('keydown',k);document.body.append(lb);requestAnimationFrame(()=>lb.classList.add('on'))}
 })();
 </script>
 <style id="saturn-r112-css">
