@@ -18718,7 +18718,7 @@ async function sRun(){sT=0;if(sBusy)return;sBusy=true;let got=false;
  try{for(let round=0;SQ.size&&round<15;round++){const c=[...SQ].slice(0,40);let j=null;
   try{const r=await fetch('https://saturn-perps-staging.onrender.com/v1/tok/meta?m='+c.join(','),{headers:{accept:'application/json'},referrerPolicy:'no-referrer'});if(r.ok)j=await r.json()}catch(x){}
   if(!j||!j.ok){await new Promise(r=>setTimeout(r,5000));if(round>3)break;continue}
-  const M=j.meta||{};for(const m of c){const v=M[m];if(v&&(v.name||v.symbol||v.image)){SM.set(m,{name:String(v.name||'').slice(0,40),symbol:String(v.symbol||'').slice(0,16),image:/^https:\/\//.test(v.image||'')?v.image:null});SQ.delete(m);got=true}
+  const M=j.meta||{};for(const m of c){const v=M[m];if(v&&(v.name||v.symbol||v.image)){SM.set(m,{name:String(v.name||'').slice(0,40),symbol:String(v.symbol||'').slice(0,16),image:/^https:\/\//.test(v.image||'')?v.image:null});SQ.delete(m);got=true;try{const img=SM.get(m).image,c=CACHE.get(m);if(img&&c&&c.t&&!c.t.img)c.t.img=img}catch(_){}}
    else{const n=(STRY.get(m)||0)+1;STRY.set(m,n);if(n>=4||!j.pending){SM.set(m,null);SQ.delete(m)}}}
   if(got){VER++;repaint();got=false}if(j.pending)await new Promise(r=>setTimeout(r,1200))}}
  finally{sBusy=false}}
@@ -18755,12 +18755,17 @@ async function streamTrades(w){try{const r=await fetch(API+'/v1/tok/trader?w='+e
   return{time:Number(x.at)||0,side:x.side,mint:x.mint,solAmt:Number(x.sol)>0?Number(x.sol):0,tokenAmt:Number(x.tok)>0?Number(x.tok):0,signature:x.sig,src:'stream'}})}catch(x){return[]}}
 function merge(w,list){const h=H.get(w),c=SOC.wt.get(w);if(!h||!c)return 0;const add=list.filter(x=>!h.keys.has(key(x)));add.forEach(x=>{h.keys.add(key(x));c.items.push(x)});
  if(add.length){c.items.sort((a,b)=>(b.time||0)-(a.time||0));const ms=add.map(x=>x.mint);need(ms);try{socEnsureTokens(ms).then(()=>{if(curW()===w)repaint()},()=>{})}catch(x){}}return add.length}
-window.socWalletTrades=async function(w,force){const c=SOC.wt.get(w),h=H.get(w);
- if(c&&h&&!force&&Date.now()-c.ts<60000){setTimeout(()=>auto(w),300);return c.items}
- const st=streamTrades(w),p=await page(w,null,P1),items=p.out.sort((a,b)=>(b.time||0)-(a.time||0));
- H.set(w,{before:p.last,done:p.n<P1,busy:false,read:p.n,keys:new Set(items.map(key)),err:0,miss:p.miss.slice()});SOC.wt.set(w,{ts:Date.now(),items});
- const s1=await Promise.race([st,sleep(1500).then(()=>null)]);if(s1)merge(w,s1);else st.then(v=>{if(merge(w,v)&&curW()===w)repaint()});
- setTimeout(()=>auto(w),300);return items};
+window.socWalletTrades=async function(w,force){const c=SOC.wt.get(w),h0=H.get(w);
+ if(c&&h0&&!force&&Date.now()-c.ts<60000){setTimeout(()=>auto(w),300);return c.items}
+ /* r171: whichever answers first paints first. Saturn's server answers in well under a second with the trades it saw live;
+    the chain history (slow, rate-limited RPC) is merged into the same list as it arrives. */
+ const items=[],h={before:null,done:false,busy:true,read:0,keys:new Set(),err:0,miss:[]};H.set(w,h);SOC.wt.set(w,{ts:Date.now(),items});
+ const pg=page(w,null,P1).then(p=>{h.before=p.last;h.done=p.n<P1;h.read=p.n;h.miss.push(...p.miss);h.busy=false;merge(w,p.out);if(curW()===w)repaint();setTimeout(()=>auto(w),300);return true},e=>{h.busy=false;h.err++;throw e});
+ const st=streamTrades(w).then(v=>{merge(w,v);return v.length},()=>0);
+ const first=await Promise.race([st,sleep(1500).then(()=>0)]);
+ if(first>0){pg.catch(()=>{});return items}
+ try{await pg}catch(e){const n=await st;if(!n&&!items.length)throw e}
+ return items};
 async function more(w){const h=H.get(w),c=SOC.wt.get(w);if(!h||!c||h.busy||h.done||h.read>=CAP)return false;h.busy=true;
  try{const p=await page(w,h.before,PG);h.err=0;h.before=p.last||h.before;h.read+=p.n;if(p.n<PG||!p.last)h.done=true;h.miss.push(...p.miss);merge(w,p.out);return true}
  catch(x){h.err++;return false}
@@ -18852,7 +18857,7 @@ function agg(trades){const by=new Map();for(const x of [...trades].sort((a,b)=>(
  if(x.side==='buy'&&x.tokenAmt>0&&x.solAmt>0){r.eT+=x.tokenAmt;r.eS+=x.solAmt;if(r.t0==null)r.t0=x.time||null;r.tb=x.time||r.tb}
  else if(x.side==='sell'&&x.tokenAmt>0){r.sT+=x.tokenAmt;r.sS+=x.solAmt||0;r.t1=x.time||r.t1}}return[...by.values()]}
 function model(w){const P=SOC.pf[w];if(!P||!Array.isArray(P.trades))return null;const now=Date.now()/1000,open=[],closed=[],cl=[];
- const hm=new Map((P.hold||[]).map(h=>[h.mint,h.amt])),holdKnown=Array.isArray(P.hold)&&!P.he&&P.hold.length<25;
+ const hm=new Map((P.hold||[]).map(h=>[h.mint,h.amt])),holdKnown=Array.isArray(P.hold)&&!P.he;
  for(const r of agg(P.trades)){if(!(r.eT>0))continue;const t=tokOf(r.mint),ns=nowSol(r.mint),mc=t&&t.mc!=null?t.mc:null,avg=r.eS/r.eT;
   const mcAt=px=>mc!=null&&ns>0&&px>0?mc*(px/ns):null;
   const h=hm.has(r.mint)?hm.get(r.mint):holdKnown?0:null;
@@ -19009,6 +19014,27 @@ const RB=window.RewardsBase;window.RewardsBase=function(){const sub=(location.ha
 document.addEventListener('click',ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest('[data-rc]');if(!b)return;ev.preventDefault();if(b.dataset.rc==='claim')claim();else scan(true)});
 try{WalletService.on&&WalletService.on(()=>{if(/^#\/rewards/.test(location.hash)){RC.st='idle';scan(true)}})}catch(x){}
 window.__satRC=RC;
+})();
+
+/* ===== r171 faster profile + real holdings =====
+   - every section paints the moment its own data arrives (holdings, balance, trades) — token names/pictures fill in afterwards instead of blocking
+   - holdings: ALL token accounts (the old reader kept an arbitrary 25), refreshed every 20 s while the profile is open
+   - token pictures for coins without one are also looked up for the Discover list */
+(function(){'use strict';if(window.__satR171)return;window.__satR171=1;
+window.socHoldings=async function(w){const rs=await Promise.all([TOKEN_PROGRAM_ID,TOKEN22_PROGRAM_ID].map(p=>solRpc('getTokenAccountsByOwner',[w,{programId:p},{encoding:'jsonParsed',commitment:'confirmed'}])));
+ const by=new Map();rs.forEach(r=>((r&&r.value)||[]).forEach(a=>{const i=a&&a.account&&a.account.data&&a.account.data.parsed&&a.account.data.parsed.info;if(!i||!i.tokenAmount)return;
+  const amt=parseFloat(i.tokenAmount.uiAmountString);if(!(amt>0))return;by.set(i.mint,(by.get(i.mint)||0)+amt)}));
+ return[...by].map(([mint,amt])=>({mint,amt})).slice(0,300)};
+window.socLoadProfile=async function(w,force){if(!SATURN_WALLET_ADDR.test(w))return;const nav=S.nav,P=SOC.pf[w]={hold:null,sol:null,trades:null,he:false,te:false},fresh=!!force||w===socMe();
+ socPaintProfile(w);try{socLoadRegistry(w)}catch(x){}
+ const paint=()=>{if(nav===S.nav&&SOC.pf[w]===P)socPaintProfile(w)},tokens=ms=>{try{socEnsureTokens(ms).then(paint,()=>{})}catch(x){}};
+ const H=socHoldingsCached(w,fresh).then(v=>{if(SOC.pf[w]!==P)return;P.hold=v;paint();tokens(v.map(x=>x.mint))},()=>{P.he=true;paint()});
+ const B=socSolBalanceCached(w,!!force).then(v=>{if(SOC.pf[w]!==P)return;if(v!=null)P.sol=v;else P.se=true;paint()},()=>{P.se=true;paint()});
+ const T=socWalletTrades(w,fresh).then(v=>{if(SOC.pf[w]!==P)return;P.trades=v;paint();tokens(v.map(x=>x.mint))},()=>{P.te=true;paint()});
+ await Promise.allSettled([H,B,T])};
+setInterval(()=>{if(typeof S==='undefined'||S.view!=='profile-u'||document.hidden)return;let w='';try{w=decodeURIComponent((location.hash.match(/^#\/u\/([^/?#]+)/)||[])[1]||'')}catch(x){}
+ const P=SOC.pf[w];if(!P||!Array.isArray(P.hold))return;socHoldingsCached(w,true).then(v=>{if(SOC.pf[w]===P){P.hold=v;socPaintProfile(w)}},()=>{})},20000);
+setInterval(()=>{try{if(document.hidden||!window.__satTr164)return;const ms=pool().filter(t=>t&&!t.img&&t.id).slice(0,40).map(t=>t.id);if(ms.length)window.__satTr164.need(ms)}catch(x){}},10000);
 })();
 </script>
 <script id="saturn-r160-pulse">
@@ -19258,6 +19284,14 @@ function rerank(){try{if(S.view!=='social'||document.hidden||SOC.filt!=='profit'
  el.querySelectorAll('.p2r[data-p2]').forEach(r=>{const o=old.get(r.dataset.p2),a=r.querySelector('.p2-pl');if(o){if(a&&o.v!=null)a.dataset.v=o.v;const dy=o.y-r.getBoundingClientRect().top;if(Math.abs(dy)>1){r.style.transition='none';r.style.transform=`translateY(${dy}px)`;requestAnimationFrame(()=>{r.style.transition='transform .6s cubic-bezier(.2,.8,.2,1)';r.style.transform=''})}}else r.classList.add('p2-enter')})}catch(x){}}
 /* numbers roll to the new value instead of jumping */
 function roll(a,from,to){const t0=performance.now(),d=700;cancelAnimationFrame(a._raf);const step=now=>{const k=Math.min(1,(now-t0)/d),ez=1-Math.pow(1-k,3);a.textContent=fmtU(from+(to-from)*ez);if(k<1)a._raf=requestAnimationFrame(step)};a._raf=requestAnimationFrame(step)}
+
+/* ===== r171 Pulse opens at once: the Everyone feed comes from Saturn's live socket (it replays the last big buys the moment it connects)
+   instead of scanning dozens of token histories over the slow, rate-limited RPC. The Following tab still reads each followed wallet. ===== */
+const SL0=window.socLoad;
+window.socLoad=async function(force){if(S.view!=='social'||SOC.tab!=='global')return SL0.apply(this,arguments);const T=SOC.g;
+ if(!force&&T.st==='ok'&&T.F){socPaintFeed();return}
+ const F=feedNew([]);F.more='end';(T.items||[]).forEach(x=>F.pool.set(feedKey(x),x));T.F=F;T.st='ok';T.prov=false;T.cached=false;T.ts=Date.now();T.items=(T.items||[]).filter(BIG);
+ socPaintFeed();if(force){try{pClose()}catch(x){}}try{pCheck()}catch(x){}};
 })();
 </script>
 <style id="saturn-r112-css">
