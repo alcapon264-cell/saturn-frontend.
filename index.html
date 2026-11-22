@@ -18881,6 +18881,12 @@ const SPF=window.socPaintProfile;window.socPaintProfile=function(w){const r=SPF.
 /* a gentle refresh for prices without socket ticks (market list / GeckoTerminal) and the "ago" times */
 setInterval(()=>{const w=curW();if(w&&!document.hidden&&document.querySelector('.prf.tr3'))paint(w)},15000);
 })();
+
+/* ===== r168 Rewards: with no wallet connected the page used to sit on "Reading your rewards…" forever (nothing is read without a wallet).
+   It now says what is needed and offers the existing Connect wallet button. ===== */
+(function(){'use strict';if(window.__satR168||typeof window.RewardsBase!=='function')return;window.__satR168=1;
+const RB=window.RewardsBase;window.RewardsBase=function(){let h=RB.apply(this,arguments);try{if(typeof h==='string'&&!WalletService.address)
+ h=h.split('Reading your rewards…').join('Connect a wallet to see your rewards.</p><button type="button" class="btn pri w" data-act="wallet" style="margin-top:10px">Connect wallet</button><p hidden>')}catch(x){}return h}})();
 </script>
 <script id="saturn-r160-pulse">
 /* ===== Saturn r160 — Pulse redesign (additive; presentation + endless scroll) =====
