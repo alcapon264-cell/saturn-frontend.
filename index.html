@@ -17321,6 +17321,43 @@ html body .prf.tr2.tr3 .pr-id>:first-child{margin:0 auto!important;align-self:ce
 html body .prf.tr2.tr3 .pr-fl{width:100%!important;justify-content:center!important;align-self:stretch!important}
 .tr3-score{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr)!important}
 .tr3-score b{font-size:22px!important}
+/* ===== r167 header: profile on the left, balance + live open P&L, no sentence, no borders ===== */
+html body .prf.tr2.tr3{display:grid!important;grid-template-columns:78px minmax(0,1fr)!important;column-gap:16px!important;grid-template-areas:"bar bar" "av nm" "av fl" "bal bal" "act act" "lk lk" "main main"!important;align-items:center!important}
+html body .prf.tr3>.pr-bar{grid-area:bar;margin-bottom:4px!important}
+html body .prf.tr3>.pr-bar::after{content:none!important}
+html body .prf.tr2.tr3 #pr-head,html body .prf.tr2.tr3 .pr-id{display:contents!important}
+html body .prf.tr2.tr3 .pr-id>:first-child{grid-area:av;align-self:center!important;width:78px!important;height:78px!important;border-radius:26px!important;margin:14px 0 0!important;object-fit:cover}
+html body .prf.tr2.tr3 .pr-id>.sk{border-radius:26px!important}
+html body .prf.tr2.tr3 .pr-nm{grid-area:nm;align-items:flex-start!important;text-align:left;margin:14px 0 0!important;align-self:end}
+html body .prf.tr2.tr3 .pr-nm h1{justify-content:flex-start!important;font-size:28px!important;line-height:1.05!important}
+html body .prf.tr2.tr3 .pr-hd{display:none!important}
+html body .prf.tr2.tr3 .tr2-tags{justify-content:flex-start!important;margin:9px 0 0!important}
+html body .prf.tr2.tr3 .pr-bio{text-align:left!important;margin-top:8px!important}
+html body .prf.tr2.tr3 .pr-fl{grid-area:fl;justify-content:flex-start!important;gap:14px!important;margin:9px 0 0!important;align-self:start}
+html body .prf.tr2.tr3 .pr-fl .pr-edit{flex:0 0 auto!important;min-height:0!important;padding:6px 10px!important;font-size:12px!important;border-radius:9px!important;margin:0!important;background:#161412!important}
+html body .prf.tr2.tr3 .pr-fl .pu-fw{display:none!important}
+html body .prf.tr2.tr3 #tr3-lead{grid-area:bal;padding:26px 0 0;text-align:left;font:inherit}
+html body .prf.tr2.tr3 #cp-row{grid-area:act;margin:22px 0 0!important}
+html body .prf.tr2.tr3 #cp-row .cp-row{display:flex!important;gap:8px!important}
+html body .prf.tr2.tr3 #cp-row .pr-msg{flex:none!important;width:48px!important;height:48px!important;border-radius:14px!important;background:#161412!important;display:grid!important;place-items:center;margin:0!important}
+html body .prf.tr2.tr3 #cp-row .pr-msg svg{width:19px;height:19px}
+html body .prf.tr2.tr3 .pr-lk{grid-area:lk;margin-top:14px}
+html body .prf.tr2.tr3 #tr3{grid-area:main}
+html body .prf.tr2.tr3::after{content:"";grid-area:av;align-self:center;justify-self:start;width:18px;height:18px;border-radius:50%;background:#4fd08a;border:4px solid #0b0a09;margin:74px 0 0 63px;display:none;pointer-events:none;z-index:2}
+html body .prf.tr2.tr3.tr3-on::after{display:block}
+.tr3-bal{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.tr3-bl{min-width:0}
+.tr3-bal small{display:block;font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6f695f}
+.tr3-bv{font:700 40px/1 Inter,system-ui,sans-serif;letter-spacing:-1.4px;margin-top:10px;color:#f1ebdf;white-space:nowrap}
+.tr3-bv em{font-style:normal;color:#5d574d}.tr3-bv.p{font-size:22px;letter-spacing:0;color:#8f887c}
+.tr3-skl{display:inline-block;width:170px;height:34px;border-radius:10px;background:#161412;animation:tr3P 1.2s ease-in-out infinite}
+.tr3-bs{font:600 13px/1.2 Inter,system-ui,sans-serif;color:#8f887c;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr3-bs i{font-style:normal;margin:0 6px;color:#5d574d}
+.tr3-op{flex:none;text-align:right;padding-bottom:2px}
+.tr3-op b{display:block;font:700 20px/1 Inter,system-ui,sans-serif;margin-top:9px;font-variant-numeric:tabular-nums;border-radius:6px}
+.tr3-op b.g{color:#4fd08a}.tr3-op b.r{color:#ff6b6b}.tr3-op b.n{color:#5d574d}
+.tr3-op .lv,.tr3-op .nl{display:inline-flex;align-items:center;gap:5px;font:700 11px/1 Inter,system-ui,sans-serif;margin-top:8px}
+.tr3-op .lv{color:#4fd08a}.tr3-op .lv::before{content:"";width:6px;height:6px;border-radius:50%;background:#4fd08a}.tr3-op .nl{color:#5d574d}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -18806,22 +18843,36 @@ function positions(M){const list=T.open?M.open:M.closed;let body;
  else body=list.length?list.map(o=>row(o,T.open)).join(''):`<div class="tr3-em">${T.open?'No open positions right now':'No closed positions yet'}</div>`;
  return `<div class="tr3-sh"><h3>Positions</h3><span class="tr3-oc"><button type="button" data-tr3o="1" class="${T.open?'on':''}">Open ${M.open.length}</button><button type="button" data-tr3o="0" class="${T.open?'':'on'}">Closed ${M.closed.length}</button></span></div>
  <div class="tr3-chips">${[['all','All'],['tokens','Tokens'],['perps','Perps'],['predictions','Predictions']].map(([k,l])=>`<button type="button" data-tr3f="${k}" class="${T.filt===k?'on':''}">${l}</button>`).join('')}</div><div class="tr3-rows">${body}</div>`}
-function paint(w){const box=document.getElementById('tr3'),ld=document.getElementById('tr3-lead');if(!box)return;const P=SOC.pf[w];
- if(!P||P.trades===null&&!P.te){if(!box.dataset.sk){box.dataset.sk=1;box.innerHTML='<div class="tr3-sk"></div><div class="tr3-sk"></div><div class="tr3-sk s"></div>'}if(ld)ld.textContent='';return}
+/* r167 header: balance (on-chain SOL + live value of held tokens) and live open P&L, left-aligned, no sentence */
+function balHtml(w,M){const P=SOC.pf[w];if(!P)return'';if(prHide(w,'b'))return'<div class="tr3-bal"><div><small>Balance</small><div class="tr3-bv p">Private</div></div></div>';
+ const u=su();if(P.sol==null&&!P.se)return'<div class="tr3-bal"><div><small>Balance</small><div class="tr3-bv"><i class="tr3-skl"></i></div></div></div>';
+ let tok=0,unp=0;for(const h of(P.hold||[])){const ns=nowSol(h.mint);if(ns>0)tok+=ns*h.amt;else unp++}
+ const solV=P.sol!=null?P.sol:0,tot=u?(solV+tok)*u:null;
+ const big=tot!=null?(()=>{const s=tot.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}),k=s.lastIndexOf('.');return'$'+s.slice(0,k)+'<em>'+s.slice(k)+'</em>'})():(solV+tok).toFixed(2)+' SOL';
+ const sub=[P.sol!=null?'◎ '+(P.sol>=100?P.sol.toFixed(1):P.sol.toFixed(2))+' SOL':'SOL unavailable'];if(tok>0&&u)sub.push(usd(tok*u)+' in tokens');else if(tok>0)sub.push(tok.toFixed(2)+' SOL in tokens');
+ const op=M&&M.open.length?(M.known?`<b class="${M.unreal>=0?'g':'r'}" data-tr3="op" data-v="${M.unreal}">${e(money(M.unreal))}</b><span class="lv">live</span>`:'<b class="n">—</b><span class="lv">loading</span>'):'<b class="n">—</b><span class="nl">no open trades</span>';
+ return `<div class="tr3-bal"><div class="tr3-bl"><small>Balance</small><div class="tr3-bv">${big}</div><div class="tr3-bs">${sub.map(e).join('<i>·</i>')}</div></div>${prHide(w,'p')?'':`<div class="tr3-op"><small>Open P&amp;L</small>${op}</div>`}</div>`}
+function act(w){const P=SOC.pf[w];let last=0;if(P&&Array.isArray(P.trades))for(const x of P.trades)if(x.time>last)last=x.time;const pr=document.querySelector('.prf.tr3');if(pr)pr.classList.toggle('tr3-on',!!last&&Date.now()/1000-last<3600)}
+function paint(w){const box=document.getElementById('tr3'),ld=document.getElementById('tr3-lead');if(!box)return;const P=SOC.pf[w];act(w);
+ const oldOp=ld&&ld.querySelector('[data-tr3="op"]'),oV=oldOp?Number(oldOp.dataset.v):null;
+ const setBal=M=>{if(!ld)return;ld.innerHTML=balHtml(w,M);const b=ld.querySelector('[data-tr3="op"]');if(b&&oV!=null&&isFinite(oV)&&Number(b.dataset.v)!==oV)roll(b,oV,Number(b.dataset.v))};
+ if(!P||P.trades===null&&!P.te){setBal(null);if(!box.dataset.sk){box.dataset.sk=1;box.innerHTML='<div class="tr3-sk"></div><div class="tr3-sk"></div><div class="tr3-sk s"></div>'}return}
  delete box.dataset.sk;
- if(P.te){box.innerHTML=`<div class="tr3-em">This wallet’s trades couldn’t be loaded right now. <button type="button" class="tr3-rt" data-soc="reload" data-w="${e(w)}">Retry</button></div>`;return}
- if(prHide(w,'p')){box.innerHTML='<div class="tr3-em">This trader keeps P&amp;L private.</div>';if(ld)ld.textContent='';return}
+ if(P.te){setBal(null);box.innerHTML=`<div class="tr3-em">This wallet’s trades couldn’t be loaded right now. <button type="button" class="tr3-rt" data-soc="reload" data-w="${e(w)}">Retry</button></div>`;return}
+ if(prHide(w,'p')){setBal(null);box.innerHTML='<div class="tr3-em">This trader keeps P&amp;L private.</div>';return}
  const M=model(w);if(!M)return;T.last=M;
  const old=new Map();box.querySelectorAll('.tr3-ro [data-v]').forEach(b=>{const k=b.closest('.tr3-ro').dataset.k;if(b.dataset.v!=='')old.set(k,Number(b.dataset.v))});
- if(ld)ld.innerHTML=lead(M);
+ setBal(M);
  box.innerHTML=`<section class="tr3-sec">${score(M)}</section><section class="tr3-sec">${chart(M)}</section><section class="tr3-sec">${positions(M)}</section>`;
  box.querySelectorAll('.tr3-ro [data-v]').forEach(b=>{const k=b.closest('.tr3-ro').dataset.k,v=b.dataset.v===''?null:Number(b.dataset.v);if(v!=null&&old.has(k)&&old.get(k)!==v)roll(b,old.get(k),v)});
  try{X.lSub&&X.lSub()}catch(x){}}
+/* the message button sits in the button row (same button, moved; its mutual-follow check keeps working) */
+setInterval(()=>{const m=document.querySelector('.prf.tr3 .pr-nm .pr-msg'),row=document.querySelector('.prf.tr3 #cp-row .cp-row');if(m&&row)row.appendChild(m)},500);
 function roll(b,from,to){const t0=performance.now();cancelAnimationFrame(b._r);b.classList.remove('tr3-up','tr3-dn');void b.offsetWidth;b.classList.add(to>=from?'tr3-up':'tr3-dn');
  const st=n=>{const k=Math.min(1,(n-t0)/650),z=1-Math.pow(1-k,3);b.textContent=money(from+(to-from)*z);if(k<1)b._r=requestAnimationFrame(st)};b._r=requestAnimationFrame(st)}
 /* live: price ticks from the socket re-value the open rows, the sentence and the chart's last point */
-window.__tr3Mints=()=>{const M=T.last;return M?M.open.map(o=>o.mint):[]};
-let tk=0;window.__tr3Px=(m,p)=>{if(!(p>0))return;const was=T.px.get(m);T.px.set(m,p);if(was===p)return;if(T.last&&T.last.open.some(o=>o.mint===m)&&!tk)tk=setTimeout(()=>{tk=0;const w=curW();if(w)paint(w)},600)};
+window.__tr3Mints=()=>{const M=T.last,w=curW(),P=w&&SOC.pf[w],s=new Set(M?M.open.map(o=>o.mint):[]);((P&&P.hold)||[]).forEach(h=>{if(s.size<30)s.add(h.mint)});return[...s]};
+let tk=0;window.__tr3Px=(m,p)=>{if(!(p>0))return;const was=T.px.get(m);T.px.set(m,p);if(was===p)return;if(!tk)tk=setTimeout(()=>{tk=0;const w=curW();if(w)paint(w)},600)};
 /* clicks */
 document.addEventListener('click',ev=>{const t=ev.target&&ev.target.closest&&ev.target.closest('[data-tr3r],[data-tr3o],[data-tr3f]');if(!t)return;ev.preventDefault();
  if(t.dataset.tr3r)T.range=t.dataset.tr3r;else if(t.dataset.tr3o)T.open=t.dataset.tr3o==='1';else T.filt=t.dataset.tr3f;const w=curW();if(w)paint(w)});
