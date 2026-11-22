@@ -17100,6 +17100,27 @@ if(/[?&#]chartdebug=1/.test(location.search+location.hash)){
 .tk2-u{width:11px;height:11px;fill:#8d877a;vertical-align:-1px;margin-right:3px}
 @media(max-width:899px){#app:has(>.rf-home .dcx.tk2){overflow-x:visible!important}}
 @media(min-width:900px){.tk2-on .rf-home #grid .dcx-list{margin:0!important}.tk2-on .rf-home #grid .dcx.tk2{border-radius:0!important}}
+/* r154 live motion */
+.tk2-on .rf-home #grid .dcx.tk2{position:relative}
+.tk2-on .rf-home #grid .dcx.tk2:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0}
+.tk2-on .rf-home #grid .dcx.tk2.tk2-fu:after{background:linear-gradient(270deg,rgba(79,208,138,.22),rgba(79,208,138,.04) 70%);animation:tk2Fl 1.1s ease-out}
+.tk2-on .rf-home #grid .dcx.tk2.tk2-fd:after{background:linear-gradient(270deg,rgba(255,107,107,.22),rgba(255,107,107,.04) 70%);animation:tk2Fl 1.1s ease-out}
+.tk2-on .rf-home #grid .dcx.tk2.tk2-new:after{background:linear-gradient(100deg,rgba(230,184,92,.28),rgba(230,184,92,0) 75%);animation:tk2Fl 2.6s ease-out}
+@keyframes tk2Fl{0%{opacity:0}14%{opacity:1}100%{opacity:0}}
+.tk2-fu .tk2-mc b{animation:tk2Cu 1.1s ease-out}.tk2-fd .tk2-mc b{animation:tk2Cd 1.1s ease-out}
+@keyframes tk2Cu{0%,70%{color:#4fd08a}100%{color:#f3efe6}}@keyframes tk2Cd{0%,70%{color:#ff6b6b}100%{color:#f3efe6}}
+.tk2-fu .tk2-ch,.tk2-fd .tk2-ch{animation:tk2Pu .45s ease-in-out}
+@keyframes tk2Pu{50%{transform:scale(1.18)}}
+.tk2-mc{position:relative}
+.tk2-dl{position:absolute;right:calc(100% + 8px);top:0;font:800 11px/1 Inter,system-ui,sans-serif;padding:4px 7px;border-radius:8px;white-space:nowrap;pointer-events:none;animation:tk2Dl 1.4s ease-out forwards}
+.tk2-dl.u{background:#123a24;color:#4fd08a}.tk2-dl.d{background:#3a1416;color:#ff6b6b}
+@keyframes tk2Dl{0%{opacity:0;transform:translateX(10px)}12%{opacity:1;transform:none}70%{opacity:1}100%{opacity:0}}
+.tk2-on .rf-home #grid .dcx.tk2.tk2-lift{z-index:3;box-shadow:0 8px 24px #000c!important}
+.tk2-tpop{animation:tk2Tp .42s cubic-bezier(.34,1.56,.64,1)}
+@keyframes tk2Tp{0%{transform:scale(0);opacity:0}100%{transform:none;opacity:1}}
+.tk2-spop{animation:tk2Sp .38s ease-in-out}
+@keyframes tk2Sp{50%{transform:scale(1.6)}}
+@media(prefers-reduced-motion:reduce){.tk2-fu .tk2-ch,.tk2-fd .tk2-ch,.tk2-tpop,.tk2-spop{animation:none}}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -18043,7 +18064,7 @@ const X='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 3h3l-7 8 8 10h
 const WB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>';
 const STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg>';
 const isF=id=>{try{return Array.isArray(follows)&&follows.includes(id)}catch(x){return false}};
-const TOK=new Map();
+const TOK=new Map(),PREV=new Map();
 const safeUrl=u=>/^https:\/\//i.test(String(u||''))?String(u):'';
 function card(t,h){
  const tp=document.createElement('template');tp.innerHTML=h.trim();const old=tp.content.firstElementChild;
@@ -18060,6 +18081,10 @@ function card(t,h){
  const tx=tx24(t),st=[fin(t.holders)?`<span>${U}<b>${k(t.holders)}</b></span>`:fin(t.liq)?`<span>L <b>$${k(t.liq)}</b></span>`:'',fin(t.vol)?`<span>V <b>$${k(t.vol)}</b></span>`:'',tx?`<span>TX <b>${k(tx)}</b></span>`:''].join('');
  old.classList.add('tk2');if(tag==='<span class="tk2-tag r">RISING</span>')old.classList.add('tk2-hot');
  old.innerHTML=`<div class="tk2-l1"><div class="tk2-av">${av?av.innerHTML:''}</div><div class="tk2-nm"><div class="tk2-n"><b>${e(t.name)}</b>${tag}</div><small><span class="tk2-tk">${e(t.tick)}${hasAge?' · '+e(ageTxt):''}</span><span class="tk2-ic">${soc}</span></small></div><div class="tk2-mc"><b>${money(t.mc)}</b><span class="tk2-ch ${c==null?'f':c>=0?'u':'d'}">${c==null?'—':(c>=0?'▲ ':'▼ ')+(Math.abs(c)>=1000?k(Math.abs(c)):Math.abs(c).toFixed(Math.abs(c)>=100?0:1))+'%'}</span></div></div><div class="tk2-l2">${bar?bar.outerHTML:'<span class="rf-bar tk2-nb" title="No recent trades"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>'}${bpct!=null?`<span class="tk2-bp">${bpct}% <em>buys</em></span>`:''}<div class="tk2-st">${st}</div></div>`;
+ {const go=old.dataset.go,tg2=tag?(/RISING/.test(tag)?'r':'n'):'',pv=PREV.get(go),mc=fin(t.mc)?Number(t.mc):null;
+  if(pv&&mc!=null&&pv.mc>0&&Math.abs(mc-pv.mc)/pv.mc>0.0005)old.dataset.tk2Mc0=String(pv.mc);
+  if(pv&&tg2&&pv.tag!==tg2)old.dataset.tk2Tag='1';
+  PREV.set(go,{mc,tag:tg2});if(PREV.size>600)PREV.delete(PREV.keys().next().value)}
  TOK.set(old.dataset.go,t);if(TOK.size>400)TOK.delete(TOK.keys().next().value);
  return old.outerHTML}
 window.DiscoverCard=function(t){const h=DC.apply(this,arguments);try{return card(t,h)}catch(x){return h}};
@@ -18069,7 +18094,7 @@ function fl(){try{const r=document.querySelector('.rf-home .px-cat');if(!r||r.qu
  b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg>';
  b.addEventListener('click',ev=>{ev.preventDefault();const p=document.querySelector('#rf-sig .mn-pill');if(p)p.click()});r.append(b)}catch(x){}}
 const h1=t=>{const v=t&&t.pcg&&t.pcg.h1;return fin(v)?Number(v):null};
-function movers(){try{const g=document.querySelector('.rf-home #grid');if(!g)return;let m=document.getElementById('tk2-mv');
+let movers=function(){try{const g=document.querySelector('.rf-home #grid');if(!g)return;let m=document.getElementById('tk2-mv');
  const rows=[...g.querySelectorAll('.dcx.tk2')].map(r=>({r,t:TOK.get(r.dataset.go)})).filter(x=>x.t&&h1(x.t)!=null&&h1(x.t)>0).sort((a,b)=>h1(b.t)-h1(a.t)).slice(0,6);
  if(!rows.length){if(m)m.remove();return}
  if(!m){m=document.createElement('div');m.id='tk2-mv';m.className='tk2-mv';m.setAttribute('aria-label','Top movers in the last hour');g.parentNode.insertBefore(m,g)}
@@ -18078,6 +18103,48 @@ function movers(){try{const g=document.querySelector('.rf-home #grid');if(!g)ret
  if(m._h!==html){m._h=html;m.innerHTML=html}}catch(x){}}
 function stars(){try{document.querySelectorAll('.tk2-w[data-id]').forEach(b=>{const on=isF(b.dataset.id);if(b.classList.contains('on')!==on){b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))}})}catch(x){}}
 const RL=window.renderList;if(typeof RL==='function')window.renderList=function(){const r=RL.apply(this,arguments);fl();movers();stars();return r};
+/* r154 LIVE MOTION: when the market changes, the list shows it.
+   - market cap moved: the row flashes green/red, the number counts to the new value, the % pill pulses, and the change in market cap
+     ("▲ $16.5K") slides in beside it for a moment
+   - a token changes place: rows glide to their new spots (a token moving up passes over the others)
+   - a new token enters the list: it arrives with a short gold glow; a newly earned RISING / NEW tag pops in
+   - movers chips glide to their new order; the watch star pops when tapped
+   Only real changes between two renders of the SAME list (same tab, network and search) animate: switching tabs, networks or searching
+   never animates. Rows off screen are skipped. Reduced-motion users get the colour flash only. */
+const RM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(x){return false}};
+const ctxNow=()=>{try{const tb=document.querySelector('#tabs .tab.on');return (tb?tb.dataset.v:'')+'|'+(window.MCH&&MCH.net||'')+'|'+((typeof S!=='undefined'&&S.q)||'')}catch(x){return''}};
+let CTX=null;
+const vis=el=>{const r=el.getBoundingClientRect();return r.bottom>-40&&r.top<innerHeight+40};
+function countMc(b,from,to){const t0=performance.now(),D=900;const step=n=>{if(!b.isConnected)return;const k=Math.min(1,(n-t0)/D),e=1-Math.pow(1-k,3);b.textContent=money(from+(to-from)*e);if(k<1)requestAnimationFrame(step);else b.textContent=money(to)};requestAnimationFrame(step)}
+function animRows(g,before,same){const rows=[...g.querySelectorAll('.dcx.tk2')];
+ if(!same){rows.forEach(r=>{delete r.dataset.tk2Mc0;delete r.dataset.tk2Tag});return}
+ const rm=RM();let idx=0;
+ for(const r of rows){const i=idx++,go=r.dataset.go,on=vis(r);
+  const m0=r.dataset.tk2Mc0;delete r.dataset.tk2Mc0;
+  if(m0!=null&&on){const t=TOK.get(go),to=t&&fin(t.mc)?Number(t.mc):null,from=Number(m0);
+   if(to!=null&&from>0){const up=to>from;r.classList.remove('tk2-fu','tk2-fd');void r.offsetWidth;r.classList.add(up?'tk2-fu':'tk2-fd');setTimeout(()=>r.classList.remove('tk2-fu','tk2-fd'),1200);
+    const b=r.querySelector('.tk2-mc b');if(b&&!rm)countMc(b,from,to);
+    const mc=r.querySelector('.tk2-mc');if(mc&&!rm){const p=document.createElement('span');p.className='tk2-dl '+(up?'u':'d');p.setAttribute('aria-hidden','true');p.textContent=(up?'▲ ':'▼ ')+money(Math.abs(to-from));mc.append(p);setTimeout(()=>p.remove(),1500)}}}
+  if(r.dataset.tk2Tag){delete r.dataset.tk2Tag;if(on&&!rm){const tg=r.querySelector('.tk2-tag');if(tg)tg.classList.add('tk2-tpop')}}
+  if(rm||!on)continue;
+  const top=r.getBoundingClientRect().top;
+  if(before.has(go)){const dy=before.get(go)-top;if(Math.abs(dy)>2&&Math.abs(dy)<innerHeight*1.5&&r.animate){const upw=dy>0;if(upw)r.classList.add('tk2-lift');
+    const a=r.animate([{transform:`translateY(${dy}px)`},{transform:'translateY(0)'}],{duration:650,easing:'cubic-bezier(.65,0,.35,1)'});a.onfinish=a.oncancel=()=>r.classList.remove('tk2-lift')}}
+  else if(before.size&&i<before.size){r.classList.add('tk2-new');setTimeout(()=>r.classList.remove('tk2-new'),2700);
+   if(r.animate)r.animate([{transform:'translateY(-14px)',opacity:0},{transform:'none',opacity:1}],{duration:500,easing:'cubic-bezier(.2,.8,.2,1)'})}}}
+const DP=window.dcPatch;if(typeof DP==='function')window.dcPatch=function(g){
+ let before=new Map(),k=ctxNow(),same=false;
+ try{if(g&&g.id==='grid'&&g.closest('.rf-home')){g.querySelectorAll('.dcx.tk2').forEach(r=>{if(vis(r))before.set(r.dataset.go,r.getBoundingClientRect().top)});same=CTX===k&&before.size>0}}catch(x){}
+ const res=DP.apply(this,arguments);
+ try{if(g&&g.id==='grid'&&g.closest('.rf-home')){CTX=k;animRows(g,before,same)}}catch(x){}
+ return res};
+/* movers chips glide to their new order */
+const MV0=movers;movers=function(){const m=document.getElementById('tk2-mv'),pos=new Map();if(m)m.querySelectorAll('.tk2-mvc').forEach(c=>pos.set(c.getAttribute('href'),c.getBoundingClientRect().left));
+ MV0();const m2=document.getElementById('tk2-mv');if(!m2||RM()||!pos.size)return;
+ m2.querySelectorAll('.tk2-mvc').forEach(c=>{const h=c.getAttribute('href'),x=c.getBoundingClientRect().left;if(!c.animate)return;
+  if(pos.has(h)){const dx=pos.get(h)-x;if(Math.abs(dx)>2)c.animate([{transform:`translateX(${dx}px)`},{transform:'none'}],{duration:600,easing:'cubic-bezier(.65,0,.35,1)'})}
+  else c.animate([{transform:'translateX(-24px)',opacity:0},{transform:'none',opacity:1}],{duration:500,easing:'cubic-bezier(.2,.8,.2,1)'})})};
+document.addEventListener('click',ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest('.tk2-w');if(!b||RM())return;setTimeout(()=>{document.querySelectorAll('.tk2-w[data-id="'+(window.CSS&&CSS.escape?CSS.escape(b.dataset.id):b.dataset.id)+'"]').forEach(x=>{x.classList.remove('tk2-spop');void x.offsetWidth;x.classList.add('tk2-spop')})},0)});
 document.addEventListener('click',ev=>{if(ev.target&&ev.target.closest&&ev.target.closest('.tk2-w'))setTimeout(stars,0)});
 document.documentElement.classList.add('tk2-on');
 })();
