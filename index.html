@@ -17358,6 +17358,25 @@ html body .prf.tr2.tr3.tr3-on::after{display:block}
 .tr3-op b.g{color:#4fd08a}.tr3-op b.r{color:#ff6b6b}.tr3-op b.n{color:#5d574d}
 .tr3-op .lv,.tr3-op .nl{display:inline-flex;align-items:center;gap:5px;font:700 11px/1 Inter,system-ui,sans-serif;margin-top:8px}
 .tr3-op .lv{color:#4fd08a}.tr3-op .lv::before{content:"";width:6px;height:6px;border-radius:50%;background:#4fd08a}.tr3-op .nl{color:#5d574d}
+/* r169 Unclaimed SOL (trading cashback) */
+.rc{padding:18px 20px 30px;text-align:center}
+.rc-k{font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8f887c}
+.rc-amt{margin-top:14px;display:flex;align-items:baseline;justify-content:center;gap:8px}
+.rc-amt b{font:700 52px/1 Inter,system-ui,sans-serif;letter-spacing:-1.6px;color:#f1ebdf}
+.rc-amt small{font:600 22px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#e8b95a}
+.rc-usd{font:600 14px/1 Inter,system-ui,sans-serif;color:#8f887c;margin-top:10px}
+.rc-p{font:500 14.5px/1.5 Inter,system-ui,sans-serif;color:#b9b2a4;margin:18px auto 0;max-width:320px}.rc-p b{color:#f1ebdf}
+.rc-btn{display:block;width:100%;margin-top:20px;height:52px;border:0;border-radius:16px;background:#e8b95a;color:#1a1408;font:800 16px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.rc-btn.d{background:#161412;color:#f1ebdf}.rc-btn[disabled]{opacity:.65}
+.rc-msg{font:600 13.5px/1.4 Inter,system-ui,sans-serif;color:#4fd08a;margin-top:14px}
+.rc-sigs{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:10px}.rc-sigs a{font:700 12.5px/1 Inter,system-ui,sans-serif;color:#e8b95a;text-decoration:none}
+.rc-list{margin-top:24px;text-align:left}
+.rc-r{display:flex;align-items:center;gap:12px;padding:10px 0}
+.rc-av{flex:none;width:36px;height:36px;border-radius:12px;overflow:hidden;display:grid;place-items:center}.rc-av>*{width:36px!important;height:36px!important;border-radius:12px!important}
+.rc-n{flex:1;min-width:0}.rc-n b{display:block;font:700 14.5px/1.2 Inter,system-ui,sans-serif;color:#f1ebdf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rc-n small{display:block;font:600 12px/1 Inter,system-ui,sans-serif;color:#6f695f;margin-top:4px}
+.rc-v{flex:none;font:700 13.5px/1 Inter,system-ui,sans-serif;color:#4fd08a}
+.rc-more{font:600 12.5px/1 Inter,system-ui,sans-serif;color:#6f695f;padding:8px 0}
+.rc-note{font:500 12px/1.5 Inter,system-ui,sans-serif;color:#6f695f;margin-top:22px}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -18887,6 +18906,74 @@ setInterval(()=>{const w=curW();if(w&&!document.hidden&&document.querySelector('
 (function(){'use strict';if(window.__satR168||typeof window.RewardsBase!=='function')return;window.__satR168=1;
 const RB=window.RewardsBase;window.RewardsBase=function(){let h=RB.apply(this,arguments);try{if(typeof h==='string'&&!WalletService.address)
  h=h.split('Reading your rewards…').join('Connect a wallet to see your rewards.</p><button type="button" class="btn pri w" data-act="wallet" style="margin-top:10px">Connect wallet</button><p hidden>')}catch(x){}return h}})();
+
+/* ===== r169 Trading cashback = Unclaimed SOL (like Jupiter's "reclaim SOL") =====
+   Every token a wallet trades leaves a token account that keeps ~0.002 SOL of rent locked, even after the tokens are sold.
+   This page finds the wallet's EMPTY token accounts (balance exactly 0) and closes them, sending that rent back to the same wallet.
+   - read-only scan: getTokenAccountsByOwner (classic + Token-2022), only accounts with amount 0, owned/closable by this wallet,
+     initialized (not frozen), and Token-2022 accounts with no withheld transfer fees
+   - each step closes up to 18 accounts in one transaction: built here, simulated first, then signed by the user in their own wallet
+   - the SOL goes back to the connected wallet; Saturn takes no fee and never holds anything */
+(function(){'use strict';if(window.__satR169||typeof window.RewardsBase!=='function')return;window.__satR169=1;
+const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const RC={st:'idle',w:'',list:[],tot:0n,at:0,step:0,steps:0,msg:'',sigs:[],got:0n};
+const sol=l=>{const n=Number(l)/1e9;return n>=1?n.toFixed(3):n>=0.01?n.toFixed(4):n.toFixed(6).replace(/0+$/,'').replace(/\.$/,'')};
+const BATCH=18;
+async function scan(force){const w=WalletService.address;if(!w){RC.st='nowallet';RC.w='';return paint()}
+ if(!force&&RC.w===w&&(RC.st==='ready'||RC.st==='empty')&&Date.now()-RC.at<60000)return paint();
+ if(RC.st==='claiming')return;RC.st='loading';RC.w=w;paint();
+ try{const rs=await Promise.all([TOKEN_PROGRAM_ID,TOKEN22_PROGRAM_ID].map(p=>solRpc('getTokenAccountsByOwner',[w,{programId:p},{encoding:'jsonParsed',commitment:'confirmed'}]).then(r=>({p,r}))));
+  if(WalletService.address!==w)return;const list=[];
+  for(const{p,r}of rs)for(const a of((r&&r.value)||[])){const i=a&&a.account&&a.account.data&&a.account.data.parsed&&a.account.data.parsed.info;if(!i||!i.tokenAmount)continue;
+   if(String(i.tokenAmount.amount)!=='0'||i.state!=='initialized'||i.owner!==w)continue;if(i.closeAuthority&&i.closeAuthority!==w)continue;
+   if(Array.isArray(i.extensions)&&i.extensions.some(x=>x&&x.extension==='transferFeeAmount'&&x.state&&Number(x.state.withheldAmount)>0))continue;
+   const lam=BigInt(a.account.lamports||0);if(lam<=0n)continue;list.push({acc:a.pubkey,mint:i.mint,prog:p,lam})}
+  list.sort((a,b)=>Number(b.lam-a.lam));RC.list=list;RC.tot=list.reduce((s,x)=>s+x.lam,0n);RC.st=list.length?'ready':'empty';RC.at=Date.now();
+  try{const x=window.__satTr164;x&&x.need(list.slice(0,40).map(z=>z.mint))}catch(_){}}
+ catch(x){RC.st='error';RC.msg='Couldn’t read your token accounts right now.'}
+ paint()}
+async function claim(){const w=WalletService.address;if(!w||RC.st!=='ready'||RC.w!==w||!RC.list.length)return;
+ RC.st='claiming';RC.msg='';RC.sigs=[];RC.got=0n;const groups=[];for(const p of[TOKEN_PROGRAM_ID,TOKEN22_PROGRAM_ID]){const g=RC.list.filter(x=>x.prog===p);for(let i=0;i<g.length;i+=BATCH)groups.push(g.slice(i,i+BATCH))}
+ RC.steps=groups.length;RC.step=0;paint();
+ let libs;try{libs=await loadCreateLibs()}catch(x){RC.st='ready';RC.msg='Couldn’t load the Solana library. Nothing was signed.';return paint()}
+ const{web3,spl}=libs,owner=new web3.PublicKey(w);
+ try{for(const g of groups){RC.step++;paint();
+   const bh=await solRpc('getLatestBlockhash',[{commitment:'confirmed'}]),blockhash=bh&&bh.value&&bh.value.blockhash;if(!blockhash)throw new Error('The network returned no blockhash. Nothing more was signed.');
+   const tx=new web3.Transaction();tx.feePayer=owner;tx.recentBlockhash=blockhash;
+   for(const x of g)tx.add(spl.createCloseAccountInstruction(new web3.PublicKey(x.acc),owner,owner,[],new web3.PublicKey(x.prog)));
+   const bytes=tx.serialize({requireAllSignatures:false,verifySignatures:false});
+   const sim=await solRpc('simulateTransaction',[bytesToB64(bytes),{encoding:'base64',sigVerify:false,replaceRecentBlockhash:true,commitment:'confirmed'}]);
+   if(!sim||!sim.value||sim.value.err)throw new Error('The network pre-check rejected step '+RC.step+', so it was not sent to your wallet.');
+   if(WalletService.address!==w)throw new Error('The wallet changed. Stopped.');
+   const r=await WalletService.signAndSend(bytes);
+   const sig=r.submitted?r.signature:await solRpc('sendTransaction',[bytesToB64(r.signedTransaction),{encoding:'base64',skipPreflight:false,maxRetries:3}]);
+   RC.sigs.push(sig);paint();await confirmSignature(sig);RC.got+=g.reduce((s,x)=>s+x.lam,0n);paint()}
+  RC.msg='Claimed '+sol(RC.got)+' SOL back to your wallet.';try{toast(RC.msg)}catch(x){}}
+ catch(x){const m=String(x&&x.message||x||'');RC.msg=(RC.got>0n?'Claimed '+sol(RC.got)+' SOL so far. ':'')+(/reject|denied|declin|cancel|closed/i.test(m)?'You cancelled in your wallet.':m.slice(0,160))}
+ RC.st='idle';RC.at=0;await scan(true)}
+function card(){const w=WalletService.address,u=typeof SOLUSD==='number'&&SOLUSD>0?SOLUSD:null;
+ let amt='—',body='',btn='';
+ if(!w){body='Connect a wallet to find SOL left behind by your trades.';btn='<button type="button" class="rc-btn" data-act="wallet">Connect wallet</button>'}
+ else if(RC.st==='loading'||RC.st==='idle'){body='Checking your token accounts on Solana…'}
+ else if(RC.st==='error'){body=e(RC.msg);btn='<button type="button" class="rc-btn d" data-rc="scan">Try again</button>'}
+ else if(RC.st==='empty'){amt='0';body='No unclaimed SOL — every token account in this wallet still holds tokens.';btn='<button type="button" class="rc-btn d" data-rc="scan">Check again</button>'}
+ else if(RC.st==='ready'){amt=sol(RC.tot);body=`Locked in <b>${RC.list.length}</b> empty token account${RC.list.length===1?'':'s'} left by your trades. Claim it back to your wallet.`;btn=`<button type="button" class="rc-btn" data-rc="claim">Claim ${sol(RC.tot)} SOL</button>`}
+ else if(RC.st==='claiming'){amt=sol(RC.tot);body=`Step ${RC.step} of ${RC.steps} — approve it in your wallet…`;btn='<button type="button" class="rc-btn" disabled>Claiming…</button>'}
+ const usd=u&&(RC.st==='ready'||RC.st==='claiming')?'<div class="rc-usd">≈ $'+(Number(RC.tot)/1e9*u).toFixed(2)+'</div>':'';
+ const rows=RC.st==='ready'||RC.st==='claiming'?RC.list.slice(0,8).map(x=>{let t=null;try{t=window.__satTr164?window.__satTr164.tokOf(x.mint):socTok(x.mint)}catch(_){}
+  return `<div class="rc-r"><span class="rc-av">${prAv(x.mint,t,36)}</span><span class="rc-n"><b>${t?e(t.tick&&t.tick!=='?'?t.tick:t.name):e(short(x.mint))}</b><small>empty account</small></span><span class="rc-v">${sol(x.lam)} SOL</span></div>`}).join('')+(RC.list.length>8?`<div class="rc-more">+ ${RC.list.length-8} more</div>`:''):'';
+ const sigs=RC.sigs.length?'<div class="rc-sigs">'+RC.sigs.map((s,i)=>`<a href="https://solscan.io/tx/${e(s)}" target="_blank" rel="noopener noreferrer">Step ${i+1} ↗</a>`).join('')+'</div>':'';
+ return `<section class="rc" id="rc-card"><div class="rc-k">Unclaimed SOL</div><div class="rc-amt"><b>${amt}</b><small>SOL</small></div>${usd}<p class="rc-p">${body}</p>${btn}${RC.msg?`<p class="rc-msg" role="status">${e(RC.msg)}</p>`:''}${sigs}${rows?'<div class="rc-list">'+rows+'</div>':''}<p class="rc-note">You approve every step in your own wallet. The SOL goes back to this wallet — Saturn takes no fee. Each step closes up to ${BATCH} empty accounts and costs about 0.000005 SOL in network fee.</p></section>`}
+function paint(){const el=document.getElementById('rc-card');if(el){el.outerHTML=card()}
+ const hv=document.getElementById('rc-hub');if(hv)hv.textContent=RC.st==='ready'?sol(RC.tot)+' SOL':''}
+const RB=window.RewardsBase;window.RewardsBase=function(){const sub=(location.hash.slice(2).split('/')[1]||'').split('?')[0];
+ if(sub==='cashback'){setTimeout(()=>scan(false),0);return '<div class="rh rx">'+card()+'</div>'}
+ let h=RB.apply(this,arguments);try{if(!sub&&typeof h==='string'){setTimeout(()=>scan(false),0);
+  h=h.replace('<span class="rx-mt">Trading cashback</span>','<span class="rx-mt">Trading cashback</span><span class="rx-mv" id="rc-hub">'+(RC.st==='ready'?sol(RC.tot)+' SOL':'')+'</span>')}}catch(x){}return h};
+document.addEventListener('click',ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest('[data-rc]');if(!b)return;ev.preventDefault();if(b.dataset.rc==='claim')claim();else scan(true)});
+try{WalletService.on&&WalletService.on(()=>{if(/^#\/rewards/.test(location.hash)){RC.st='idle';scan(true)}})}catch(x){}
+window.__satRC=RC;
+})();
 </script>
 <script id="saturn-r160-pulse">
 /* ===== Saturn r160 — Pulse redesign (additive; presentation + endless scroll) =====
