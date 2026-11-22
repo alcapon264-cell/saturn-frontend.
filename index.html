@@ -17049,7 +17049,7 @@ if(/[?&#]chartdebug=1/.test(location.search+location.hash)){
 .tk2-on .rf-home .px-cat{position:relative;align-items:center}
 .tk2-fl{margin-left:auto;align-self:center;width:36px;height:36px;border:0;border-radius:50%;background:transparent;color:#8d877a;display:grid;place-items:center;cursor:pointer;padding:0}
 .tk2-fl svg{width:22px;height:22px}.tk2-fl:active{background:#151310}
-.tk2-on .rf-home .rf-tabs{margin:12px 0 6px;border:0!important;padding:0!important;background:none!important}
+.tk2-on .rf-home .rf-tabs{margin:12px 0 10px;border:0!important;padding:0!important;background:none!important}
 .tk2-on .rf-home .rf-tabs .tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border:0!important;box-shadow:none!important;padding:0 0 2px!important;margin:0!important;background:none!important}
 .tk2-on .rf-home .rf-tabs .tabs::-webkit-scrollbar{display:none}
 .tk2-on .rf-home .rf-tabs .tab{flex:none;font:700 13.5px/1 Inter,system-ui,sans-serif!important;padding:10px 14px!important;border-radius:13px!important;background:#131110!important;color:#8d877a!important;border:0!important;box-shadow:none!important;letter-spacing:0!important;text-transform:none!important;min-height:0!important}
@@ -17073,9 +17073,22 @@ if(/[?&#]chartdebug=1/.test(location.search+location.hash)){
 .tk2-tag{flex:none;font:800 9.5px/1 Inter,system-ui,sans-serif;letter-spacing:.06em;padding:4px 6px;border-radius:6px}
 .tk2-tag.r{background:#e6b85c;color:#1a1408}.tk2-tag.n{background:#1c2740;color:#8fb6ff}
 .tk2-nm small{display:flex;align-items:center;gap:6px;margin-top:3px;font:600 13px/1.2 Inter,system-ui,sans-serif;color:#8d877a;white-space:nowrap;overflow:hidden}
-.tk2-s{display:inline-grid;place-items:center;width:16px;height:16px;color:#8d877a}.tk2-s svg{width:12px;height:12px;fill:currentColor}.tk2-s svg[fill=none]{fill:none}
+.tk2-tk{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tk2-ic{display:inline-flex;align-items:center;gap:6px;margin-left:4px;flex:none}
+.tk2-s{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;background:#17150f;color:#8d877a;border:0;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tk2-s svg{width:11px;height:11px;fill:currentColor}.tk2-s svg[fill=none]{fill:none}
+.tk2-w svg{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linejoin:round}
+.tk2-w.on{color:#e6b85c}.tk2-w.on svg{fill:#e6b85c}
+.tk2-s:active{transform:scale(.9)}
+.tk2-bp{font:700 12px/1 Inter,system-ui,sans-serif;color:#cfc8ba;white-space:nowrap}.tk2-bp em{font-style:normal;font-weight:600;color:#6f695f}
+.tk2-mv{display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px var(--tk2-bleed,20px) 12px 0;margin:2px calc(-1 * var(--tk2-bleed,20px)) 0 0}
+.tk2-mv::-webkit-scrollbar{display:none}
+.tk2-mk{flex:none;font:800 10px/1 Inter,system-ui,sans-serif;letter-spacing:.12em;color:#6f695f;margin-right:2px}
+.tk2-mvc{flex:none;display:inline-flex;align-items:center;gap:7px;padding:4px 11px 4px 4px;border-radius:20px;background:#131110;text-decoration:none;color:#f3efe6}
+.tk2-mvc b{font:800 12.5px/1 Inter,system-ui,sans-serif}.tk2-mvc>span:last-child{font:700 12px/1 Inter,system-ui,sans-serif;color:#4fd08a}
+.tk2-ma{width:24px;height:24px;flex:none;display:block}.tk2-ma .av,.tk2-ma img{width:24px!important;height:24px!important;border-radius:50%!important;font-size:11px!important;display:grid;place-items:center;object-fit:cover}
 .tk2-mc{flex:none;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.tk2-mc b{font:800 16.5px/1.1 Inter,system-ui,sans-serif;color:#e6b85c;font-variant-numeric:tabular-nums}
+.tk2-mc b{font:800 16.5px/1.1 Inter,system-ui,sans-serif;color:#f3efe6;font-variant-numeric:tabular-nums}
 .tk2-ch{font:700 12px/1 Inter,system-ui,sans-serif;padding:4px 7px;border-radius:7px;font-variant-numeric:tabular-nums}
 .tk2-ch.u{color:#4fd08a;background:#4fd08a18}.tk2-ch.d{color:#ff6b6b;background:#ff6b6b18}.tk2-ch.f{color:#8d877a;background:#ffffff0d}
 .tk2-l2{display:flex;align-items:center;gap:10px;margin-top:10px}
@@ -18028,6 +18041,9 @@ const tx24=t=>{const o=(t.txns&&t.txns.h24)||null;if(!o)return null;const n=(Num
 const U='<svg class="tk2-u" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6z"/></svg>';
 const X='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 3h3l-7 8 8 10h-6l-5-6-5 6H3l7-8-8-10h6l4 5z"/></svg>';
 const WB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>';
+const STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg>';
+const isF=id=>{try{return Array.isArray(follows)&&follows.includes(id)}catch(x){return false}};
+const TOK=new Map();
 const safeUrl=u=>/^https:\/\//i.test(String(u||''))?String(u):'';
 function card(t,h){
  const tp=document.createElement('template');tp.innerHTML=h.trim();const old=tp.content.firstElementChild;
@@ -18038,10 +18054,13 @@ function card(t,h){
  const c=fin(t.chg)?Number(t.chg):null;
  const tag=tg&&/up/.test(tg.className)?'<span class="tk2-tag r">RISING</span>':tg&&/nw/.test(tg.className)?'<span class="tk2-tag n">NEW</span>':'';
  const tw=safeUrl(t.twitter),wb=safeUrl(t.website||t.web);
- const soc=(tw?`<a class="tk2-s" href="${e(tw)}" target="_blank" rel="noopener noreferrer" aria-label="X">${X}</a>`:'')+(wb?`<a class="tk2-s" href="${e(wb)}" target="_blank" rel="noopener noreferrer" aria-label="Website">${WB}</a>`:'');
+ const wf=isF(t.id);
+ const soc=(tw?`<a class="tk2-s" href="${e(tw)}" target="_blank" rel="noopener noreferrer" aria-label="${e(t.name)} on X">${X}</a>`:'')+(wb?`<a class="tk2-s" href="${e(wb)}" target="_blank" rel="noopener noreferrer" aria-label="${e(t.name)} website">${WB}</a>`:'')+`<button type="button" class="tk2-s tk2-w${wf?' on':''}" data-act="follow" data-id="${e(t.id)}" aria-pressed="${wf}" aria-label="${wf?'Remove '+e(t.name)+' from watchlist':'Add '+e(t.name)+' to watchlist'}">${STAR}</button>`;
+ const bt=bar&&/(\d+) buys · (\d+) sells/.exec(bar.getAttribute('title')||''),bpct=bt&&(+bt[1]+ +bt[2])>0?Math.round(+bt[1]/(+bt[1]+ +bt[2])*100):null;
  const tx=tx24(t),st=[fin(t.holders)?`<span>${U}<b>${k(t.holders)}</b></span>`:fin(t.liq)?`<span>L <b>$${k(t.liq)}</b></span>`:'',fin(t.vol)?`<span>V <b>$${k(t.vol)}</b></span>`:'',tx?`<span>TX <b>${k(tx)}</b></span>`:''].join('');
  old.classList.add('tk2');if(tag==='<span class="tk2-tag r">RISING</span>')old.classList.add('tk2-hot');
- old.innerHTML=`<div class="tk2-l1"><div class="tk2-av">${av?av.innerHTML:''}</div><div class="tk2-nm"><div class="tk2-n"><b>${e(t.name)}</b>${tag}</div><small>${e(t.tick)}${hasAge?' · '+e(ageTxt):''}${soc}</small></div><div class="tk2-mc"><b>${money(t.mc)}</b><span class="tk2-ch ${c==null?'f':c>=0?'u':'d'}">${c==null?'—':(c>=0?'▲ ':'▼ ')+(Math.abs(c)>=1000?k(Math.abs(c)):Math.abs(c).toFixed(Math.abs(c)>=100?0:1))+'%'}</span></div></div><div class="tk2-l2">${bar?bar.outerHTML:'<span class="rf-bar tk2-nb" title="No recent trades"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>'}<div class="tk2-st">${st}</div></div>`;
+ old.innerHTML=`<div class="tk2-l1"><div class="tk2-av">${av?av.innerHTML:''}</div><div class="tk2-nm"><div class="tk2-n"><b>${e(t.name)}</b>${tag}</div><small><span class="tk2-tk">${e(t.tick)}${hasAge?' · '+e(ageTxt):''}</span><span class="tk2-ic">${soc}</span></small></div><div class="tk2-mc"><b>${money(t.mc)}</b><span class="tk2-ch ${c==null?'f':c>=0?'u':'d'}">${c==null?'—':(c>=0?'▲ ':'▼ ')+(Math.abs(c)>=1000?k(Math.abs(c)):Math.abs(c).toFixed(Math.abs(c)>=100?0:1))+'%'}</span></div></div><div class="tk2-l2">${bar?bar.outerHTML:'<span class="rf-bar tk2-nb" title="No recent trades"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>'}${bpct!=null?`<span class="tk2-bp">${bpct}% <em>buys</em></span>`:''}<div class="tk2-st">${st}</div></div>`;
+ TOK.set(old.dataset.go,t);if(TOK.size>400)TOK.delete(TOK.keys().next().value);
  return old.outerHTML}
 window.DiscoverCard=function(t){const h=DC.apply(this,arguments);try{return card(t,h)}catch(x){return h}};
 /* ☰ on the Tokens · Perps · Prediction row opens the existing network sheet (the pill now lives in the hidden Signal block) */
@@ -18049,7 +18068,17 @@ function fl(){try{const r=document.querySelector('.rf-home .px-cat');if(!r||r.qu
  const b=document.createElement('button');b.type='button';b.className='tk2-fl';b.setAttribute('aria-label','Filter: network');
  b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg>';
  b.addEventListener('click',ev=>{ev.preventDefault();const p=document.querySelector('#rf-sig .mn-pill');if(p)p.click()});r.append(b)}catch(x){}}
-const RL=window.renderList;if(typeof RL==='function')window.renderList=function(){const r=RL.apply(this,arguments);fl();return r};
+const h1=t=>{const v=t&&t.pcg&&t.pcg.h1;return fin(v)?Number(v):null};
+function movers(){try{const g=document.querySelector('.rf-home #grid');if(!g)return;let m=document.getElementById('tk2-mv');
+ const rows=[...g.querySelectorAll('.dcx.tk2')].map(r=>({r,t:TOK.get(r.dataset.go)})).filter(x=>x.t&&h1(x.t)!=null&&h1(x.t)>0).sort((a,b)=>h1(b.t)-h1(a.t)).slice(0,6);
+ if(!rows.length){if(m)m.remove();return}
+ if(!m){m=document.createElement('div');m.id='tk2-mv';m.className='tk2-mv';m.setAttribute('aria-label','Top movers in the last hour');g.parentNode.insertBefore(m,g)}
+ const html='<span class="tk2-mk">MOVERS</span>'+rows.map(({r,t})=>{const av=r.querySelector('.tk2-av .av, .tk2-av img');const a=av?av.outerHTML:'';const v=h1(t);
+  return `<a class="tk2-mvc" href="#/token/${e(r.dataset.go)}" aria-label="${e(t.tick)} up ${v.toFixed(1)}% in 1 hour"><span class="tk2-ma">${a}</span><b>${e(t.tick)}</b><span>+${v>=100?Math.round(v):v.toFixed(v>=10?0:1)}%</span></a>`}).join('');
+ if(m._h!==html){m._h=html;m.innerHTML=html}}catch(x){}}
+function stars(){try{document.querySelectorAll('.tk2-w[data-id]').forEach(b=>{const on=isF(b.dataset.id);if(b.classList.contains('on')!==on){b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))}})}catch(x){}}
+const RL=window.renderList;if(typeof RL==='function')window.renderList=function(){const r=RL.apply(this,arguments);fl();movers();stars();return r};
+document.addEventListener('click',ev=>{if(ev.target&&ev.target.closest&&ev.target.closest('.tk2-w'))setTimeout(stars,0)});
 document.documentElement.classList.add('tk2-on');
 })();
 </script>
