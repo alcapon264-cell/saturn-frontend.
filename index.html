@@ -19356,14 +19356,15 @@ window.socLoad=async function(force){if(S.view!=='social'||SOC.tab!=='global')re
 </script>
 <script id="saturn-r174-stocks">
 /* ===== r174 Stocks: tokenized US stocks & ETFs on Solana (xStocks), as a 4th Discover tab after Prediction =====
-   Data: Saturn's server (/v1/stocks) reads Jupiter's verified token list and keeps only the real xStocks (verified, "Xs…" issuer mints,
+   Data: Saturn's server (/v1/stocks, live over /stocks/live) finds xStocks mints, checks each is Jupiter-verified and keeps only the real xStocks (verified, "Xs…" issuer mints,
    "<TICKER>x" symbols). Live price + 24h change come from the same read; nothing is invented. Tapping a stock opens its token page
    (chart, buy/sell) like any Solana token. ★ Watchlist = the tokens you follow in Saturn (the star on a token page). */
 (function(){'use strict';
 if(window.__satStocks)return;window.__satStocks=1;
 const API='https://saturn-perps-staging.onrender.com/v1/stocks';
 const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ST={list:null,at:0,err:false,filt:'all',busy:false,poll:0};
+const ST={list:null,at:0,err:false,filt:'all',busy:false,poll:0,ws:null,wsAt:0,retry:0};
+const WS='wss://saturn-perps-staging.onrender.com/stocks/live';
 const isStocks=()=>/^#\/stocks(?:[/?]|$)/.test(location.hash);
 /* --- the Stocks tab on every Discover tab bar (Tokens / Perps / Prediction) --- */
 function addTab(){document.querySelectorAll('.px-cat').forEach(c=>{if(c.querySelector('a[href="#/stocks"]'))return;const links=c.querySelectorAll('a[role="tab"]');if(!links.length)return;
@@ -19386,6 +19387,18 @@ async function load(force){if(ST.busy)return;if(!force&&ST.list&&Date.now()-ST.a
   if(j&&j.ok&&Array.isArray(j.stocks)){ST.list=j.stocks.filter(s=>s&&/^Xs[1-9A-HJ-NP-Za-km-z]{30,42}$/.test(s.mint)&&s.price>0);ST.at=Date.now();ST.err=false}else if(!ST.list)ST.err=true}
  catch(x){if(!ST.list)ST.err=true}
  finally{ST.busy=false;if(isStocks())paint()}}
+/* --- r175 live prices: /stocks/live sends a snapshot, then only the stocks whose price moved (about every 5 s). HTTP stays as the fallback. --- */
+const okS=s=>s&&/^Xs[1-9A-HJ-NP-Za-km-z]{30,42}$/.test(s.mint)&&s.price>0;
+function wsOpen(){if(ST.ws||!isStocks()||document.hidden)return;let w;try{w=new WebSocket(WS)}catch(x){return}ST.ws=w;
+ w.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(x){return}ST.wsAt=Date.now();ST.retry=0;
+  if(m.type==='snap'&&Array.isArray(m.stocks)){const L=m.stocks.filter(okS);if(L.length){ST.list=L;ST.at=Date.now();ST.err=false}}
+  else if(m.type==='px'&&Array.isArray(m.rows)&&ST.list){const by=new Map(ST.list.map(s=>[s.mint,s]));m.rows.forEach(r=>{const s=r&&by.get(r.mint);if(s&&r.price>0){s.price=r.price;s.chg24=r.chg24}});ST.at=Date.now()}
+  else return;paint()};
+ w.onclose=()=>{if(ST.ws===w)ST.ws=null;if(isStocks()&&!document.hidden){ST.retry=Math.min(ST.retry+1,6);setTimeout(wsOpen,1000*Math.pow(2,ST.retry))}};
+ w.onerror=()=>{try{w.close()}catch(x){}}}
+function wsClose(){const w=ST.ws;ST.ws=null;if(w)try{w.close()}catch(x){}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)wsClose();else if(isStocks()){wsOpen();load(false)}});
+addEventListener('hashchange',()=>{if(!isStocks())wsClose()});
 /* --- view --- */
 const money=v=>'$'+(v>=1000?v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):v.toFixed(2));
 const fol=()=>{try{return Array.isArray(follows)?follows:[]}catch(x){return[]}};
@@ -19413,14 +19426,14 @@ function paint(){const a=document.getElementById('app');if(!a||!isStocks())retur
  else ls.innerHTML=body();
  const st=document.getElementById('stk-st');if(st){const m=market(),h=(m.open?'<b class="o">US market open</b>':'<b class="c">US market closed</b>')+'<span>'+e(m.txt)+'</span>';if(st.innerHTML!==h)st.innerHTML=h}}
 function show(){if(!isStocks())return;try{S.view='stocks'}catch(x){}try{PoolTimer.stop()}catch(x){}
- const a=document.getElementById('app');if(a)a.innerHTML=page();try{scrollTo(0,0)}catch(x){}load(false);
- clearInterval(ST.poll);ST.poll=setInterval(()=>{if(!isStocks()){clearInterval(ST.poll);return}if(!document.hidden)load(true);paint()},30000)}
+ const a=document.getElementById('app');if(a)a.innerHTML=page();try{scrollTo(0,0)}catch(x){}load(false);wsOpen();
+ clearInterval(ST.poll);ST.poll=setInterval(()=>{if(!isStocks()){clearInterval(ST.poll);wsClose();return}if(!document.hidden&&Date.now()-ST.wsAt>20000)load(true);paint()},15000)}
 /* the app's router draws Home for an unknown page first; this runs right after it and puts Stocks in its place */
 addEventListener('hashchange',()=>{if(isStocks())setTimeout(show,0)});
 if(isStocks())setTimeout(show,60);
 document.addEventListener('click',ev=>{const t=ev.target&&ev.target.closest&&ev.target.closest('[data-stk-f],[data-stk]');if(!t)return;ev.preventDefault();
  if(t.dataset.stkF){ST.filt=t.dataset.stkF;document.querySelectorAll('.stk-ch button').forEach(b=>{const on=b.dataset.stkF===ST.filt;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});const ls=document.getElementById('stk-ls');if(ls)ls.innerHTML=body()}
- else if(t.dataset.stk==='retry'){ST.err=false;const ls=document.getElementById('stk-ls');if(ls)ls.innerHTML=body();load(true)}});
+ else if(t.dataset.stk==='retry'){ST.err=false;const ls=document.getElementById('stk-ls');if(ls)ls.innerHTML=body();load(true);wsOpen()}});
 window.__satStocks={ST,load,market};
 })();
 </script>
