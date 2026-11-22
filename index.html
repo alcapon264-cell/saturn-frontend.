@@ -17121,6 +17121,11 @@ if(/[?&#]chartdebug=1/.test(location.search+location.hash)){
 .tk2-spop{animation:tk2Sp .38s ease-in-out}
 @keyframes tk2Sp{50%{transform:scale(1.6)}}
 @media(prefers-reduced-motion:reduce){.tk2-fu .tk2-ch,.tk2-fd .tk2-ch,.tk2-tpop,.tk2-spop{animation:none}}
+/* r176 smooth activity: new trades slide in at the top */
+#ax .ax-l{overflow-anchor:auto}
+#ax .ax-r.ax-in{animation:ax176in .5s cubic-bezier(.2,.8,.2,1) both;overflow:hidden}
+@keyframes ax176in{from{max-height:0;min-height:0;padding-top:0;padding-bottom:0;opacity:0;transform:translateY(-6px)}to{max-height:64px;opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#ax .ax-r.ax-in{animation:none}}
 </style>
 <style id="saturn-r159-trader-css">
 /* r159 Trader profile (Pulse) redesign — presentation only, no border lines anywhere */
@@ -18679,6 +18684,35 @@ function lcheck(){try{const want=typeof S!=='undefined'&&S.view==='home'&&!docum
  if(want){awayAt=0;LM=lmints();if(LM.size&&!lws)lopen();else lsub()}else{if(!awayAt)awayAt=Date.now();if(lws&&Date.now()-awayAt>10000)lclose()}}catch(x){}}
 setInterval(lcheck,2000);document.addEventListener('visibilitychange',lcheck);
 window.__satTk2Live=()=>({state:lwsState,watching:LM.size,live:LV.size});
+})();
+/* ===== r176 SMOOTH ACTIVITY: the token page's Buy/Sell list used to be rebuilt from scratch (innerHTML) on every new trade, so the whole
+   list flashed and the page hitched. Now the list keeps its rows: a new trade slides in at the top, rows already on screen stay put
+   (their "ago" times keep ticking), only rows that left the list are removed. Same rows, same data, same order as before. ===== */
+(function(){'use strict';
+if(window.__satAx176)return;window.__satAx176=1;
+const desc=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');if(!desc||!desc.set)return;
+const keyOf=r=>{const a=r.querySelector('.ax-t a[href]'),tm=r.querySelector('time[data-ts]'),w=r.querySelector('.ax-w');return(a?a.getAttribute('href'):'')+'|'+(tm?tm.dataset.ts:'')+'|'+(w?w.textContent:'')+'|'+(r.querySelector('.ax-s')||{}).textContent};
+const sig=r=>{const c=r.cloneNode(true);c.querySelectorAll('time').forEach(t=>t.textContent='');c.classList.remove('ax-in');return c.outerHTML};
+function smooth(el,h){
+ const old=[...el.children].find(c=>c.classList.contains('ax-l'));
+ const tpl=document.createElement('template');desc.set.call(tpl,h);const nl=[...tpl.content.children].find(c=>c.classList.contains('ax-l'));
+ if(!old||!nl){desc.set.call(el,h);return}
+ const have=new Map();old.querySelectorAll(':scope>.ax-r').forEach(r=>{const k=keyOf(r);if(!have.has(k))have.set(k,r)});
+ const want=[...nl.querySelectorAll(':scope>.ax-r')],fresh=want.filter(r=>!have.has(keyOf(r))).length,anim=fresh>0&&fresh<=8&&!document.hidden&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+ let firstOld=true;const used=new Set();
+ want.forEach((r,i)=>{const k=keyOf(r),o=have.get(k);let node;
+  if(o&&!used.has(o)){used.add(o);node=sig(o)===sig(r)?o:(()=>{o.replaceWith(r);return r})();firstOld=false}
+  else{node=r;if(anim&&firstOld)node.classList.add('ax-in')}
+  const at=old.children[i];if(at!==node)old.insertBefore(node,at||null)});
+ [...old.children].forEach(c=>{if(!want.length||(!used.has(c)&&!want.includes(c)))c.remove()});
+ /* everything after the list (auto-load marker, notes) is small: replace it */
+ let n=old.nextSibling;while(n){const x=n.nextSibling;n.remove();n=x}
+ let s=nl.nextSibling;const tail=[];while(s){tail.push(s);s=s.nextSibling}tail.forEach(x=>el.appendChild(x));
+ if(anim)setTimeout(()=>old.querySelectorAll('.ax-in').forEach(r=>r.classList.remove('ax-in')),700)}
+function hook(el){if(!el||el.__ax176)return;el.__ax176=1;
+ Object.defineProperty(el,'innerHTML',{configurable:true,get(){return desc.get.call(this)},set(h){try{smooth(this,String(h))}catch(e){desc.set.call(this,h)}}})}
+const mo=new MutationObserver(()=>{const b=document.getElementById('ax-b');if(b)hook(b)});
+mo.observe(document.documentElement,{childList:true,subtree:true});hook(document.getElementById('ax-b'));
 })();
 </script>
 <script id="saturn-r159-trader">
