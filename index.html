@@ -19816,7 +19816,8 @@ function paintPos(){if(!onTrade())return;const sym=symNow(),p=POS.list.find(x=>x
  ${dist!=null?`<div class="px9-pb"><i style="left:${Math.max(4,Math.min(96,dist/50*100)).toFixed(1)}%"></i></div>`:''}<a class="px9-pm" href="#/perps/positions">Manage in Positions ›</a>`;
  if(s.innerHTML!==h)s.innerHTML=h}
 /* ---- recent big trades (Hyperliquid stream from r185) ---- */
-function trades(){const host=document.getElementById('px9-pos')||document.getElementById('px9-fn')||document.getElementById('px9-gr');let t=document.getElementById('px9-trs');
+/* r191: Recent trades sit right under "More options" (TP/SL); without an order form (view-only markets) under the market facts / position */
+function trades(){const host=document.querySelector('#app .px-mo4')||document.getElementById('px9-pos')||document.getElementById('px9-fn')||document.getElementById('px9-gr');let t=document.getElementById('px9-trs');
  const T=(window.__satPx185T&&window.__satPx185T())||[];const nowS=Date.now()/1000,L=T.filter(x=>nowS-x.t<600).sort((a,b)=>b.t-a.t).filter(x=>x.usd>=1000).slice(0,5);
  if(!host||!L.length){if(t)t.remove();return}
  if(!t){t=document.createElement('section');t.id='px9-trs';t.className='px9-trs'}if(t.previousElementSibling!==host)host.after(t);
