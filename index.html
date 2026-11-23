@@ -17456,6 +17456,12 @@ html.sat-prf210 #app>.prf.tr3{padding-left:16px!important;padding-right:16px!imp
 html.sat-prf210 #pr-cvb212{right:16px}
 html.sat-prf210 #app>.prf.tr3>.pr-bar{margin-left:0!important;margin-right:0!important}
 html.sat-prf210 #app>.prf.tr3>.pr-bar .pu-back,html.sat-prf210 #app>.prf.tr3>.pr-bar .pr-rt{margin-left:0!important;margin-right:0!important}
+
+/* r214: profit chart — line only, running edge to edge over a field of tiny dots; glowing end point */
+html.sat-prf210 .prf.tr3 .tr3-lc{margin-left:-16px!important;margin-right:-16px!important;height:170px!important;background-image:radial-gradient(circle,rgba(255,255,255,.13) 1px,transparent 1.4px);background-size:14px 14px;background-position:center}
+.prf.tr3 .tr3-lc{background-image:radial-gradient(circle,rgba(255,255,255,.13) 1px,transparent 1.4px);background-size:14px 14px}
+.prf.tr3 .tr3-dot{width:12px!important;height:12px!important;box-shadow:0 0 0 7px color-mix(in srgb,currentColor 18%,transparent),0 0 14px color-mix(in srgb,currentColor 55%,transparent)}
+.prf.tr3 .tr3-end{right:22px!important}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -19399,7 +19405,7 @@ function lead(M){const p=[];if(M.known&&M.open.length){const v=M.unreal;p.push(`
  if(!p.length)return M.P.trades.length?'Trading, but no finished trades yet.':'No trades found for this wallet yet.';
  let s=p.join(p.length>2?', ':' and ').replace(/, ([^,]*)$/,' and $1');return s.charAt(0).toUpperCase()+s.slice(1)+'.'}
 function score(M){const u=su(),real=M.c30.reduce((s,r)=>s+r.real,0),wr=M.c30.length?Math.round(M.c30.filter(r=>r.real>0).length/M.c30.length*100)+'%':'—';
- return `<div class="tr3-sh"><h3>Scoreboard</h3><small>${M.cover?'last 30 days':'last '+e(spanTxt(Date.now()/1000-M.oldest))+' of trades'}</small></div><div class="tr3-score"><div><b class="${M.c30.length?(real>=0?'g':'r'):''}">${M.c30.length?e(money(real)):'—'}</b><span>Profit</span></div><div><b>${wr}</b><span>Win rate</span></div><div><b>${M.tr30}</b><span>Trades</span></div></div>`}
+ return `<div class="tr3-sh"><h3>Trade stats</h3><small>${M.cover?'last 30 days':'last '+e(spanTxt(Date.now()/1000-M.oldest))+' of trades'}</small></div><div class="tr3-score"><div><b class="${M.c30.length?(real>=0?'g':'r'):''}">${M.c30.length?e(money(real)):'—'}</b><span>Profit</span></div><div><b>${wr}</b><span>Win rate</span></div><div><b>${M.tr30}</b><span>Trades</span></div></div>`}
 function series(M){const now=Date.now()/1000,span={'7d':7*86400,'30d':30*86400}[T.range],t0=span?now-span:null,cl=M.A.closed.filter(r=>r.t1!=null).sort((a,b)=>a.t1-b.t1);
  const inR=t0?cl.filter(r=>r.t1>=t0):cl;/* r172: the line starts where this wallet's loaded history starts, not 30 days back (a flat line then a cliff) */const start=Math.max(t0||0,M.oldest&&M.oldest<now?M.oldest:now-3600);let c=0;const pts=[{t:start,v:0}];
  inR.forEach(r=>{c+=r.real;pts.push({t:r.t1,v:c})});pts.push({t:now,v:c+(M.known?M.unreal:0),live:1});return pts}
@@ -19409,7 +19415,7 @@ function chart(M){const pts=series(M),u=su()||1,W=353,H=150,vs=pts.map(p=>p.v*u)
  const short_=t1-t0<172800,lab=[0,.25,.5,.75,1].map(k=>{const t=t0+(t1-t0)*k;return k===1?'Now':short_?new Date(t*1000).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):new Date(t*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'})});
  const empty=pts.length<=2&&!M.known;
  return `<div class="tr3-sh"><h3>Profit</h3><span class="tr3-tf">${['7d','30d','All'].map(k=>`<button type="button" data-tr3r="${k.toLowerCase()==='all'?'all':k}" class="${(T.range===k||(k==='All'&&T.range==='all'))?'on':''}">${k}</button>`).join('')}</span></div>
- <div class="tr3-lc">${empty?'<div class="tr3-em">No finished trades in this range yet</div>':`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Profit over time"><defs><linearGradient id="tr3f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".16"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><line x1="0" y1="${z.toFixed(1)}" x2="${W}" y2="${z.toFixed(1)}" stroke="#ffffff1c" stroke-dasharray="2 5" vector-effect="non-scaling-stroke"/><path d="${d} L${lx.toFixed(1)} ${H} L${x(t0).toFixed(1)} ${H}Z" fill="url(#tr3f)"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><i class="tr3-dot" style="left:${(lx/W*100).toFixed(2)}%;top:${(ly/H*100).toFixed(2)}%;background:${col}"></i><span class="tr3-end ${up?'g':'r'}" data-tr3="end" style="top:${Math.max(0,ly/H*100-16).toFixed(1)}%">${e(su()?fmtUsd(end):(end>=0?'+':'−')+Math.abs(end).toFixed(3)+' SOL')}</span><span class="tr3-z" style="top:${(z/H*100-10).toFixed(1)}%">$0</span>`}</div>
+ <div class="tr3-lc">${empty?'<div class="tr3-em">No finished trades in this range yet</div>':`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Profit over time"><defs><linearGradient id="tr3f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".16"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><path d="${d}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><i class="tr3-dot" style="left:${(lx/W*100).toFixed(2)}%;top:${(ly/H*100).toFixed(2)}%;background:${col};color:${col}"></i><span class="tr3-end ${up?'g':'r'}" data-tr3="end" style="top:${Math.max(0,ly/H*100-16).toFixed(1)}%">${e(su()?fmtUsd(end):(end>=0?'+':'−')+Math.abs(end).toFixed(3)+' SOL')}</span><span class="tr3-z" style="top:${(z/H*100-10).toFixed(1)}%">$0</span>`}</div>
  ${empty?'':`<div class="tr3-ax">${lab.map(l=>`<span>${e(l)}</span>`).join('')}</div>`}`}
 function row(o,isOpen){const t=o.t,nm=t?e(t.tick&&t.tick!=='?'?t.tick:t.name):e(short(o.mint)),u=su();
  const cm=v=>v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).toFixed(v<1e7?2:1)+'M':v>=1e3?'$'+Math.round(v/1e3)+'K':'$'+Math.round(v);const path=o.from!=null&&o.to!=null?cm(o.from)+' → '+cm(o.to):isOpen&&o.avg>0?'in at '+prPx(o.avg)+' SOL':'';
