@@ -17676,6 +17676,7 @@ body.px9t #app{padding-top:max(10px,env(safe-area-inset-top,0px))}
 .px10-tf button{border:0;background:none;font:800 14px/1 Inter,system-ui,sans-serif;color:#6f695f;padding:9px 10px;border-radius:11px;cursor:pointer}
 .px10-tf button.on{color:#e8b95a}
 .px10-tf .px10-ty{width:36px;height:36px;display:grid;place-items:center;color:#a39c90;padding:0}
+.px10-msg[hidden],.px10-tag[hidden]{display:none!important}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -19700,7 +19701,8 @@ const SP=window.SaturnPerps;if(window.__satPx185)return;if(!SP||!SP.__state){if(
 const PX=SP.__state,num=v=>typeof v==='number'&&isFinite(v);
 const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const symNow=()=>{const m=/^#\/perps\/trade\/([^/?]+)/.exec(location.hash);return m?decodeURIComponent(m[1]):(PX.draft&&PX.draft.market)||null};
-const mkt=s=>(PX._mall||(PX.mkts&&PX.mkts.markets)||[]).find(m=>m&&m.symbol===s)||null;
+/* r190: the trade screen's own market object first (set when the screen draws), then the markets list, whatever shape it has */
+const mkt=s=>{if(PX._m&&PX._m.symbol===s)return PX._m;const L=Array.isArray(PX._mall)?PX._mall:PX.mkts&&Array.isArray(PX.mkts.markets)?PX.mkts.markets:PX.mkts&&PX.mkts.v&&Array.isArray(PX.mkts.v.markets)?PX.mkts.v.markets:[];return L.find(m=>m&&m.symbol===s)||null};
 const usd=v=>!num(v)?'—':v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(1)+'K':'$'+v.toFixed(2);
 /* ---- Hyperliquid public stream for the open market (trades + context), Hyperliquid markets only ---- */
 const L={ws:null,coin:null,dex:'',trades:[],ctx:null,retry:0,t:0};
@@ -19774,7 +19776,8 @@ const SP=window.SaturnPerps;if(window.__satPx186)return;if(!SP||!SP.__state||!wi
 const PX=SP.__state,num=v=>typeof v==='number'&&isFinite(v);
 const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const symNow=()=>{const m=/^#\/perps\/trade\/([^/?]+)/.exec(location.hash);return m?decodeURIComponent(m[1]):(PX.draft&&PX.draft.market)||null};
-const mkt=s=>(PX._mall||(PX.mkts&&PX.mkts.markets)||[]).find(m=>m&&m.symbol===s)||null;
+/* r190: the trade screen's own market object first (set when the screen draws), then the markets list, whatever shape it has */
+const mkt=s=>{if(PX._m&&PX._m.symbol===s)return PX._m;const L=Array.isArray(PX._mall)?PX._mall:PX.mkts&&Array.isArray(PX.mkts.markets)?PX.mkts.markets:PX.mkts&&PX.mkts.v&&Array.isArray(PX.mkts.v.markets)?PX.mkts.v.markets:[];return L.find(m=>m&&m.symbol===s)||null};
 const money=(v,d)=>(v<0?'-$':'$')+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const pxf=v=>!num(v)?'—':v>=1000?money(v,0):v>=1?money(v,2):'$'+v.toPrecision(4);
 const usdS=v=>v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e5?'$'+(v/1e3).toFixed(1)+'K':'$'+Math.round(v).toLocaleString('en-US');
@@ -19880,7 +19883,7 @@ async function load(force){const P=SP.provider,sym=C.sym;if(!P||typeof P.candles
   for(const c of Array.isArray(r)?r:[])if(c&&[c.t,c.o,c.h,c.l,c.c].every(num)&&c.l>0&&c.h>=c.l&&c.status!=='forming'&&c.t%step===0)m.set(c.t,{t:c.t,o:c.o,h:c.h,l:c.l,c:c.c});
   C.data=[...m.values()].sort((a,b)=>a.t-b.t);C.dtf=C.tf;C.at=Date.now();C.err=null}
  catch(x){if(!C.data.length)C.err='Chart data is not available right now.'}finally{C.busy=false;draw()}}
-function live(){const P=SP.provider;try{const lp=P&&P.livePrice&&P.livePrice(C.sym);if(lp&&num(lp.price)&&lp.price>0&&(lp.state==='live'||lp.state==='stale'))return lp.price}catch(x){}const m=(PX._mall||[]).find(x=>x&&x.symbol===C.sym);return m&&num(m.price)?m.price:null}
+function live(){const P=SP.provider;try{const lp=P&&P.livePrice&&P.livePrice(C.sym);if(lp&&num(lp.price)&&lp.price>0&&(lp.state==='live'||lp.state==='stale'))return lp.price}catch(x){}const m=PX._m&&PX._m.symbol===C.sym?PX._m:(PX._mall||[]).find(x=>x&&x.symbol===C.sym);return m&&num(m.price)?m.price:null}
 function series(){const now=Date.now()/1000,lp=live();let pts;
  if(C.tf==='live'){pts=C.data.map(c=>({t:c.t+60,v:c.c,c}));const last=pts.length?pts[pts.length-1].t:0;for(const k of C.ticks)if(k.t>last)pts.push({t:k.t,v:k.v})}
  else{pts=C.data.map(c=>({t:c.t,v:c.c,c}));if(lp&&pts.length){const st=STEP[C.tf],b=Math.floor(now/st)*st,l=pts[pts.length-1];if(b>l.t)pts.push({t:b,v:lp,c:{t:b,o:l.v,h:Math.max(l.v,lp),l:Math.min(l.v,lp),c:lp},forming:true});else l.v=lp}}
@@ -19900,7 +19903,7 @@ function draw(){C.raf=0;const w=C.host;if(!w||!w.isConnected)return;const cv=C.c
  const step=C.tf==='live'?60:STEP[C.tf],gapOk=(a,b)=>b.t-a.t<=step*2.5+5;
  if(cand){const bw=Math.max(2,Math.min(9,(x1-x0)/pts.length*.6));for(const p of pts){const c=p.c;if(!c)continue;const u=c.c>=c.o,x=X(p.t);g.strokeStyle=g.fillStyle=u?'#4fd08a':'#ff5d6c';g.beginPath();g.moveTo(x,Y(c.h));g.lineTo(x,Y(c.l));g.lineWidth=1;g.stroke();const a=Y(Math.max(c.o,c.c)),b=Y(Math.min(c.o,c.c));g.fillRect(x-bw/2,a,bw,Math.max(1,b-a))}}
  else{/* area under each continuous run, then the line */
-  const runs=[];let cur=[];for(let i=0;i<pts.length;i++){if(i&&!gapOk(pts[i-1],pts[i])){runs.push(cur);cur=[]}cur.push(pts[i])}runs.push(cur);
+  const runs=[pts];   /* r190: one continuous line through the recorded prices (missed samples made the chart look cut into strips) */
   const gr=g.createLinearGradient(0,y0,0,y1);gr.addColorStop(0,`rgba(${col},.30)`);gr.addColorStop(1,`rgba(${col},0)`);
   for(const r of runs){if(r.length<2)continue;g.beginPath();g.moveTo(X(r[0].t),y1);r.forEach(p=>g.lineTo(X(p.t),Y(p.v)));g.lineTo(X(r[r.length-1].t),y1);g.closePath();g.fillStyle=gr;g.fill();
    g.beginPath();r.forEach((p,i)=>i?g.lineTo(X(p.t),Y(p.v)):g.moveTo(X(p.t),Y(p.v)));g.strokeStyle=`rgb(${col})`;g.lineWidth=2;g.lineJoin='round';g.stroke()}}
