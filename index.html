@@ -18889,6 +18889,36 @@ let userPrice=false;
 document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-sc="mode"]');if(b)userPrice=b.dataset.v==='price'},true);
 const _ser=SChart.series;SChart.series=function(){try{if(this.mode==='price'&&!userPrice&&this.sf()){this.mode='mcap';if(typeof CanvasSChart!=='undefined')CanvasSChart.mode='mcap';this.hover=null;try{this.syncChips()}catch(x){}}}catch(x){}return _ser.apply(this,arguments)};
 })();
+
+/* ===== r199 DISCOVER NEW + HOT from Saturn's live Pump.fun stream (Solana):
+   New = tokens launched in the last minute (seen being created, or first trade on a fresh bonding curve), newest first, refreshed every 3 s.
+   Hot = tokens scaling right now: in the last 5 minutes many different buyers, real buy volume and a rising market cap, ranked by that.
+   Values are the stream's own (market cap, price, buys/sells, traders). If Saturn's server has nothing yet, the old lists are shown. ===== */
+(function(){'use strict';
+if(window.__satDf199||typeof listTokens!=='function'||typeof S==='undefined')return;window.__satDf199=1;
+const API='https://saturn-perps-staging.onrender.com/v1/tok/feed?kind=';
+const F={new:{list:null,at:0,busy:false},hot:{list:null,at:0,busy:false}};
+const solNet=()=>{try{return !window.MCH||MCH.net==='sol'||MCH.net==='all'}catch(e){return true}};
+const tab=()=>{try{return S.view==='watch'?'following':S.tab}catch(e){return null}};
+function tok(x){const t={id:x.mint,ca:x.mint,name:x.name||x.symbol||'New token',tick:x.symbol||'?',img:x.image||null,price:x.priceUsd||null,mc:x.mcUsd||null,fdv:false,chg:x.chg,pcg:{m5:x.chg},
+ liq:null,vol:x.buySol!=null&&x.solUsd?(x.buySol+x.sellSol)*x.solUsd:null,vols:{},txns:{m5:{buys:x.buys,sells:x.sells},h1:{buys:x.buys,sells:x.sells}},born:x.born,dex:'pumpfun',pair:'',desc:'',web:[],soc:[],chain:'sol',holders:null,traders:x.traders,satFeed:true};
+ try{const c=CACHE.get(t.id);if(c&&c.t&&!c.t.satFeed){/* a token Saturn already knows from the market data keeps its richer record, with the live numbers on top */
+   const o=c.t;return Object.assign({},o,{mc:t.mc||o.mc,price:t.price||o.price,born:o.born||t.born,img:o.img||t.img,traders:t.traders})}CACHE.set(t.id,{t,ts:Date.now()})}catch(e){}
+ return t}
+async function load(k){const f=F[k];if(f.busy||Date.now()-f.at<2500)return;f.busy=true;
+ try{const r=await fetch(API+k,{cache:'no-store',referrerPolicy:'no-referrer'});const j=r.ok?await r.json():null;if(j&&j.ok&&Array.isArray(j.tokens)){f.list=j.tokens.filter(x=>x&&/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(x.mint)).map(tok);f.at=Date.now();f.recording=j.recording}}
+ catch(e){}finally{f.busy=false}}
+const LT=window.listTokens;
+window.listTokens=function(){const ct=tab(),q=(S.q||'').trim();
+ if((ct==='new'||ct==='hot')&&!q&&solNet()){const f=F[ct];if(f.list&&f.list.length)return f.list.slice()}
+ return LT.apply(this,arguments)};
+/* keep the list moving: refresh the feed and redraw the list only while New or Hot is on screen */
+setInterval(async()=>{if(document.hidden)return;const ct=tab();if((ct!=='new'&&ct!=='hot')||!solNet())return;try{if(S.view!=='home')return}catch(e){return}
+ const before=F[ct].at;await load(ct);if(F[ct].at!==before&&typeof window.renderList==='function'){try{window.renderList()}catch(e){}}},3000);
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-act="tab"]');if(b&&(b.dataset.v==='new'||b.dataset.v==='hot'))setTimeout(()=>load(b.dataset.v).then(()=>{try{window.renderList()}catch(x){}}),0)},true);
+load('hot');load('new');
+window.__satDf199F=F;
+})();
 </script>
 <script id="saturn-r159-trader">
 /* ===== Saturn r159 — Trader profile (Pulse) redesign (additive; presentation only) =====
