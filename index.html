@@ -17598,6 +17598,28 @@ a.px8.stk-r{border:0!important;padding:13px 0}
 .px8-lv{font:800 10.5px/1 Inter,system-ui,sans-serif;color:#e8b95a;background:#e8b95a1c;padding:4px 6px;border-radius:6px;margin-left:8px}
 .px8 .stk-n small u{text-decoration:none;color:#5d574d}
 .px8-star{flex:none;margin-left:auto;margin-right:8px;width:34px;height:34px;border:0;border-radius:50%;background:#141210;color:#e8b95a;font:800 17px/34px Inter,system-ui,sans-serif;cursor:pointer;padding:0}
+/* r185 perps trade screen */
+.px-px.px-serif{font-family:Inter,system-ui,sans-serif!important;font-weight:800!important;letter-spacing:-.02em}
+.px-thn b{display:flex;align-items:center}
+.px9-mom{display:flex;align-items:center;gap:8px;margin:8px 0 0;font:700 9.5px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;color:#6f695f}
+.px9-mom span{display:inline-flex;gap:2px}.px9-mom i{display:inline-block;width:6px;height:9px;border-radius:2px;background:#1d1b18}.px9-mom i.g{background:#4fd08a}.px9-mom i.r{background:#ff5d6c}
+.px9-mom em{font-style:normal}.px9-mom em.g{color:#4fd08a}.px9-mom em.r{color:#ff5d6c}.px9-mom small{letter-spacing:0;font-size:9.5px;color:#4f4a42}
+#px-chart .pxc-wrap{position:relative}
+.px9-fc{position:absolute;left:8px;top:40px;display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:3}
+.px9-fi{display:flex;align-items:center;gap:4px;font:700 10.5px/17px ui-monospace,Menlo,monospace;text-shadow:0 1px 3px #000;animation:px9in .4s ease-out both}
+.px9-fi i{font-style:normal;font-size:8px}.px9-fi.b{color:#4fd08a}.px9-fi.s{color:#ff5d6c}
+@keyframes px9in{from{opacity:0;transform:translateY(6px)}}
+.px9-gr{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:12px}
+.px9-gr div{display:flex;justify-content:space-between;font:600 13px/1 Inter,system-ui,sans-serif;color:#8f887c}.px9-gr b{color:#f1ebdf;font-weight:800}.px9-gr b.g{color:#4fd08a}.px9-gr b.r{color:#ff5d6c}
+.px9-sl{position:relative;height:6px;margin:16px 4px 4px;border-radius:4px;background:#1d1a16;cursor:pointer;--f:0}
+.px9-sl i{position:absolute;left:0;top:0;bottom:0;width:calc(var(--f)*100%);border-radius:4px;background:linear-gradient(90deg,#4fd08a,#e8b95a);transition:width .25s}
+.px9-sl b{position:absolute;left:calc(var(--f)*100%);top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#f1ebdf;box-shadow:0 2px 8px #0008;transition:left .25s}
+.px9-qk{display:flex;gap:6px;margin-top:10px}.px9-qk[hidden]{display:none}
+.px9-qk button{flex:1;border:0;font:700 12.5px/1 Inter,system-ui,sans-serif;color:#a39c90;padding:10px 0;border-radius:11px;background:#141210;cursor:pointer}
+.px9-risk .bar{position:relative;height:8px;margin:8px 0 8px;border-radius:5px;background:linear-gradient(90deg,#ff5d6c 0%,#e8b95a 35%,#4fd08a 100%);opacity:.9}
+.px9-risk .bar b{position:absolute;top:-4px;width:4px;height:16px;margin-left:-2px;border-radius:2px;background:#f1ebdf;transition:left .3s}
+.px9-risk p{font:600 12px/1.4 Inter,system-ui,sans-serif;color:#6f695f}
+.px-cta3{border-radius:20px!important}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -19611,6 +19633,75 @@ document.addEventListener('click',ev=>{const t=ev.target&&ev.target.closest&&ev.
  ev.preventDefault();
  if(t.dataset.px8==='watch'){st.watch=!st.watch;chips();const L=document.getElementById('px-mlist');if(L&&st.raw)apply(L,st.raw)}
  else if(t.dataset.px8==='star'){const s=t.dataset.sym;if(W.has(s))W.delete(s);else W.add(s);saveW();const on=W.has(s);t.textContent=on?'★':'☆';t.setAttribute('aria-pressed',on);t.setAttribute('aria-label',on?'Remove from watchlist':'Add to watchlist')}},true);
+})();
+
+/* ===== r185 PERPS TRADE SCREEN (approved mockup): header with leverage badge, big sans price, the token page's chart look, a live trades
+   column + long-pressure bar (Hyperliquid's public trade stream for that coin; only on Hyperliquid markets, so the trades are the
+   market's own), funding / open interest / volume / next funding, leverage slider, 25-50-75-Max, entry price and a liquidation risk bar.
+   Display only: nothing here can open, sign or send anything; the order button and review flow are unchanged. ===== */
+(function boot185(){'use strict';
+const SP=window.SaturnPerps;if(window.__satPx185)return;if(!SP||!SP.__state){if((boot185.n=(boot185.n||0)+1)<120)setTimeout(boot185,250);return}window.__satPx185=1;
+const PX=SP.__state,num=v=>typeof v==='number'&&isFinite(v);
+const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const symNow=()=>{const m=/^#\/perps\/trade\/([^/?]+)/.exec(location.hash);return m?decodeURIComponent(m[1]):(PX.draft&&PX.draft.market)||null};
+const mkt=s=>(PX._mall||(PX.mkts&&PX.mkts.markets)||[]).find(m=>m&&m.symbol===s)||null;
+const usd=v=>!num(v)?'—':v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(1)+'K':'$'+v.toFixed(2);
+/* ---- Hyperliquid public stream for the open market (trades + context), Hyperliquid markets only ---- */
+const L={ws:null,coin:null,dex:'',trades:[],ctx:null,retry:0,t:0};
+function hlCoin(m){if(!m||m.viewOnly!==true||typeof m.venueCoin!=='string')return null;return /^([a-z]{1,8}:)?[A-Za-z0-9]{1,20}$/.test(m.venueCoin)?m.venueCoin:null}
+function wsTo(coin){if(L.coin===coin&&L.ws)return;wsOff();if(!coin)return;L.coin=coin;L.trades=[];L.ctx=null;
+ let w;try{w=new WebSocket('wss://api.hyperliquid.xyz/ws')}catch(x){return}L.ws=w;
+ w.onopen=()=>{try{w.send(JSON.stringify({method:'subscribe',subscription:{type:'trades',coin}}));w.send(JSON.stringify({method:'subscribe',subscription:{type:'activeAssetCtx',coin}}))}catch(x){}};
+ w.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(x){return}
+  if(m.channel==='trades'&&Array.isArray(m.data)){for(const t of m.data){const px=+t.px,sz=+t.sz;if(!(px>0&&sz>0)||t.coin!==coin)continue;L.trades.push({id:t.tid||t.hash+'|'+t.time,side:t.side==='B'?'b':'s',usd:px*sz,t:(+t.time||Date.now())/1000})}
+   if(L.trades.length>300)L.trades=L.trades.slice(-300);paintLive()}
+  else if(m.channel==='activeAssetCtx'&&m.data&&m.data.ctx){const c=m.data.ctx;L.ctx={funding:+c.funding,oi:+c.openInterest*(+c.markPx||+c.midPx||0),vol:+c.dayNtlVlm,at:Date.now()};paintStats()}};
+ w.onclose=()=>{if(L.ws===w){L.ws=null;if(L.coin===coin&&symNow()&&!document.hidden){L.coin=null;setTimeout(()=>{const m=mkt(symNow());wsTo(hlCoin(m))},Math.min(30000,1500*Math.pow(2,L.retry++)))}}};
+ w.onerror=()=>{try{w.close()}catch(x){}}}
+function wsOff(){const w=L.ws;L.ws=null;L.coin=null;if(w)try{w.close()}catch(x){}}
+/* trades column (same look as the token chart's) + long pressure */
+const fcTxt=v=>v<1000?'$'+v.toFixed(0):v<1e6?'$'+(v/1e3).toFixed(1)+'K':'$'+(v/1e6).toFixed(2)+'M';
+function paintLive(){const host=document.querySelector('#px-chart .pxc-wrap');if(!host)return;
+ let col=host.querySelector('.px9-fc');if(!col){col=document.createElement('div');col.className='px9-fc';col.setAttribute('aria-hidden','true');host.appendChild(col)}
+ const nowS=Date.now()/1000,big=L.trades.filter(x=>nowS-x.t<120).sort((a,b)=>b.usd-a.usd).slice(0,4).sort((a,b)=>b.t-a.t);
+ const h=big.map((x,i)=>`<div class="px9-fi ${x.side}" style="opacity:${(1-i*.17).toFixed(2)}"><i>${x.side==='b'?'▲':'▼'}</i>${fcTxt(x.usd)}</div>`).join('');if(col.innerHTML!==h)col.innerHTML=h;
+ const w=L.trades.filter(x=>nowS-x.t<120);let B=0,S=0;w.forEach(x=>{if(x.side==='b')B+=x.usd;else S+=x.usd});
+ const pr=document.getElementById('px9-mom');if(pr){if(!(B+S)){pr.hidden=true}else{pr.hidden=false;const sh=B/(B+S),n=Math.round(sh*10),long=sh>=.5;
+  const hh=`${long?'LONG':'SHORT'} PRESSURE <span>${Array.from({length:10},(_,i)=>`<i class="${i<n?(long?'g':'r'):''}"></i>`).join('')}</span><em class="${long?'g':'r'}">${Math.round((long?sh:1-sh)*100)}%</em><small>last 2 min</small>`;if(pr.innerHTML!==hh)pr.innerHTML=hh}}}
+function paintStats(){const st=document.getElementById('px-stats');if(!st)return;const m=mkt(symNow());let g=document.getElementById('px9-gr');
+ const rows=[];if(L.ctx&&num(L.ctx.funding))rows.push(['Funding /h',`<b class="${L.ctx.funding>=0?'g':'r'}">${(L.ctx.funding>=0?'+':'')+(L.ctx.funding*100).toFixed(4)}%</b>`]);
+ const oi=m&&num(m.openInterest)?m.openInterest:L.ctx&&L.ctx.oi>0?L.ctx.oi:null,vol=m&&num(m.volume24h)?m.volume24h:L.ctx&&L.ctx.vol>0?L.ctx.vol:null;
+ if(oi)rows.push(['Open interest','<b>'+usd(oi)+'</b>']);if(vol)rows.push(['24h volume','<b>'+usd(vol)+'</b>']);
+ if(m&&m.viewOnly===true){const s=3600-Math.floor(Date.now()/1000)%3600;rows.push(['Next funding','<b>'+String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'</b>'])}
+ if(!rows.length){if(g)g.remove();return}
+ const h=rows.map(([l,v])=>`<div><span>${l}</span>${v}</div>`).join('');if(!g){g=document.createElement('div');g.id='px9-gr';g.className='px9-gr';const r=st.querySelector('.px-st3r');(r||st).after(g)}if(g.innerHTML!==h)g.innerHTML=h}
+/* header, momentum row, slider, quick amounts, entry + risk */
+function decorate(){const sym=symNow(),th=document.querySelector('.px-th');if(!th||!sym)return;const m=mkt(sym);
+ const tn=th.querySelector('.px-thn');if(tn&&!tn.dataset.px9){tn.dataset.px9=1;const b=tn.querySelector('b'),sm=tn.querySelector('small');
+  if(b&&m&&num(m.maxLeverage)&&!b.querySelector('.px8-lv'))b.insertAdjacentHTML('beforeend',`<span class="px8-lv">${e(m.maxLeverage)}x</span>`);
+  if(sm&&m)sm.textContent=(m.name&&m.name!==sym?m.name+' · ':'')+(m.venue==='hyperliquid:xyz'?'Stock perp':'Perpetual')}
+ const row=document.querySelector('.px-pxrow');if(row&&!document.getElementById('px9-mom')){const d=document.createElement('div');d.id='px9-mom';d.className='px9-mom';d.hidden=true;row.after(d)}
+ const lev=document.querySelector('.px-lev3');if(lev&&!document.getElementById('px9-sl')){const d=document.createElement('div');d.id='px9-sl';d.className='px9-sl';d.innerHTML='<i></i><b></b>';lev.after(d)}
+ const sl=document.getElementById('px9-sl');if(sl&&lev){const bs=[...lev.querySelectorAll('button')],k=bs.findIndex(x=>x.classList.contains('on')),f=bs.length>1&&k>=0?k/(bs.length-1):0;sl.style.setProperty('--f',f)}
+ const amt=document.querySelector('.px-amt3');if(amt&&!document.getElementById('px9-qk')){const d=document.createElement('div');d.id='px9-qk';d.className='px9-qk';d.innerHTML=[25,50,75,100].map(p=>`<button type="button" data-px9q="${p}">${p===100?'Max':p+'%'}</button>`).join('');amt.after(d)}
+ const qk=document.getElementById('px9-qk');if(qk){const r=fundRow();qk.hidden=!(r&&r.spend>0)}
+ risk(m);paintStats();paintLive();
+ const coin=hlCoin(m);if(coin!==L.coin)wsTo(coin)}
+function fundRow(){const F=PX.fund&&PX.fund.ok?PX.fund:null;return F&&F.rows?F.rows[PX.draft&&PX.draft.asset]||null:null}
+function risk(m){const calc=document.getElementById('px-calc');if(!calc||!m||!num(m.price))return;const d=PX.draft||{},mg=parseFloat(String(d.margin||'').replace(/,/g,''));
+ let c=null;try{c=SP.calc({side:d.side,lev:d.lev,margin:mg,price:m.price,mmr:m.mmr})}catch(x){}
+ let er=document.getElementById('px9-entry');if(!er){er=document.createElement('div');er.id='px9-entry';er.className='px-kv3 big';calc.firstElementChild?calc.firstElementChild.after(er):calc.appendChild(er)}
+ const ph=m.price>=1000?m.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):m.price>=1?m.price.toFixed(2):m.price.toPrecision(4);const eh=`<span>Entry price</span><b>$${ph}</b>`;if(er.innerHTML!==eh)er.innerHTML=eh;
+ let rb=document.getElementById('px9-risk');if(!c||!num(c.dist)){if(rb)rb.remove();return}
+ if(!rb){rb=document.createElement('div');rb.id='px9-risk';rb.className='px9-risk';rb.innerHTML='<div class="bar"><b></b></div><p></p>';calc.appendChild(rb)}
+ const pos=Math.max(4,Math.min(96,c.dist/50*100)),zone=c.dist>=15?'Safe zone':c.dist>=7?'Moderate risk':'High risk',base=String(m.symbol).replace(/-PERP$/,'');
+ rb.querySelector('b').style.left=pos+'%';const t=`${zone} · ${base} would have to ${d.side==='short'?'rise':'fall'} ${c.dist.toFixed(c.dist<10?1:0)}% to liquidate this position.`;const p=rb.querySelector('p');if(p.textContent!==t)p.textContent=t}
+document.addEventListener('click',ev=>{const q=ev.target&&ev.target.closest&&ev.target.closest('[data-px9q]');if(q){ev.preventDefault();const r=fundRow(),inp=document.getElementById('px-margin');if(!r||!inp)return;
+  const p=+q.dataset.px9q,v=r.spendUsd!=null&&PX.draft.asset!=='USDC'?r.spendUsd*p/100:r.spend*p/100;inp.value=(Math.floor(v*100)/100).toFixed(2);inp.dispatchEvent(new Event('input',{bubbles:true}));return}
+ const s=ev.target&&ev.target.closest&&ev.target.closest('#px9-sl');if(s){const lev=document.querySelector('.px-lev3');if(!lev)return;const bs=[...lev.querySelectorAll('button:not([disabled])')];if(!bs.length)return;const r=s.getBoundingClientRect(),f=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));bs[Math.round(f*(bs.length-1))].click()}});
+let busy=false;new MutationObserver(()=>{if(busy)return;busy=true;requestAnimationFrame(()=>{busy=false;try{if(/^#\/perps\/trade/.test(location.hash)||document.querySelector('.px-th'))decorate();else if(L.ws)wsOff()}catch(x){}})}).observe(document.documentElement,{childList:true,subtree:true});
+setInterval(()=>{if(document.hidden)return;if(document.querySelector('.px-th')){paintLive();paintStats();const m=mkt(symNow());risk(m)}else if(L.ws)wsOff()},1000);
+document.addEventListener('input',ev=>{if(ev.target&&ev.target.id==='px-margin')setTimeout(()=>risk(mkt(symNow())),0)});
 })();
 </script>
 <style id="saturn-r112-css">
