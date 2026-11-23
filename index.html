@@ -17620,6 +17620,46 @@ a.px8.stk-r{border:0!important;padding:13px 0}
 .px9-risk .bar b{position:absolute;top:-4px;width:4px;height:16px;margin-left:-2px;border-radius:2px;background:#f1ebdf;transition:left .3s}
 .px9-risk p{font:600 12px/1.4 Inter,system-ui,sans-serif;color:#6f695f}
 .px-cta3{border-radius:20px!important}
+/* r186 perps trade v3 */
+body.px9t #app .px-cat,body.px9t #app .px-sub{display:none!important}
+body.px9t .px8-star{display:none!important}
+body.px9-dk nav.rn{display:none!important}
+body.px9-dk #app{padding-bottom:170px}
+.px9-bar{display:flex;align-items:center;gap:12px;padding:6px 0 2px}.px9-bar>span{flex:1}
+.px9-bk{font:600 26px/1 Inter,system-ui,sans-serif;color:#f1ebdf;text-decoration:none;padding:4px 10px 4px 0}
+.px9-ib{width:38px;height:38px;border:0;border-radius:50%;background:#141210;color:#e8b95a;font:700 16px/38px Inter,system-ui,sans-serif;cursor:pointer;padding:0}
+body.px9t #app .px-th #px-live{display:none}
+body.px9t #app .px-thn b{font:500 22px/1.15 Georgia,"Times New Roman",serif!important;letter-spacing:-.01em}
+body.px9t #app .px-thn small{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px}
+.px9-ld.on{color:#4fd08a}.px9-ld.st{color:#e8b95a}.px9-ld.off{color:#8f887c}
+body.px9t .px-st3r{display:grid!important;grid-template-columns:1fr 1fr;gap:12px 18px}
+body.px9t .px-st3r>div{display:flex!important;justify-content:space-between;align-items:baseline}
+body.px9t .px-st3r>div:nth-child(3){display:none!important}
+body.px9t .px-st3r>div span{font:600 13px/1 Inter,system-ui,sans-serif;color:#8f887c}body.px9t .px-st3r>div b{font:800 13px/1 Inter,system-ui,sans-serif;color:#f1ebdf}
+.px9-fn{font:600 12.5px/1.45 Inter,system-ui,sans-serif;color:#6f695f;margin-top:12px}
+.px9-sec{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 12px}.px9-sec b{font:800 16px/1 Inter,system-ui,sans-serif;color:#f1ebdf}.px9-sec span{font:600 12px/1 Inter,system-ui,sans-serif;color:#6f695f}
+.px9-pt{display:flex;justify-content:space-between;align-items:center}.px9-pt span{font:800 12px/1 Inter,system-ui,sans-serif;padding:7px 10px;border-radius:9px}.px9-pt span.g{color:#4fd08a;background:#183a25}.px9-pt span.r{color:#ff6b78;background:#3a1717}
+.px9-pt b{font:800 24px/1 Inter,system-ui,sans-serif}.px9-pt b.g{color:#4fd08a}.px9-pt b.r{color:#ff6b78}.px9-pt b.n{color:#8f887c;font-size:16px}
+.px9-pr{display:flex;justify-content:space-between;margin-top:16px}.px9-pr div{font:600 12.5px/1 Inter,system-ui,sans-serif;color:#8f887c}.px9-pr div:last-child{text-align:right}.px9-pr b{display:block;margin-top:7px;font:800 15px/1 Inter,system-ui,sans-serif;color:#f1ebdf}.px9-pr b.r{color:#ff6b78}
+.px9-pb{position:relative;height:6px;margin-top:16px;border-radius:4px;background:linear-gradient(90deg,#ff5d6c 0%,#e8b95a 35%,#4fd08a 100%);opacity:.9}.px9-pb i{position:absolute;top:-4px;width:4px;height:14px;margin-left:-2px;border-radius:2px;background:#f1ebdf}
+.px9-pm{display:inline-block;margin-top:12px;font:700 13px/1 Inter,system-ui,sans-serif;color:#e8b95a;text-decoration:none}
+.px9-tr{display:flex;align-items:center;gap:12px;padding:10px 0}.px9-tr>span{font:800 12px/1 Inter,system-ui,sans-serif;padding:7px 9px;border-radius:9px;min-width:50px;text-align:center}.px9-tr>span.g{color:#4fd08a;background:#163a24}.px9-tr>span.r{color:#ff6b78;background:#3a1717}
+.px9-tr>div{flex:1;min-width:0}.px9-tr b{display:block;font:800 14px/1 Inter,system-ui,sans-serif;color:#f1ebdf}.px9-tr small{display:block;font:600 12px/1 Inter,system-ui,sans-serif;color:#6f695f;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.px9-tr time{font:600 12px/1 Inter,system-ui,sans-serif;color:#6f695f}
+/* the existing order form stays (errors, deposit help, more options) but its side / leverage / amount / button move into the dock */
+body.px9-dk #app .px-of .px-seg3,body.px9-dk #app .px-of .px-lev3,body.px9-dk #app .px-of .px-l3,body.px9-dk #app .px-of .px-amt3,body.px9-dk #app .px-of #px9-sl,body.px9-dk #app .px-of #px9-qk,body.px9-dk #app .px-of .px-sum3,body.px9-dk #app .px-of #px-review,body.px9-dk #app .px-of #px-exnote{display:none!important}
+.px9-dock{position:fixed;left:0;right:0;bottom:0;z-index:60;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(11,10,9,0),#0b0a09 26%)}
+@media (min-width:720px){.px9-dock{left:50%;right:auto;width:720px;transform:translateX(-50%)}}
+.px9-note{font:600 12.5px/1.35 Inter,system-ui,sans-serif;color:#e8b95a;text-align:center;margin:0 4px 8px}
+.px9-ord{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-radius:18px;background:#16130f;margin-bottom:10px}
+.px9-am{flex:1;min-width:0;display:flex;align-items:baseline;gap:2px}.px9-am i{font:800 20px/1 Inter,system-ui,sans-serif;font-style:normal;color:#f1ebdf}
+.px9-am input{width:5.2ch;min-width:3ch;border:0;outline:0;background:none;color:#f1ebdf;font:800 20px/1 Inter,system-ui,sans-serif;padding:0}
+.px9-am small{font:600 12px/1 Inter,system-ui,sans-serif;color:#6f695f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.px9-lv{display:flex;gap:3px}.px9-lv button{border:0;background:none;font:800 12.5px/1 Inter,system-ui,sans-serif;color:#8f887c;padding:9px 8px;border-radius:10px;cursor:pointer}.px9-lv button.on{background:#e8b95a;color:#1a1408}.px9-lv button[disabled]{opacity:.35}
+.px9-btns{display:flex;gap:10px}.px9-btns button{flex:1;border:0;border-radius:18px;padding:15px 0;cursor:pointer;text-align:center}
+.px9-btns b{display:block;font:900 17px/1 Inter,system-ui,sans-serif}.px9-btns small{display:block;font:700 11px/1 Inter,system-ui,sans-serif;margin-top:6px;opacity:.75;min-height:11px}
+.px9-btns .lg{background:#4fd08a;color:#0d2416;box-shadow:0 8px 26px rgba(79,208,138,.2)}.px9-btns .sh{background:#ff5d6c;color:#2b0b0f;box-shadow:0 8px 26px rgba(255,93,108,.15)}
+body.px9t header:has(>.hd){display:none!important}
+body.px9t #app{padding-top:max(10px,env(safe-area-inset-top,0px))}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -19653,11 +19693,12 @@ function wsTo(coin){if(L.coin===coin&&L.ws)return;wsOff();if(!coin)return;L.coin
  let w;try{w=new WebSocket('wss://api.hyperliquid.xyz/ws')}catch(x){return}L.ws=w;
  w.onopen=()=>{try{w.send(JSON.stringify({method:'subscribe',subscription:{type:'trades',coin}}));w.send(JSON.stringify({method:'subscribe',subscription:{type:'activeAssetCtx',coin}}))}catch(x){}};
  w.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(x){return}
-  if(m.channel==='trades'&&Array.isArray(m.data)){for(const t of m.data){const px=+t.px,sz=+t.sz;if(!(px>0&&sz>0)||t.coin!==coin)continue;L.trades.push({id:t.tid||t.hash+'|'+t.time,side:t.side==='B'?'b':'s',usd:px*sz,t:(+t.time||Date.now())/1000})}
+  if(m.channel==='trades'&&Array.isArray(m.data)){for(const t of m.data){const px=+t.px,sz=+t.sz;if(!(px>0&&sz>0)||t.coin!==coin)continue;L.trades.push({id:t.tid||t.hash+'|'+t.time,side:t.side==='B'?'b':'s',usd:px*sz,px,sz,t:(+t.time||Date.now())/1000})}
    if(L.trades.length>300)L.trades=L.trades.slice(-300);paintLive()}
   else if(m.channel==='activeAssetCtx'&&m.data&&m.data.ctx){const c=m.data.ctx;L.ctx={funding:+c.funding,oi:+c.openInterest*(+c.markPx||+c.midPx||0),vol:+c.dayNtlVlm,at:Date.now()};paintStats()}};
  w.onclose=()=>{if(L.ws===w){L.ws=null;if(L.coin===coin&&symNow()&&!document.hidden){L.coin=null;setTimeout(()=>{const m=mkt(symNow());wsTo(hlCoin(m))},Math.min(30000,1500*Math.pow(2,L.retry++)))}}};
  w.onerror=()=>{try{w.close()}catch(x){}}}
+window.__satPx185T=()=>L.coin&&L.ws?L.trades:[];
 function wsOff(){const w=L.ws;L.ws=null;L.coin=null;if(w)try{w.close()}catch(x){}}
 /* trades column (same look as the token chart's) + long pressure */
 const fcTxt=v=>v<1000?'$'+v.toFixed(0):v<1e6?'$'+(v/1e3).toFixed(1)+'K':'$'+(v/1e6).toFixed(2)+'M';
@@ -19702,6 +19743,91 @@ document.addEventListener('click',ev=>{const q=ev.target&&ev.target.closest&&ev.
 let busy=false;new MutationObserver(()=>{if(busy)return;busy=true;requestAnimationFrame(()=>{busy=false;try{if(/^#\/perps\/trade/.test(location.hash)||document.querySelector('.px-th'))decorate();else if(L.ws)wsOff()}catch(x){}})}).observe(document.documentElement,{childList:true,subtree:true});
 setInterval(()=>{if(document.hidden)return;if(document.querySelector('.px-th')){paintLive();paintStats();const m=mkt(symNow());risk(m)}else if(L.ws)wsOff()},1000);
 document.addEventListener('input',ev=>{if(ev.target&&ev.target.id==='px-margin')setTimeout(()=>risk(mkt(symNow())),0)});
+})();
+
+/* ===== r186 PERPS TRADE v3 (approved mockup v3): back / ☆ / share bar, "Bitcoin Perp" header with symbol · leverage · live, stats as a
+   two-column list with a plain-words funding line, YOUR POSITION (only when you really hold one in this market, read from the same
+   positions service as the Positions tab), recent big trades (Hyperliquid markets), and an order dock fixed at the bottom: amount +
+   leverage, then Long ▲ / Short ▼ with each side's size and estimated liquidation. The dock only drives the existing form (side,
+   leverage, amount) and presses the existing review button: the review screen and wallet approval are unchanged. ===== */
+(function boot186(){'use strict';
+const SP=window.SaturnPerps;if(window.__satPx186)return;if(!SP||!SP.__state||!window.__satPx185){if((boot186.n=(boot186.n||0)+1)<160)setTimeout(boot186,250);return}window.__satPx186=1;
+const PX=SP.__state,num=v=>typeof v==='number'&&isFinite(v);
+const e=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const symNow=()=>{const m=/^#\/perps\/trade\/([^/?]+)/.exec(location.hash);return m?decodeURIComponent(m[1]):(PX.draft&&PX.draft.market)||null};
+const mkt=s=>(PX._mall||(PX.mkts&&PX.mkts.markets)||[]).find(m=>m&&m.symbol===s)||null;
+const money=(v,d)=>(v<0?'-$':'$')+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pxf=v=>!num(v)?'—':v>=1000?money(v,0):v>=1?money(v,2):'$'+v.toPrecision(4);
+const usdS=v=>v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e5?'$'+(v/1e3).toFixed(1)+'K':'$'+Math.round(v).toLocaleString('en-US');
+const onTrade=()=>!!document.querySelector('#app .px-th');
+/* ---- bar, header ---- */
+function bar(){const th=document.querySelector('#app .px-th');if(!th)return;const sym=symNow(),m=mkt(sym);
+ let b=document.getElementById('px9-bar');if(!b){b=document.createElement('div');b.id='px9-bar';b.className='px9-bar';th.before(b)}
+ const on=(()=>{try{return JSON.parse(localStorage.getItem('sat-px-watch')||'[]').includes(sym)}catch(x){return false}})();
+ const h=`<a href="#/perps" class="px9-bk" aria-label="Back to markets">‹</a><span></span><button type="button" class="px9-ib" data-px8="star" data-sym="${e(sym)}" aria-pressed="${on}" aria-label="${on?'Remove from':'Add to'} watchlist">${on?'★':'☆'}</button><button type="button" class="px9-ib" data-px9s="1" aria-label="Share">⤴</button>`;
+ if(b.dataset.k!==sym+on){b.dataset.k=sym+on;b.innerHTML=h}
+ const tn=th.querySelector('.px-thn');if(!tn||!m)return;const bb=tn.querySelector('b'),sm=tn.querySelector('small'),lv=th.querySelector('#px-live');
+ const base=String(m.base||sym.replace(/-PERP$/,'')),nm=(m.name&&m.name.toUpperCase()!==base.toUpperCase()?m.name:base)+' Perp';
+ if(bb&&bb.dataset.px9!==nm){bb.dataset.px9=nm;bb.textContent=nm}
+ const live=lv?lv.textContent.trim():'',lc=lv?(lv.classList.contains('on')?'on':lv.classList.contains('st')?'st':'off'):'off';
+ const sh=`${e(sym)}${num(m.maxLeverage)?` <span class="px8-lv">${e(m.maxLeverage)}x</span>`:''}${live?` · <span class="px9-ld ${lc}">● ${e(live)}</span>`:''}`;if(sm&&sm.dataset.px9!==sh){sm.dataset.px9=sh;sm.innerHTML=sh}}
+/* ---- funding line ---- */
+function fnote(){const g=document.getElementById('px9-gr');let p=document.getElementById('px9-fn');const fb=g&&[...g.querySelectorAll('div')].find(d=>/Funding/.test(d.textContent));
+ if(!fb){if(p)p.remove();return}const pos=!/-/.test(fb.querySelector('b').textContent);const t=pos?'Longs pay shorts a small fee every hour while funding is positive.':'Shorts pay longs a small fee every hour while funding is negative.';
+ if(!p){p=document.createElement('p');p.id='px9-fn';p.className='px9-fn';g.after(p)}if(p.textContent!==t)p.textContent=t}
+/* ---- your position (only when one is open in this market) ---- */
+const POS={at:0,busy:false,list:[],w:null};
+async function loadPos(){if(POS.busy||Date.now()-POS.at<15000)return;POS.busy=true;POS.at=Date.now();
+ try{const P=SP.provider;if(!P||typeof P.account!=='function'){POS.list=[];return}let r=null;try{r=await P.account()}catch(x){r=null}
+  let L=r&&Array.isArray(r.positions)?r.positions.slice():[];
+  try{const X=window.SaturnHL&&window.SaturnHL.provider;if(X&&await X.hasEvm()){const a2=await X.account();if(a2&&Array.isArray(a2.positions))L=L.concat(a2.positions)}}catch(x){}
+  POS.list=L.filter(p=>p&&typeof p.symbol==='string'&&(p.side==='long'||p.side==='short')&&[p.leverage,p.size,p.entry,p.mark].every(num))}
+ finally{POS.busy=false;paintPos()}}
+function paintPos(){if(!onTrade())return;const sym=symNow(),p=POS.list.find(x=>x.symbol===sym);let s=document.getElementById('px9-pos');
+ if(!p){if(s)s.remove();return}
+ const anchor=document.getElementById('px9-fn')||document.getElementById('px9-gr')||document.getElementById('px-stats');if(!anchor)return;
+ if(!s){s=document.createElement('section');s.id='px9-pos';s.className='px9-pos';anchor.after(s)}
+ const pnl=num(p.unrealizedPnl)?p.unrealizedPnl:null,liq=num(p.liquidation)&&p.liquidation>0?p.liquidation:null,dist=liq?Math.abs(p.mark-liq)/p.mark*100:null,lev=+(+p.leverage).toFixed(2),side=p.side==='long'?'Long':'Short';
+ const h=`<div class="px9-sec"><b>Your position</b><span>${e(sym.replace(/-PERP$/,''))} · ${side} ${lev}x</span></div>
+ <div class="px9-pt"><span class="${p.side==='long'?'g':'r'}">${side.toUpperCase()} ${lev}x</span>${pnl==null?'<b class="n">P&L —</b>':`<b class="${pnl>=0?'g':'r'}">${pnl>=0?'+':'-'}${money(Math.abs(pnl),2).replace('-','')}</b>`}</div>
+ <div class="px9-pr"><div>Size<b>${money(p.size,2)}</b></div><div>Entry<b>${pxf(p.entry)}</b></div><div>Liq. price<b class="r">${liq?pxf(liq):'—'}</b></div></div>
+ ${dist!=null?`<div class="px9-pb"><i style="left:${Math.max(4,Math.min(96,dist/50*100)).toFixed(1)}%"></i></div>`:''}<a class="px9-pm" href="#/perps/positions">Manage in Positions ›</a>`;
+ if(s.innerHTML!==h)s.innerHTML=h}
+/* ---- recent big trades (Hyperliquid stream from r185) ---- */
+function trades(){const host=document.getElementById('px9-pos')||document.getElementById('px9-fn')||document.getElementById('px9-gr');let t=document.getElementById('px9-trs');
+ const T=(window.__satPx185T&&window.__satPx185T())||[];const nowS=Date.now()/1000,L=T.filter(x=>nowS-x.t<600).sort((a,b)=>b.t-a.t).filter(x=>x.usd>=1000).slice(0,5);
+ if(!host||!L.length){if(t)t.remove();return}
+ if(!t){t=document.createElement('section');t.id='px9-trs';t.className='px9-trs'}if(t.previousElementSibling!==host)host.after(t);
+ const base=symNow().replace(/-PERP$/,'').replace(/^[a-z]+:/,''),ago=s=>s<60?Math.round(s)+'s':Math.round(s/60)+'m';
+ const h='<div class="px9-sec"><b>Recent trades</b><span>live</span></div>'+L.map(x=>`<div class="px9-tr"><span class="${x.side==='b'?'g':'r'}">${x.side==='b'?'Long':'Short'}</span><div><b>${usdS(x.usd)}</b><small>${x.sz?(+x.sz).toLocaleString('en-US',{maximumFractionDigits:4})+' '+e(base)+' at '+pxf(x.px):''}</small></div><time>${ago(nowS-x.t)}</time></div>`).join('');
+ if(t.innerHTML!==h)t.innerHTML=h}
+/* ---- order dock ---- */
+function dock(){const form=document.querySelector('#app .px-of'),rv=document.getElementById('px-review');let d=document.getElementById('px9-dock');
+ if(!form||!rv){if(d)d.remove();document.body.classList.remove('px9-dk');return}
+ document.body.classList.add('px9-dk');const D=PX.draft||{},m=mkt(symNow());
+ if(!d){d=document.createElement('div');d.id='px9-dock';d.className='px9-dock';d.innerHTML='<div class="px9-note" hidden></div><div class="px9-ord"><label class="px9-am"><i>$</i><input id="px9-amt" type="text" inputmode="decimal" autocomplete="off" aria-label="Collateral amount"><small></small></label><div class="px9-lv"></div></div><div class="px9-btns"><button type="button" class="lg" data-px9side="long"><b>Long ▲</b><small></small></button><button type="button" class="sh" data-px9side="short"><b>Short ▼</b><small></small></button></div>';document.body.appendChild(d)}
+ const inp=d.querySelector('#px9-amt'),src=document.getElementById('px-margin');if(src&&document.activeElement!==inp&&inp.value!==src.value)inp.value=src.value;
+ const sm=d.querySelector('.px9-am small'),at=(D.asset||'USDC')+' collateral';if(sm.textContent!==at)sm.textContent=at;
+ const lv=document.querySelector('#app .px-lev3'),bs=lv?[...lv.querySelectorAll('button')]:[];const lh=bs.map((b,i)=>`<button type="button" data-px9lev="${i}" class="${b.classList.contains('on')?'on':''}"${b.disabled?' disabled':''}>${e(b.textContent)}</button>`).join('');const L2=d.querySelector('.px9-lv');if(L2.innerHTML!==lh)L2.innerHTML=lh;
+ const mg=parseFloat(String(src?src.value:'').replace(/,/g,''));
+ for(const side of ['long','short']){let c=null;try{if(m&&num(m.price))c=SP.calc({side,lev:D.lev,margin:mg,price:m.price,mmr:m.mmr})}catch(x){}
+  const t=c&&num(c.size)?usdS(c.size)+(num(c.liq)&&c.liq>0?' · liq '+pxf(c.liq):''):'';const el=d.querySelector(`[data-px9side="${side}"] small`);if(el.textContent!==t)el.textContent=t}
+ /* what the existing button says when it cannot go ahead (connect wallet, add funds, checking…) */
+ const n=d.querySelector('.px9-note'),txt=rv.textContent.trim(),blocked=rv.disabled&&rv.dataset.act!=='wallet',wal=rv.dataset.act==='wallet';
+ const nt=wal?'Connect your Saturn wallet to trade.':blocked&&!/^(Long|Short) /.test(txt)?txt:blocked?((document.getElementById('px-err')||{}).textContent||(document.getElementById('px-exnote')||{}).textContent||'').trim():'';
+ n.hidden=!nt;if(n.textContent!==nt)n.textContent=nt}
+document.addEventListener('input',ev=>{if(ev.target&&ev.target.id==='px9-amt'){const src=document.getElementById('px-margin');if(!src)return;src.value=ev.target.value.replace(/[^0-9.]/g,'').slice(0,14);src.dispatchEvent(new Event('input',{bubbles:true}))}});
+document.addEventListener('click',ev=>{const t=ev.target&&ev.target.closest&&ev.target.closest('[data-px9lev],[data-px9side],[data-px9s]');if(!t)return;ev.preventDefault();
+ if(t.dataset.px9s){const u=location.href,ti=(document.querySelector('#app .px-thn b')||{}).textContent||'Saturn Perps';if(navigator.share)navigator.share({title:ti,url:u}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(u).catch(()=>{});return}
+ if(t.dataset.px9lev!=null){const bs=[...document.querySelectorAll('#app .px-lev3 button')],b=bs[+t.dataset.px9lev];if(b&&!b.disabled)b.click();return}
+ const side=t.dataset.px9side,sb=document.querySelector(`#app .px-seg3 [data-v="${side}"]`);if(sb&&!sb.classList.contains('on'))sb.click();
+ setTimeout(()=>{const rv=document.getElementById('px-review');if(rv&&(!rv.disabled||rv.dataset.act==='wallet'))rv.click();else dock()},60)});
+/* ---- loop ---- */
+function all(){const on=onTrade();document.body.classList.toggle('px9t',on);if(!on){const d=document.getElementById('px9-dock');if(d)d.remove();document.body.classList.remove('px9-dk');return}
+ bar();fnote();paintPos();trades();dock();loadPos()}
+let q=false;new MutationObserver(()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;try{all()}catch(x){}})}).observe(document.documentElement,{childList:true,subtree:true});
+setInterval(()=>{if(!document.hidden)try{all()}catch(x){}},1000);
+addEventListener('hashchange',()=>{POS.at=0;setTimeout(all,0)});
 })();
 </script>
 <style id="saturn-r112-css">
