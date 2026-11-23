@@ -17664,6 +17664,18 @@ body.px9t #app{padding-top:max(10px,env(safe-area-inset-top,0px))}
 #app #px-fees{display:none!important}
 #app .px-tps{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 #app .px-tps label{min-width:0}#app .px-tps .px-tpi{min-width:0}#app .px-tps input{min-width:0;width:100%}
+/* r189 perps chart (token page style) */
+#px-chart.px10-on>*:not(.px10){display:none!important}
+#px-chart.px10-on{background:none!important;border:0!important;padding:0!important;height:auto!important;min-height:0!important}
+.px10-wrap{position:relative;height:250px}
+.px10-wrap canvas{display:block}
+.px10-tag{position:absolute;right:4px;font:800 10.5px/1 ui-monospace,Menlo,monospace;color:#0b0a09;padding:5px 7px;border-radius:7px;pointer-events:none}
+.px10-msg{position:absolute;inset:0;display:grid;place-items:center;font:600 13px/1.4 Inter,system-ui,sans-serif;color:#6f695f;text-align:center;padding:0 30px}
+.px10-wrap .px9-fc{top:6px}
+.px10-tf{display:flex;align-items:center;gap:2px;margin-top:10px}.px10-tf>span{flex:1}
+.px10-tf button{border:0;background:none;font:800 14px/1 Inter,system-ui,sans-serif;color:#6f695f;padding:9px 10px;border-radius:11px;cursor:pointer}
+.px10-tf button.on{color:#e8b95a}
+.px10-tf .px10-ty{width:36px;height:36px;display:grid;place-items:center;color:#a39c90;padding:0}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -19692,7 +19704,10 @@ const mkt=s=>(PX._mall||(PX.mkts&&PX.mkts.markets)||[]).find(m=>m&&m.symbol===s)
 const usd=v=>!num(v)?'—':v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(1)+'K':'$'+v.toFixed(2);
 /* ---- Hyperliquid public stream for the open market (trades + context), Hyperliquid markets only ---- */
 const L={ws:null,coin:null,dex:'',trades:[],ctx:null,retry:0,t:0};
-function hlCoin(m){if(!m||m.viewOnly!==true||typeof m.venueCoin!=='string')return null;return /^([a-z]{1,8}:)?[A-Za-z0-9]{1,20}$/.test(m.venueCoin)?m.venueCoin:null}
+/* r189: SOL / ETH / BTC (Jupiter) also get the market's live trade flow, read from Hyperliquid's public BTC/ETH/SOL perp trades and labelled
+   as such (Jupiter has no public trade stream). Funding is shown only for Hyperliquid markets, where it is that market's own. */
+function hlCoin(m){if(!m)return null;if(m.viewOnly!==true){const b=String(m.base||m.symbol||'').replace(/-PERP$/,'');return ['SOL','ETH','BTC'].includes(b)?b:null}
+ if(typeof m.venueCoin!=='string')return null;return /^([a-z]{1,8}:)?[A-Za-z0-9]{1,20}$/.test(m.venueCoin)?m.venueCoin:null}
 function wsTo(coin){if(L.coin===coin&&L.ws)return;wsOff();if(!coin)return;L.coin=coin;L.trades=[];L.ctx=null;
  let w;try{w=new WebSocket('wss://api.hyperliquid.xyz/ws')}catch(x){return}L.ws=w;
  w.onopen=()=>{try{w.send(JSON.stringify({method:'subscribe',subscription:{type:'trades',coin}}));w.send(JSON.stringify({method:'subscribe',subscription:{type:'activeAssetCtx',coin}}))}catch(x){}};
@@ -19706,7 +19721,7 @@ window.__satPx185T=()=>L.coin&&L.ws?L.trades:[];
 function wsOff(){const w=L.ws;L.ws=null;L.coin=null;if(w)try{w.close()}catch(x){}}
 /* trades column (same look as the token chart's) + long pressure */
 const fcTxt=v=>v<1000?'$'+v.toFixed(0):v<1e6?'$'+(v/1e3).toFixed(1)+'K':'$'+(v/1e6).toFixed(2)+'M';
-function paintLive(){const host=document.querySelector('#px-chart .pxc-wrap');if(!host)return;
+function paintLive(){const host=document.querySelector('#px-chart .px10-wrap')||document.querySelector('#px-chart .pxc-wrap');if(!host)return;
  let col=host.querySelector('.px9-fc');if(!col){col=document.createElement('div');col.className='px9-fc';col.setAttribute('aria-hidden','true');host.appendChild(col)}
  const nowS=Date.now()/1000,big=L.trades.filter(x=>nowS-x.t<120).sort((a,b)=>b.usd-a.usd).slice(0,4).sort((a,b)=>b.t-a.t);
  const h=big.map((x,i)=>`<div class="px9-fi ${x.side}" style="opacity:${(1-i*.17).toFixed(2)}"><i>${x.side==='b'?'▲':'▼'}</i>${fcTxt(x.usd)}</div>`).join('');if(col.innerHTML!==h)col.innerHTML=h;
@@ -19714,8 +19729,8 @@ function paintLive(){const host=document.querySelector('#px-chart .pxc-wrap');if
  const pr=document.getElementById('px9-mom');if(pr){if(!(B+S)){pr.hidden=true}else{pr.hidden=false;const sh=B/(B+S),n=Math.round(sh*10),long=sh>=.5;
   const hh=`${long?'LONG':'SHORT'} PRESSURE <span>${Array.from({length:10},(_,i)=>`<i class="${i<n?(long?'g':'r'):''}"></i>`).join('')}</span><em class="${long?'g':'r'}">${Math.round((long?sh:1-sh)*100)}%</em><small>last 2 min</small>`;if(pr.innerHTML!==hh)pr.innerHTML=hh}}}
 function paintStats(){const st=document.getElementById('px-stats');if(!st)return;const m=mkt(symNow());let g=document.getElementById('px9-gr');
- const rows=[];if(L.ctx&&num(L.ctx.funding))rows.push(['Funding /h',`<b class="${L.ctx.funding>=0?'g':'r'}">${(L.ctx.funding>=0?'+':'')+(L.ctx.funding*100).toFixed(4)}%</b>`]);
- const oi=m&&num(m.openInterest)?m.openInterest:L.ctx&&L.ctx.oi>0?L.ctx.oi:null,vol=m&&num(m.volume24h)?m.volume24h:L.ctx&&L.ctx.vol>0?L.ctx.vol:null;
+ const rows=[];if(m&&m.viewOnly===true&&L.ctx&&num(L.ctx.funding))rows.push(['Funding /h',`<b class="${L.ctx.funding>=0?'g':'r'}">${(L.ctx.funding>=0?'+':'')+(L.ctx.funding*100).toFixed(4)}%</b>`]);
+ const hl=m&&m.viewOnly===true,oi=m&&num(m.openInterest)?m.openInterest:hl&&L.ctx&&L.ctx.oi>0?L.ctx.oi:null,vol=m&&num(m.volume24h)?m.volume24h:hl&&L.ctx&&L.ctx.vol>0?L.ctx.vol:null;
  if(oi)rows.push(['Open interest','<b>'+usd(oi)+'</b>']);if(vol)rows.push(['24h volume','<b>'+usd(vol)+'</b>']);
  if(m&&m.viewOnly===true){const s=3600-Math.floor(Date.now()/1000)%3600;rows.push(['Next funding','<b>'+String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+'</b>'])}
  if(!rows.length){if(g)g.remove();return}
@@ -19803,7 +19818,7 @@ function trades(){const host=document.getElementById('px9-pos')||document.getEle
  if(!host||!L.length){if(t)t.remove();return}
  if(!t){t=document.createElement('section');t.id='px9-trs';t.className='px9-trs'}if(t.previousElementSibling!==host)host.after(t);
  const base=symNow().replace(/-PERP$/,'').replace(/^[a-z]+:/,''),ago=s=>s<60?Math.round(s)+'s':Math.round(s/60)+'m';
- const h='<div class="px9-sec"><b>Recent trades</b><span>live</span></div>'+L.map(x=>`<div class="px9-tr"><span class="${x.side==='b'?'g':'r'}">${x.side==='b'?'Long':'Short'}</span><div><b>${usdS(x.usd)}</b><small>${x.sz?(+x.sz).toLocaleString('en-US',{maximumFractionDigits:4})+' '+e(base)+' at '+pxf(x.px):''}</small></div><time>${ago(nowS-x.t)}</time></div>`).join('');
+ const mm=mkt(symNow()),h='<div class="px9-sec"><b>Recent trades</b><span>'+(mm&&mm.viewOnly!==true?'live · Hyperliquid':'live')+'</span></div>'+L.map(x=>`<div class="px9-tr"><span class="${x.side==='b'?'g':'r'}">${x.side==='b'?'Long':'Short'}</span><div><b>${usdS(x.usd)}</b><small>${x.sz?(+x.sz).toLocaleString('en-US',{maximumFractionDigits:4})+' '+e(base)+' at '+pxf(x.px):''}</small></div><time>${ago(nowS-x.t)}</time></div>`).join('');
  if(t.innerHTML!==h)t.innerHTML=h}
 /* ---- order dock ---- */
 function dock(){const form=document.querySelector('#app .px-of'),rv=document.getElementById('px-review');let d=document.getElementById('px9-dock');
@@ -19836,6 +19851,74 @@ addEventListener('hashchange',()=>{POS.at=0;setTimeout(all,0)});
 
 /* r187: "More options" now only holds TP/SL */
 (function(){'use strict';new MutationObserver(()=>{const b=document.querySelector('#app .px-mo4h span');if(b&&b.textContent!=='TP/SL')b.textContent='TP/SL'}).observe(document.documentElement,{childList:true,subtree:true})})();
+
+/* ===== r189 PERPS CHART in the token page's style (approved mockup): green/red area line with soft fill, dashed line at the live price, glowing
+   dot, price tag on the right, small mono price / time labels, the trades column on the top left, and Live · 1m · 5m · 15m · 1H · 4H with the
+   line / candle switch underneath. Data: the same Perps data service candles the old chart used (completed candles) plus the live price
+   every second; nothing is filled in or smoothed — a gap in the data stays a gap. ===== */
+(function boot189(){'use strict';
+const SP=window.SaturnPerps;if(window.__satPx189)return;if(!SP||!SP.__state){if((boot189.n=(boot189.n||0)+1)<160)setTimeout(boot189,250);return}window.__satPx189=1;
+const PX=SP.__state,num=v=>typeof v==='number'&&isFinite(v);
+const TFS=[['live','Live'],['1m','1m'],['5m','5m'],['15m','15m'],['1h','1H'],['4h','4H']],STEP={'1m':60,'5m':300,'15m':900,'1h':3600,'4h':14400};
+const C={host:null,cv:null,sym:null,tf:'live',type:'line',data:[],ticks:[],at:0,busy:false,req:0,raf:0};
+try{const s=JSON.parse(localStorage.getItem('sat-px10')||'{}');if(TFS.some(x=>x[0]===s.tf))C.tf=s.tf;if(s.type==='candle')C.type='candle'}catch(x){}
+const save=()=>{try{localStorage.setItem('sat-px10',JSON.stringify({tf:C.tf,type:C.type}))}catch(x){}};
+const symNow=()=>{const m=/^#\/perps\/trade\/([^/?]+)/.exec(location.hash);return m?decodeURIComponent(m[1]):(PX.draft&&PX.draft.market)||null};
+const fmtA=v=>{const a=Math.abs(v);return a>=1000?Math.round(v).toLocaleString('en-US'):a>=1?v.toFixed(2):a>=.01?v.toFixed(4):v.toPrecision(3)};
+const fmtT=(t,tf)=>{const d=new Date(t*1000),p=n=>String(n).padStart(2,'0');return tf==='4h'||tf==='1h'?d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+p(d.getHours())+'h':p(d.getHours())+':'+p(d.getMinutes())};
+function mount(){const host=document.getElementById('px-chart');if(!host)return null;let w=host.querySelector('.px10');
+ if(!w){w=document.createElement('div');w.className='px10';w.innerHTML='<div class="px10-wrap"><canvas></canvas><div class="px10-tag" hidden></div><div class="px10-msg" hidden></div></div><div class="px10-tf" role="group" aria-label="Timeframe">'+TFS.map(([k,l])=>`<button type="button" data-px10="${k}">${l}</button>`).join('')+'<span></span><button type="button" class="px10-ty" data-px10ty="1" aria-label="Switch chart type"></button></div>';
+  host.appendChild(w);host.classList.add('px10-on')}
+ if(C.host!==w){C.host=w;C.cv=w.querySelector('canvas');C.data=[];C.ticks=[];C.at=0}
+ const s=symNow();if(s!==C.sym){C.sym=s;C.data=[];C.ticks=[];C.at=0}
+ w.querySelectorAll('[data-px10]').forEach(b=>b.classList.toggle('on',b.dataset.px10===C.tf));
+ const ty=w.querySelector('.px10-ty');const ih=C.type==='line'?'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 4v3M7 17v3M17 7v2M17 15v4"/><rect x="5" y="7" width="4" height="10" rx="1"/><rect x="15" y="9" width="4" height="6" rx="1"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5.5-5.5 4 4L21 6.5"/></svg>';if(ty.innerHTML!==ih)ty.innerHTML=ih;
+ return w}
+async function load(force){const P=SP.provider,sym=C.sym;if(!P||typeof P.candles!=='function'||!sym||C.busy)return;const tf=C.tf==='live'?'1m':C.tf;
+ if(!force&&C.at&&Date.now()-C.at<15000&&C.dtf===C.tf)return;C.busy=true;const my=++C.req;
+ try{const r=await P.candles(sym,tf,C.tf==='live'?90:200);if(my!==C.req||sym!==C.sym)return;const step=STEP[tf],m=new Map();
+  for(const c of Array.isArray(r)?r:[])if(c&&[c.t,c.o,c.h,c.l,c.c].every(num)&&c.l>0&&c.h>=c.l&&c.status!=='forming'&&c.t%step===0)m.set(c.t,{t:c.t,o:c.o,h:c.h,l:c.l,c:c.c});
+  C.data=[...m.values()].sort((a,b)=>a.t-b.t);C.dtf=C.tf;C.at=Date.now();C.err=null}
+ catch(x){if(!C.data.length)C.err='Chart data is not available right now.'}finally{C.busy=false;draw()}}
+function live(){const P=SP.provider;try{const lp=P&&P.livePrice&&P.livePrice(C.sym);if(lp&&num(lp.price)&&lp.price>0&&(lp.state==='live'||lp.state==='stale'))return lp.price}catch(x){}const m=(PX._mall||[]).find(x=>x&&x.symbol===C.sym);return m&&num(m.price)?m.price:null}
+function series(){const now=Date.now()/1000,lp=live();let pts;
+ if(C.tf==='live'){pts=C.data.map(c=>({t:c.t+60,v:c.c,c}));const last=pts.length?pts[pts.length-1].t:0;for(const k of C.ticks)if(k.t>last)pts.push({t:k.t,v:k.v})}
+ else{pts=C.data.map(c=>({t:c.t,v:c.c,c}));if(lp&&pts.length){const st=STEP[C.tf],b=Math.floor(now/st)*st,l=pts[pts.length-1];if(b>l.t)pts.push({t:b,v:lp,c:{t:b,o:l.v,h:Math.max(l.v,lp),l:Math.min(l.v,lp),c:lp},forming:true});else l.v=lp}}
+ return pts}
+function draw(){C.raf=0;const w=C.host;if(!w||!w.isConnected)return;const cv=C.cv,wrap=cv.parentNode,W=wrap.clientWidth||340,H=250,dpr=Math.min(3,devicePixelRatio||1);
+ if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px'}
+ const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+ const pts=series(),msg=w.querySelector('.px10-msg'),tag=w.querySelector('.px10-tag');
+ if(pts.length<2){tag.hidden=true;msg.hidden=false;msg.textContent=C.err||(C.busy||!C.at?'Loading chart…':'Collecting prices for this market…');return}msg.hidden=true;
+ const R=68,T=46,B=28,x0=4,x1=W-R,y0=T,y1=H-B,cand=C.type==='candle'&&C.tf!=='live';
+ let lo=Infinity,hi=-Infinity;for(const p of pts){const a=cand&&p.c?p.c.l:p.v,b=cand&&p.c?p.c.h:p.v;if(a<lo)lo=a;if(b>hi)hi=b}if(hi===lo){hi*=1.001;lo*=.999}const pad=(hi-lo)*.08;lo-=pad;hi+=pad;
+ const t0=pts[0].t,t1=pts[pts.length-1].t,X=t=>x0+(t-t0)/((t1-t0)||1)*(x1-x0-10),Y=v=>y0+(hi-v)/(hi-lo)*(y1-y0);
+ const up=pts[pts.length-1].v>=pts[0].v,col=up?'79,208,138':'255,93,108';
+ /* price labels */g.font='600 9.5px ui-monospace,Menlo,monospace';g.fillStyle='#6f695f';g.textAlign='right';
+ for(let i=0;i<3;i++){const v=hi-(hi-lo)*(i+.5)/3;g.fillText(fmtA(v),W-6,Y(v)+3)}
+ g.textAlign='center';const nT=3;for(let i=0;i<nT;i++){const t=t0+(t1-t0)*(i+.5)/nT;g.fillText(fmtT(t,C.tf==='live'?'1m':C.tf),X(t),H-8)}
+ const step=C.tf==='live'?60:STEP[C.tf],gapOk=(a,b)=>b.t-a.t<=step*2.5+5;
+ if(cand){const bw=Math.max(2,Math.min(9,(x1-x0)/pts.length*.6));for(const p of pts){const c=p.c;if(!c)continue;const u=c.c>=c.o,x=X(p.t);g.strokeStyle=g.fillStyle=u?'#4fd08a':'#ff5d6c';g.beginPath();g.moveTo(x,Y(c.h));g.lineTo(x,Y(c.l));g.lineWidth=1;g.stroke();const a=Y(Math.max(c.o,c.c)),b=Y(Math.min(c.o,c.c));g.fillRect(x-bw/2,a,bw,Math.max(1,b-a))}}
+ else{/* area under each continuous run, then the line */
+  const runs=[];let cur=[];for(let i=0;i<pts.length;i++){if(i&&!gapOk(pts[i-1],pts[i])){runs.push(cur);cur=[]}cur.push(pts[i])}runs.push(cur);
+  const gr=g.createLinearGradient(0,y0,0,y1);gr.addColorStop(0,`rgba(${col},.30)`);gr.addColorStop(1,`rgba(${col},0)`);
+  for(const r of runs){if(r.length<2)continue;g.beginPath();g.moveTo(X(r[0].t),y1);r.forEach(p=>g.lineTo(X(p.t),Y(p.v)));g.lineTo(X(r[r.length-1].t),y1);g.closePath();g.fillStyle=gr;g.fill();
+   g.beginPath();r.forEach((p,i)=>i?g.lineTo(X(p.t),Y(p.v)):g.moveTo(X(p.t),Y(p.v)));g.strokeStyle=`rgb(${col})`;g.lineWidth=2;g.lineJoin='round';g.stroke()}}
+ const L=pts[pts.length-1],lx=X(L.t),ly=Y(L.v);
+ g.setLineDash([3,4]);g.strokeStyle=`rgba(${col},.7)`;g.lineWidth=1;g.beginPath();g.moveTo(0,ly);g.lineTo(x1,ly);g.stroke();g.setLineDash([]);
+ if(!cand){const pul=.5+.5*Math.sin(Date.now()/450);g.fillStyle=`rgba(${col},${.10+.12*pul})`;g.beginPath();g.arc(lx,ly,10+3*pul,0,7);g.fill();g.fillStyle='#0b0a09';g.beginPath();g.arc(lx,ly,4.5,0,7);g.fill();g.strokeStyle=`rgb(${col})`;g.lineWidth=2.2;g.stroke()}
+ tag.hidden=false;const tt=fmtA(L.v);if(tag.textContent!==tt)tag.textContent=tt;tag.style.top=Math.round(ly-11)+'px';tag.style.background=`rgb(${col})`;
+ if(!cand&&!document.hidden&&!C.raf)C.raf=setTimeout(()=>requestAnimationFrame(draw),80)}
+document.addEventListener('click',ev=>{const b=ev.target&&ev.target.closest&&ev.target.closest('[data-px10],[data-px10ty]');if(!b)return;ev.preventDefault();
+ if(b.dataset.px10ty){C.type=C.type==='line'?'candle':'line';if(C.type==='candle'&&C.tf==='live')C.tf='1m'}else{C.tf=b.dataset.px10;if(C.tf==='live')C.type='line';C.ticks=[]}
+ save();mount();load(true);draw()});
+function tick(){if(document.hidden)return;if(!document.querySelector('#app .px-th')||!document.getElementById('px-chart'))return;if(!mount())return;
+ const lp=live(),now=Math.floor(Date.now()/1000);if(lp&&C.tf==='live'){const l=C.ticks[C.ticks.length-1];if(!l||l.t<now)C.ticks.push({t:now,v:lp});if(C.ticks.length>900)C.ticks=C.ticks.slice(-900)}
+ load(false);if(!C.raf)draw()}
+setInterval(tick,1000);
+new MutationObserver(()=>{const h=document.getElementById('px-chart');if(h&&!h.querySelector('.px10')&&document.querySelector('#app .px-th'))tick()}).observe(document.documentElement,{childList:true,subtree:true});
+addEventListener('resize',()=>draw());
+})();
 </script>
 <style id="saturn-r112-css">
 /* chat: the conversation height follows the visual viewport (soft keyboards shrink it; 100dvh alone does not on iOS) */
