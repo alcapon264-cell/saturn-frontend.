@@ -18914,10 +18914,40 @@ window.listTokens=function(){const ct=tab(),q=(S.q||'').trim();
  return LT.apply(this,arguments)};
 /* keep the list moving: refresh the feed and redraw the list only while New or Hot is on screen */
 setInterval(async()=>{if(document.hidden)return;const ct=tab();if((ct!=='new'&&ct!=='hot')||!solNet())return;try{if(S.view!=='home')return}catch(e){return}
- const before=F[ct].at;await load(ct);if(F[ct].at!==before&&typeof window.renderList==='function'){try{window.renderList()}catch(e){}}},3000);
+ if(ct==='new'&&typeof NW!=='undefined'&&NW.ws&&NW.ws.readyState===1)return;const before=F[ct].at;await load(ct);if(F[ct].at!==before&&typeof window.renderList==='function'){try{window.renderList()}catch(e){}}},3000);
 document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-act="tab"]');if(b&&(b.dataset.v==='new'||b.dataset.v==='hot'))setTimeout(()=>load(b.dataset.v).then(()=>{try{window.renderList()}catch(x){}}),0)},true);
 load('hot');load('new');
 window.__satDf199F=F;
+/* r200 LIVE NEW: while New is on screen, Saturn's server pushes each Pump.fun launch the moment it happens (Saturn's /tokens/live socket) */
+const NW={ws:null,retry:0,rt:0,dirty:false};
+function nwOpen(){if(NW.ws||document.hidden)return;let w;try{w=new WebSocket('wss://saturn-perps-staging.onrender.com/tokens/live')}catch(e){return}NW.ws=w;
+ w.onopen=()=>{NW.retry=0;try{w.send(JSON.stringify({type:'sub',mints:[],newFeed:true}))}catch(e){}};
+ w.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(e){return}const f=F.new;
+  if(m.type==='newtoks'&&Array.isArray(m.tokens)){f.list=m.tokens.filter(ok).map(tok);f.at=Date.now();NW.dirty=true}
+  else if(m.type==='newtok'&&Array.isArray(m.tokens)){const add=m.tokens.filter(ok).map(tok),have=new Set(add.map(t=>t.id));f.list=add.concat((f.list||[]).filter(t=>!have.has(t.id)));f.at=Date.now();NW.dirty=true}
+  else if(m.type==='newmeta'&&Array.isArray(m.tokens)){for(const x of m.tokens){const t=(f.list||[]).find(y=>y.id===x.mint);if(!t)continue;if(x.image&&!t.img)t.img=x.image;if(x.name&&(!t.name||t.name==='New token'))t.name=x.name;if(x.symbol&&(!t.tick||t.tick==='?'))t.tick=x.symbol;NW.dirty=true}}};
+ w.onclose=()=>{if(NW.ws===w)NW.ws=null;clearTimeout(NW.rt);NW.rt=setTimeout(()=>{if(tab()==='new')nwOpen()},Math.min(20000,1000*Math.pow(2,NW.retry++)))};
+ w.onerror=()=>{try{w.close()}catch(e){}}}
+function nwClose(){const w=NW.ws;NW.ws=null;if(w)try{w.close()}catch(e){}}
+const ok=x=>x&&/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(x.mint);
+setInterval(()=>{const on=tab()==='new'&&solNet()&&!document.hidden&&(()=>{try{return S.view==='home'}catch(e){return false}})();
+ if(on)nwOpen();else if(NW.ws)nwClose();
+ const f=F.new;if(f.list){const cut=Date.now()-60000,n=f.list.length;f.list=f.list.filter(t=>!t.born||t.born>=cut);if(f.list.length!==n)NW.dirty=true}
+ if(on&&NW.dirty){NW.dirty=false;try{window.renderList()}catch(e){}}},400);
+})();
+
+/* ===== r200 TOKEN PICTURES THAT LOAD: Pump.fun pictures live on IPFS / Arweave gateways that are often slow or time out on phones, so
+   the row fell back to letters. Those pictures are now loaded through an image CDN (wsrv.nl: follows the gateway, caches, returns a small
+   96 px picture). Fast hosts (DEX Screener, Jupiter, CoinGecko, GitHub) are left as they are. Same picture, just delivered faster. ===== */
+(function(){'use strict';
+if(window.__satImg200||typeof CACHE==='undefined')return;window.__satImg200=1;
+const FAST=/^(dd\.dexscreener\.com|cdn\.dexscreener\.com|static\.jup\.ag|img-v1\.raydium\.io|coin-images\.coingecko\.com|assets\.coingecko\.com|raw\.githubusercontent\.com|wsrv\.nl|saturn-perps-staging\.onrender\.com)$/i;
+function fix(u){if(typeof u!=='string'||!u)return u;u=u.trim().replace(/^ipfs:\/\//i,'https://ipfs.io/ipfs/');let h;try{const x=new URL(u);if(x.protocol!=='https:'&&x.protocol!=='http:')return u;h=x.hostname}catch(e){return u}
+ if(FAST.test(h))return u;return 'https://wsrv.nl/?url='+encodeURIComponent(u)+'&w=96&h=96&fit=cover&output=webp&maxage=7d'}
+window.satImg=fix;
+function pass(){try{CACHE.forEach(e=>{const t=e&&e.t;if(t&&t.img&&t.__img200!==t.img){const f=fix(t.img);if(f!==t.img){t.img0=t.img;t.img=f}t.__img200=t.img}})}catch(e){}
+ try{const F=window.__satDf199F;if(F)for(const k of ['new','hot'])(F[k].list||[]).forEach(t=>{if(t.img&&t.__img200!==t.img){const f=fix(t.img);if(f!==t.img){t.img0=t.img;t.img=f}t.__img200=t.img}})}catch(e){}}
+setInterval(pass,1500);pass();
 })();
 </script>
 <script id="saturn-r159-trader">
