@@ -17462,6 +17462,29 @@ html.sat-prf210 .prf.tr3 .tr3-lc{margin-left:-16px!important;margin-right:-16px!
 .prf.tr3 .tr3-lc{background-image:radial-gradient(circle,rgba(255,255,255,.13) 1px,transparent 1.4px);background-size:14px 14px}
 .prf.tr3 .tr3-dot{width:12px!important;height:12px!important;box-shadow:0 0 0 7px color-mix(in srgb,currentColor 18%,transparent),0 0 14px color-mix(in srgb,currentColor 55%,transparent)}
 .prf.tr3 .tr3-end{right:22px!important}
+
+/* r215 share card studio */
+#sc215{position:fixed;inset:0;z-index:3000;background:radial-gradient(120% 60% at 50% 0%,#1f170c,#0b0a09 60%);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);color:#f1ebe0;font-family:-apple-system,"SF Pro Display",Inter,system-ui,sans-serif}
+#sc215 .sc-top{display:flex;align-items:center;justify-content:space-between;height:48px}
+#sc215 .sc-top b{font-size:17px;font-weight:600}
+#sc215 .sc-x,#sc215 .sc-per{height:40px;min-width:40px;border-radius:20px;border:1px solid #2c261e;background:#1a1712;color:#f1ebe0;font:600 14px/1 inherit;padding:0 14px;cursor:pointer}
+#sc215 .sc-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:14px 0}
+#sc215 .sc-cv{max-width:100%;max-height:100%;width:auto;height:auto;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#sc215 .sc-cv.sc-receipt{border-radius:4px}
+#sc215 .sc-cv.sc-pass{width:100%;height:auto}
+#sc215 .sc-msg{color:#8d857b;font-size:14px}
+#sc215 .sc-th{display:flex;justify-content:center;gap:12px;padding-top:6px}
+#sc215 .sc-th button{width:74px;background:none;border:0;color:#8d857b;font:600 12px/1.2 inherit;cursor:pointer;padding:0}
+#sc215 .sc-th i{display:block;height:64px;border-radius:15px;margin-bottom:6px;border:2px solid transparent}
+#sc215 .sc-th i.p{background:linear-gradient(135deg,#efcd85,#c4903c)}#sc215 .sc-th i.o{background:#0b0a09 url("saturn-cover.jpg?v=212") center/cover}#sc215 .sc-th i.r{background:#f3eee4}
+#sc215 .sc-th .on{color:#f1ebe0}#sc215 .sc-th .on i{border-color:#e5b95c}
+#sc215 .sc-tg{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:14.5px;color:#cfc6b8}
+#sc215 .sc-sw{width:50px;height:30px;border-radius:15px;border:0;background:#2a2620;position:relative;cursor:pointer;padding:0}
+#sc215 .sc-sw i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#f1ebe0;transition:left .2s}
+#sc215 .sc-sw.on{background:#e5b95c}#sc215 .sc-sw.on i{left:23px}
+#sc215 .sc-act{display:flex;gap:10px;margin-top:14px}
+#sc215 .sc-act button{flex:1;height:48px;border-radius:14px;font:700 15px/1 inherit;cursor:pointer}
+#sc215 .sc-save{background:#1a1712;border:1px solid #2c261e;color:#f1ebe0}#sc215 .sc-share{background:#e5b95c;border:0;color:#17110a}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -19454,7 +19477,7 @@ function paint(w){const box=document.getElementById('tr3'),ld=document.getElemen
  delete box.dataset.sk;
  if(P.te){setBal(null);box.innerHTML=`<div class="tr3-em">This wallet’s trades couldn’t be loaded right now. <button type="button" class="tr3-rt" data-soc="reload" data-w="${e(w)}">Retry</button></div>`;return}
  if(prHide(w,'p')){setBal(null);box.innerHTML='<div class="tr3-em">This trader keeps P&amp;L private.</div>';return}
- const M=model(w);if(!M)return;T.last=M;
+ const M=model(w);if(!M)return;T.last=M;try{window.__satTr3={M,w,usd:su()}}catch(x){}
  setBal(M);
  /* r173: update in place. The page used to rebuild every row (pictures included) on each price tick / live trade, which made the list
     flash and look like it was reshuffling. Now rows that are already on screen only get their numbers changed. */
@@ -19628,6 +19651,104 @@ function pick(){const i=document.createElement('input');i.type='file';i.accept='
   if(!d){try{toast('Could not use that picture.')}catch(e){}return}try{let tc='#1a130a';try{const px=g.getImageData(0,0,W,6).data;let r=0,gg=0,b=0,n=0;for(let k=0;k<px.length;k+=16){r+=px[k];gg+=px[k+1];b+=px[k+2];n++}tc='#'+[r,gg,b].map(v=>Math.round(v/n).toString(16).padStart(2,'0')).join('')}catch(e){}localStorage.setItem(KEY,d);localStorage.setItem(KEY+'-c',tc);const cv0=document.getElementById('pr-cv212');if(cv0)cv0.dataset.k='';toast('Cover updated')}catch(e){try{toast('Not enough space on this device to save the cover.')}catch(x){}}paint()};im.onerror=()=>{URL.revokeObjectURL(url);try{toast('Could not open that picture. Try a JPG or PNG.')}catch(e){}};im.src=url}};i.click()}
 new MutationObserver(()=>{try{paint()}catch(e){}}).observe(document.documentElement,{childList:true,subtree:true});
 addEventListener('hashchange',()=>setTimeout(()=>{try{paint()}catch(e){}},0));addEventListener('resize',()=>{try{paint()}catch(e){}});setInterval(()=>{if(!document.hidden&&document.querySelector('.prf.tr3'))try{paint()}catch(e){}},1500);
+})();
+
+/* ===== r215 SHARE CARD STUDIO: Share on a profile opens a studio that turns the trader's real record into a picture to share:
+   Trader Pass (gold ticket), Poster (cover picture + profit + chart) or Receipt (best trades itemised). 7D / 30D, "Hide dollar amounts"
+   (percentages only), Save image / Share. Every number comes from the wallet's own trades already loaded on the profile page;
+   a trader who keeps P&L private only gets the plain profile link shared. ===== */
+(function(){'use strict';
+if(window.__satSc215)return;window.__satSc215=1;
+const ST={style:'pass',per:'7d',hide:false,el:null,cv:null};
+const curW=()=>{try{return decodeURIComponent((location.hash.match(/^#\/u\/([^/?#]+)/)||[])[1]||'')}catch(x){return''}};
+const meW=()=>{try{return socMe()||''}catch(e){return''}};
+const fU=(v,sign)=>{const a=Math.abs(v),s=sign?(v<0?'−':'+'):(v<0?'−':'');return s+'$'+(a>=1e6?(a/1e6).toFixed(2)+'M':a>=1e4?Math.round(a).toLocaleString('en-US'):a.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2}))};
+const fK=v=>{const a=Math.abs(v);return(v<0?'−':'')+'$'+(a>=1e6?(a/1e6).toFixed(1)+'M':a>=1e3?(a/1e3).toFixed(1)+'K':Math.round(a))};
+const fP=p=>p==null||!isFinite(p)?'—':(p<0?'−':'+')+Math.abs(p).toFixed(Math.abs(p)<100?1:0)+'%';
+function data(){const X=window.__satTr3,w=curW();if(!X||X.w!==w||!X.M)return null;const M=X.M,u=X.usd,now=Date.now()/1000,t0=now-(ST.per==='7d'?7:30)*86400;
+ const P=M.P,cl=M.closed.filter(c=>(c.at||0)>=t0),trades=(P.trades||[]).filter(x=>(x.time||0)>=t0);
+ const conv=sol=>u?sol*u:null,real=cl.reduce((a,c)=>a+(c.pnl||0),0),cost=cl.reduce((a,c)=>a+(c.pct?Math.abs(c.pnl/(c.pct/100)):0),0);
+ const vol=trades.reduce((a,x)=>a+(Number(x.solAmt)||0),0),wins=cl.filter(c=>c.pnl>0).length,best=cl.slice().sort((a,b)=>b.pnl-a.pnl)[0]||null;
+ let nm='Trader';try{nm=w===meW()&&R18.prof().name?R18.prof().name:WP.name(w)}catch(e){}
+ const tk=c=>{const t=c.t;return t?(t.tick&&t.tick!=='?'?t.tick:t.name||'Token'):'Token'};
+ let av=null;try{const a=document.querySelector('.prf.tr3 .pr-id>:first-child');if(a&&a.src&&/^data:image\/(png|jpe?g|webp|gif)/.test(a.src))av=a.src}catch(e){}
+ return{w,nm,u,usd:conv(real),sol:real,pct:cost>0?real/cost*100:null,n:trades.length,closed:cl.length,wr:cl.length?Math.round(wins/cl.length*100):null,
+  best:best?{usd:conv(best.pnl),pct:best.pct,tk:tk(best)}:null,vol:conv(vol),volSol:vol,top:cl.slice().sort((a,b)=>b.pnl-a.pnl).slice(0,3).map(c=>({tk:tk(c),usd:conv(c.pnl),sol:c.pnl,pct:c.pct})),
+  rest:cl.length>3?{n:cl.length-3,usd:conv(cl.slice().sort((a,b)=>b.pnl-a.pnl).slice(3).reduce((a,c)=>a+c.pnl,0)),sol:cl.slice().sort((a,b)=>b.pnl-a.pnl).slice(3).reduce((a,c)=>a+c.pnl,0)}:null,
+  spark:(()=>{const s=M.A.closed.filter(r=>r.t1!=null&&r.t1>=t0).sort((a,b)=>a.t1-b.t1);let c=0;const p=[0];s.forEach(r=>{c+=r.real;p.push(c)});return p})(),av}}
+/* money text that respects "Hide dollar amounts" */
+const amt=(usd,sol,pct)=>ST.hide?fP(pct):usd!=null?fU(usd,true):((sol<0?'−':'+')+Math.abs(sol).toFixed(2)+' SOL');
+const IMG={};function img(src){if(IMG[src])return IMG[src];const i=new Image();i.src=src;IMG[src]=i;i.onload=()=>draw();return i}
+function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+const F=(w,s)=>w+' '+s+'px -apple-system,"SF Pro Display",Inter,system-ui,sans-serif';
+function fitText(g,t,max,w,s,min){let z=s;g.font=F(w,z);while(g.measureText(t).width>max&&z>min){z-=2;g.font=F(w,z)}return z}
+function avatar(g,D,x,y,r,ring){g.save();g.beginPath();g.arc(x,y,r,0,7);g.closePath();g.clip();if(D.av){const i=img(D.av);if(i.complete&&i.naturalWidth)g.drawImage(i,x-r,y-r,2*r,2*r);else{g.fillStyle='#2b303b';g.fill()}}
+ else{g.fillStyle='#2b303b';g.fillRect(x-r,y-r,2*r,2*r);g.fillStyle='#e5b95c';g.font=F(700,r);g.textAlign='center';g.textBaseline='middle';g.fillText((D.nm[0]||'S').toUpperCase(),x,y+2)}
+ g.restore();if(ring){g.beginPath();g.arc(x,y,r+3,0,7);g.strokeStyle=ring;g.lineWidth=4;g.stroke()}}
+function pass(D){const W=1000,H=700,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+ const gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,'#efcd85');gr.addColorStop(1,'#c4903c');rr(g,0,0,W,H,56);g.fillStyle=gr;g.fill();
+ const sx=W-290;g.globalCompositeOperation='destination-out';g.beginPath();g.arc(sx,0,30,0,7);g.arc(sx,H,30,0,7);g.fill();g.globalCompositeOperation='source-over';
+ g.setLineDash([14,12]);g.strokeStyle='rgba(23,17,10,.35)';g.lineWidth=4;g.beginPath();g.moveTo(sx,44);g.lineTo(sx,H-44);g.stroke();g.setLineDash([]);
+ const ink='#17110a';g.fillStyle=ink;g.textBaseline='alphabetic';g.textAlign='left';
+ g.globalAlpha=.7;g.font=F(700,26);g.fillText('SATURN · TRADER PASS',60,86);g.globalAlpha=1;
+ fitText(g,D.nm,sx-120,800,56,30);g.fillText(D.nm,60,160);
+ g.globalAlpha=.7;g.font=F(700,26);g.fillText('PROFIT · '+(ST.per==='7d'?'7 DAYS':'30 DAYS'),60,250);g.globalAlpha=1;
+ const big=ST.hide?fP(D.pct):D.usd!=null?fU(D.usd,true):amt(null,D.sol,D.pct);fitText(g,big,sx-120,800,118,60);g.fillText(big,56,370);
+ const cols=[['TRADES',String(D.n)],['BEST',D.best?amt(D.best.usd,0,D.best.pct):'—'],['VOLUME',ST.hide?'•••':D.vol!=null?fK(D.vol):D.volSol.toFixed(1)+' SOL']];
+ cols.forEach(([k,v],i)=>{const x=60+i*((sx-120)/3);g.globalAlpha=.7;g.font=F(700,24);g.fillText(k,x,470);g.globalAlpha=1;fitText(g,v,(sx-140)/3,800,40,24);g.fillText(v,x,520)});
+ g.globalAlpha=.6;g.font=F(600,24);g.fillText(location.host+' · Solana',60,H-60);g.globalAlpha=1;
+ const cx=sx+145;g.textAlign='center';g.globalAlpha=.7;g.font=F(700,24);g.fillText('WIN RATE',cx,96);g.globalAlpha=1;
+ g.lineWidth=20;g.strokeStyle='rgba(23,17,10,.18)';g.beginPath();g.arc(cx,220,86,0,7);g.stroke();
+ if(D.wr!=null){g.strokeStyle=ink;g.lineCap='round';g.beginPath();g.arc(cx,220,86,-Math.PI/2,-Math.PI/2+Math.PI*2*D.wr/100);g.stroke();g.lineCap='butt'}
+ g.font=F(800,44);g.fillText(D.wr!=null?D.wr+'%':'—',cx,236);
+ const pl=img('saturn-planet.png?v=208');if(pl.complete&&pl.naturalWidth){const pw=230,ph=pw*pl.naturalHeight/pl.naturalWidth;g.drawImage(pl,cx-pw/2,440,pw,ph)}
+ return c}
+function poster(D){const W=800,H=1250,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');rr(g,0,0,W,H,60);g.save();g.clip();g.fillStyle='#0b0a09';g.fillRect(0,0,W,H);
+ let cov=null;try{if(D.w===meW())cov=localStorage.getItem('sat-cover-v1')}catch(e){}const bi=img(cov||'saturn-cover.jpg?v=212');
+ if(bi.complete&&bi.naturalWidth){const s=Math.max(W/bi.naturalWidth,(H*.7)/bi.naturalHeight);const iw=bi.naturalWidth*s,ih=bi.naturalHeight*s;g.drawImage(bi,(W-iw)/2,0,iw,ih)}
+ const fd=g.createLinearGradient(0,H*.25,0,H*.66);fd.addColorStop(0,'rgba(11,10,9,0)');fd.addColorStop(1,'rgba(11,10,9,.96)');g.fillStyle=fd;g.fillRect(0,0,W,H);g.fillStyle='#0b0a09';g.fillRect(0,H*.66,W,H);
+ const L=60;g.textAlign='left';g.fillStyle='#e5b95c';g.font=F(700,26);g.fillText('PROFIT · '+(ST.per==='7d'?'7 DAYS':'30 DAYS'),L,H-470);
+ const big=ST.hide?fP(D.pct):D.usd!=null?fU(D.usd,true):amt(null,D.sol,D.pct);g.fillStyle=D.sol<0?'#ff8a8a':'#f1ebe0';let z=150;g.font='400 '+z+'px Georgia,"Times New Roman",serif';while(g.measureText(big).width>W-2*L&&z>60){z-=6;g.font='400 '+z+'px Georgia,serif'}g.fillText(big,L,H-330);
+ g.fillStyle='#cfc6b8';fitText(g,D.nm+' · '+(D.wr!=null?D.wr+'% win rate · ':'')+D.n+' trades',W-2*L,500,32,20);g.fillText(D.nm+' · '+(D.wr!=null?D.wr+'% win rate · ':'')+D.n+' trades',L,H-270);
+ const sp=D.spark,mn=Math.min(0,...sp),mx=Math.max(0,...sp),rg=(mx-mn)||1;if(sp.length>1){g.beginPath();sp.forEach((v,i)=>{const x=L+i/(sp.length-1)*(W-2*L),y=H-140-(v-mn)/rg*90;i?g.lineTo(x,y):g.moveTo(x,y)});g.strokeStyle='#e5b95c';g.lineWidth=5;g.lineJoin='round';g.stroke()}
+ const mk=img('saturn-mark.png?v=204');if(mk.complete&&mk.naturalWidth)g.drawImage(mk,L,H-86,mk.naturalWidth*(34/mk.naturalHeight),34);g.fillStyle='#f1ebe0';g.font=F(700,28);g.fillText('Saturn',L+80,H-58);
+ g.textAlign='right';g.fillStyle='#9a9186';g.font=F(500,22);g.fillText(location.host,W-L,H-58);g.restore();return c}
+function receipt(D){const W=760,rows=D.top.length+(D.rest?1:0),H=560+rows*58,c=document.createElement('canvas');c.width=W;c.height=H+30;const g=c.getContext('2d');
+ g.fillStyle='#f3eee4';g.fillRect(0,0,W,H);for(let x=0;x<W;x+=30){g.beginPath();g.moveTo(x,H);g.lineTo(x+15,H+24);g.lineTo(x+30,H);g.fill()}
+ const mono=(w,s)=>w+' '+s+'px ui-monospace,Menlo,"SF Mono",monospace',ink='#1b1813';g.fillStyle=ink;g.textAlign='center';
+ g.font=mono(800,40);g.fillText('S A T U R N',W/2,90);g.globalAlpha=.6;g.font=mono(500,22);g.fillText('TRADE RECEIPT · '+(ST.per==='7d'?'7 DAYS':'30 DAYS'),W/2,128);g.globalAlpha=1;
+ const dash=y=>{g.setLineDash([10,8]);g.strokeStyle='rgba(27,24,19,.45)';g.lineWidth=3;g.beginPath();g.moveTo(50,y);g.lineTo(W-50,y);g.stroke();g.setLineDash([])};dash(160);
+ let y=215;const line=(l,r,big)=>{g.font=mono(big?800:500,big?40:28);g.textAlign='left';let t=l;while(g.measureText(t).width>W-330&&t.length>3)t=t.slice(0,-2);if(t!==l)t+='…';g.fillText(t,60,y);g.textAlign='right';g.fillText(r,W-60,y);y+=big?64:58};
+ if(!D.top.length)line('No closed trades','—');D.top.forEach(t=>line(t.tk,amt(t.usd,t.sol,t.pct)));if(D.rest)line(D.rest.n+' more trades',ST.hide?'':amt(D.rest.usd,D.rest.sol,null));
+ y+=6;dash(y-34);y+=20;line('TOTAL',amt(D.usd,D.sol,D.pct),true);line('WIN RATE',D.wr!=null?D.wr+'%':'—');dash(y-30);
+ g.textAlign='center';g.globalAlpha=.6;g.font=mono(500,22);g.fillText(D.nm+' · thank you for trading',W/2,y+12);g.globalAlpha=1;return c}
+function draw(){if(!ST.el)return;const D=data(),st=ST.el.querySelector('.sc-stage');if(!D){st.innerHTML='<div class="sc-msg">Loading this trader’s record…</div>';return}
+ const cv=ST.style==='poster'?poster(D):ST.style==='receipt'?receipt(D):pass(D);ST.cv=cv;cv.className='sc-cv sc-'+ST.style;st.innerHTML='';st.appendChild(cv);
+ ST.el.querySelectorAll('[data-sc]').forEach(b=>b.classList.toggle('on',b.dataset.sc===ST.style));ST.el.querySelector('.sc-per').textContent=ST.per==='7d'?'7D':'30D';
+ ST.el.querySelector('.sc-sw').classList.toggle('on',ST.hide)}
+function blob(){return new Promise(r=>{try{ST.cv.toBlob(b=>r(b),'image/png')}catch(e){r(null)}})}
+async function out(kind){if(!ST.cv)return;const b=await blob();if(!b){try{toast('Could not make the picture.')}catch(e){}return}
+ const f=new File([b],'saturn-'+ST.style+'.png',{type:'image/png'}),url=location.origin+location.pathname+'#/u/'+encodeURIComponent(curW());
+ try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share(kind==='share'?{files:[f],text:'My trading on Saturn',url}:{files:[f]});return}}catch(e){if(e&&e.name==='AbortError')return}
+ if(kind==='share'&&navigator.share){try{await navigator.share({title:'Saturn',url});return}catch(e){if(e&&e.name==='AbortError')return}}
+ const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);try{toast('Picture saved')}catch(e){}}
+function close(){if(!ST.el)return;ST.el.remove();ST.el=null;document.documentElement.style.overflow='';try{if(history.state&&history.state.sat==='sc')history.back()}catch(e){}}
+function open(){const w=curW();if(!w)return;try{if(typeof prHide==='function'&&prHide(w,'p'))return false}catch(e){}
+ const d=document.createElement('div');d.id='sc215';d.setAttribute('role','dialog');d.setAttribute('aria-label','Share card');
+ d.innerHTML='<div class="sc-top"><button type="button" class="sc-x" aria-label="Close">✕</button><b>Share card</b><button type="button" class="sc-per">7D</button></div><div class="sc-stage"></div>'
+ +'<div class="sc-th"><button type="button" data-sc="pass"><i class="p"></i>Pass</button><button type="button" data-sc="poster"><i class="o"></i>Poster</button><button type="button" data-sc="receipt"><i class="r"></i>Receipt</button></div>'
+ +'<label class="sc-tg"><span>Hide dollar amounts</span><button type="button" class="sc-sw" aria-label="Hide dollar amounts"><i></i></button></label>'
+ +'<div class="sc-act"><button type="button" class="sc-save">Save image</button><button type="button" class="sc-share">Share</button></div>';
+ d.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;e.preventDefault();
+  if(t.classList.contains('sc-x'))return close();if(t.dataset.sc){ST.style=t.dataset.sc;draw();return}if(t.classList.contains('sc-per')){ST.per=ST.per==='7d'?'30d':'7d';draw();return}
+  if(t.classList.contains('sc-sw')){ST.hide=!ST.hide;draw();return}if(t.classList.contains('sc-save'))return out('save');if(t.classList.contains('sc-share'))return out('share')});
+ document.body.appendChild(d);ST.el=d;document.documentElement.style.overflow='hidden';try{history.pushState({sat:'sc'},'',location.href)}catch(e){}draw();return true}
+addEventListener('popstate',()=>{if(ST.el){ST.el.remove();ST.el=null;document.documentElement.style.overflow=''}});
+addEventListener('hashchange',()=>{if(ST.el)close()});
+/* the profile's Share button opens the studio (plain link share when the trader keeps P&L private or the record isn't loaded) */
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-r208="share"]');if(!b)return;const X=window.__satTr3;if(!X||X.w!==curW())return;
+ if(open()){e.preventDefault();e.stopImmediatePropagation()}},true);
+window.__satShareCard={open,data};
 })();
 </script>
 <script id="saturn-r160-pulse">
