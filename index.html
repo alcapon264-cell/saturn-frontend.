@@ -17492,6 +17492,7 @@ html.sat-prf210 .prf.tr3 .tr3-lc{margin-left:-16px!important;margin-right:-16px!
 @keyframes sc216in{from{opacity:0;transform:translateY(26px) scale(.94)}to{opacity:1;transform:none}}
 #sc215 .sc-th i{transition:border-color .2s,transform .2s}#sc215 .sc-th .on i{transform:translateY(-3px)}
 @media (prefers-reduced-motion:reduce){#sc215,#sc215 .sc-cv.sc-in{transition:none;animation:none}}
+.prf.tr3 .tr3-score .tr3-skl.s{width:64px;height:20px;border-radius:7px;vertical-align:middle}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -19315,7 +19316,7 @@ window.socWalletTrades=async function(w,force){const c=SOC.wt.get(w),h0=H.get(w)
  if(c&&h0&&!force&&Date.now()-c.ts<60000){setTimeout(()=>auto(w),300);return c.items}
  /* r171: whichever answers first paints first. Saturn's server answers in well under a second with the trades it saw live;
     the chain history (slow, rate-limited RPC) is merged into the same list as it arrives. */
- const items=[],h={before:null,done:false,busy:true,read:0,keys:new Set(),err:0,miss:[]};H.set(w,h);SOC.wt.set(w,{ts:Date.now(),items});
+ const items=[],h={before:null,done:false,busy:true,read:0,keys:new Set(),err:0,miss:[],t0:Date.now()};H.set(w,h);SOC.wt.set(w,{ts:Date.now(),items});
  const pg=page(w,null,P1).then(p=>{h.before=p.last;h.done=p.n<P1;h.read=p.n;h.miss.push(...p.miss);h.busy=false;merge(w,p.out);if(curW()===w)repaint();setTimeout(()=>auto(w),300);return true},e=>{h.busy=false;h.err++;throw e});
  const st=streamTrades(w).then(v=>{merge(w,v);return v.length},()=>0);
  const first=await Promise.race([st,sleep(1500).then(()=>0)]);
@@ -19329,7 +19330,11 @@ async function more(w){const h=H.get(w),c=SOC.wt.get(w);if(!h||!c||h.busy||h.don
 async function retryMiss(w){const h=H.get(w);if(!h||!h.miss.length||h.busy)return;h.busy=true;try{const list=h.miss.splice(0,30),r=await fetchTxs(w,list);h.miss.push(...r.miss.filter(()=>(h.tries=(h.tries||0)+1)<400));merge(w,r.out)}catch(x){}finally{h.busy=false;if(curW()===w)repaint()}}
 async function auto(w){if(auto.on&&auto.on===w)return;auto.on=w;try{for(let i=0;i<40;i++){const h=H.get(w);if(!h||curW()!==w)return;
   if(h.miss.length&&(h.done||h.read>=AUTO||i%3===2)){await retryMiss(w);await sleep(12000);continue}
-  if(h.done||h.read>=AUTO||h.err>3)return;const ok=await more(w);await sleep(ok?(i<1?800:15000):5000)}}finally{if(auto.on===w)auto.on=null}}
+  if(h.done||h.read>=AUTO||h.err>3)return;const ok=await more(w);await sleep(ok?(i<1?800:3500):5000)}}finally{if(auto.on===w)auto.on=null}}
+/* r218: the wallet's history counts as loaded once the automatic pages are in (or there is no more), the transactions the RPC skipped have been
+   retried once, or 40 s have passed. Until then the profile shows the stats as loading instead of a number that keeps climbing. */
+window.__satHistReady=w=>{const h=H.get(w);if(!h)return false;if(Date.now()-(h.t0||0)>40000)return true;return(h.done||h.read>=AUTO||h.err>3)&&!h.busy&&(!h.miss.length||!!h.tries)};
+setInterval(()=>{const w=curW();if(!w||!document.querySelector('.prf.tr3'))return;const r=window.__satHistReady(w);if(r!==auto.rd){auto.rd=r;repaint()}},1000);
 let rpT=0;function repaint(){if(rpT)return;rpT=setTimeout(()=>{rpT=0;const w=curW();if(!w)return;const P=SOC.pf[w];if(!P)return;try{socPaintProfile(w)}catch(x){}},250)}
 /* ---------- rows ---------- */
 const ago=s=>{if(!s)return'—';const d=Math.max(0,Date.now()/1000-s);return d<60?Math.floor(d)+'s ago':d<3600?Math.floor(d/60)+'m ago':d<86400?Math.floor(d/3600)+'h ago':Math.floor(d/86400)+'d ago'};
@@ -19436,7 +19441,9 @@ function lead(M){const p=[];if(M.known&&M.open.length){const v=M.unreal;p.push(`
  if(M.A.closed.length)p.push(`wins <i>${Math.round(M.A.wins/M.A.closed.length*100)}%</i> of closed trades`);if(M.A.med!=null)p.push(`usually holds about <i>${hold(M.A.med)}</i>`);
  if(!p.length)return M.P.trades.length?'Trading, but no finished trades yet.':'No trades found for this wallet yet.';
  let s=p.join(p.length>2?', ':' and ').replace(/, ([^,]*)$/,' and $1');return s.charAt(0).toUpperCase()+s.slice(1)+'.'}
-function score(M){const u=su(),real=M.c30.reduce((s,r)=>s+r.real,0),wr=M.c30.length?Math.round(M.c30.filter(r=>r.real>0).length/M.c30.length*100)+'%':'—';
+function score(M){const rd=(()=>{try{return window.__satHistReady?window.__satHistReady(curW()):true}catch(x){return true}})();
+ if(!rd)return `<div class="tr3-sh"><h3>Trade stats</h3><small>loading full history…</small></div><div class="tr3-score tr3-ld"><div><b><i class="tr3-skl s"></i></b><span>Profit</span></div><div><b><i class="tr3-skl s"></i></b><span>Win rate</span></div><div><b><i class="tr3-skl s"></i></b><span>Trades</span></div></div>`;
+ const u=su(),real=M.c30.reduce((s,r)=>s+r.real,0),wr=M.c30.length?Math.round(M.c30.filter(r=>r.real>0).length/M.c30.length*100)+'%':'—';
  return `<div class="tr3-sh"><h3>Trade stats</h3><small>${M.cover?'last 30 days':'last '+e(spanTxt(Date.now()/1000-M.oldest))+' of trades'}</small></div><div class="tr3-score"><div><b class="${M.c30.length?(real>=0?'g':'r'):''}">${M.c30.length?e(money(real)):'—'}</b><span>Profit</span></div><div><b>${wr}</b><span>Win rate</span></div><div><b>${M.pos30}</b><span>Trades</span></div></div>`}
 function series(M){const now=Date.now()/1000,span={'7d':7*86400,'30d':30*86400}[T.range],t0=span?now-span:null,cl=M.A.closed.filter(r=>r.t1!=null).sort((a,b)=>a.t1-b.t1);
  const inR=t0?cl.filter(r=>r.t1>=t0):cl;/* r172: the line starts where this wallet's loaded history starts, not 30 days back (a flat line then a cliff) */const start=Math.max(t0||0,M.oldest&&M.oldest<now?M.oldest:now-3600);let c=0;const pts=[{t:start,v:0}];
