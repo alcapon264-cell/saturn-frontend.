@@ -17660,6 +17660,10 @@ body.px9-dk #app .px-of .px-seg3,body.px9-dk #app .px-of .px-lev3,body.px9-dk #a
 .px9-btns .lg{background:#4fd08a;color:#0d2416;box-shadow:0 8px 26px rgba(79,208,138,.2)}.px9-btns .sh{background:#ff5d6c;color:#2b0b0f;box-shadow:0 8px 26px rgba(255,93,108,.15)}
 body.px9t header:has(>.hd){display:none!important}
 body.px9t #app{padding-top:max(10px,env(safe-area-inset-top,0px))}
+/* r187: More options keeps only TP/SL (fee lines removed from this panel; fees are still shown on the review screen) */
+#app #px-fees{display:none!important}
+#app .px-tps{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+#app .px-tps label{min-width:0}#app .px-tps .px-tpi{min-width:0}#app .px-tps input{min-width:0;width:100%}
 </style><script id="saturn-r143-pmx">
 /* ===== Saturn r143 — Polymarket trading engine for Prediction =====
    Implements Polymarket's documented CLOB V2 Deposit Wallet flow (docs.polymarket.com/trading/deposit-wallets, /developers/CLOB/orders/create-order):
@@ -19809,8 +19813,8 @@ function dock(){const form=document.querySelector('#app .px-of'),rv=document.get
  const inp=d.querySelector('#px9-amt'),src=document.getElementById('px-margin');if(src&&document.activeElement!==inp&&inp.value!==src.value)inp.value=src.value;
  const sm=d.querySelector('.px9-am small'),at=(D.asset||'USDC')+' collateral';if(sm.textContent!==at)sm.textContent=at;
  const lv=document.querySelector('#app .px-lev3'),bs=lv?[...lv.querySelectorAll('button')]:[];const lh=bs.map((b,i)=>`<button type="button" data-px9lev="${i}" class="${b.classList.contains('on')?'on':''}"${b.disabled?' disabled':''}>${e(b.textContent)}</button>`).join('');const L2=d.querySelector('.px9-lv');if(L2.innerHTML!==lh)L2.innerHTML=lh;
- const mg=parseFloat(String(src?src.value:'').replace(/,/g,''));
- for(const side of ['long','short']){let c=null;try{if(m&&num(m.price))c=SP.calc({side,lev:D.lev,margin:mg,price:m.price,mmr:m.mmr})}catch(x){}
+ const mg=parseFloat(String(src?src.value:'').replace(/,/g,'')),LA=PX._last||{},mm=PX._m||m||{},pr=num(LA.price)?LA.price:num(mm.price)?mm.price:m&&num(m.price)?m.price:null;
+ for(const side of ['long','short']){let c=null;try{if(pr)c=SP.calc({side,lev:+D.lev,margin:num(mg)?mg:+LA.margin,price:pr,mmr:mm.mmr})}catch(x){}
   const t=c&&num(c.size)?usdS(c.size)+(num(c.liq)&&c.liq>0?' · liq '+pxf(c.liq):''):'';const el=d.querySelector(`[data-px9side="${side}"] small`);if(el.textContent!==t)el.textContent=t}
  /* what the existing button says when it cannot go ahead (connect wallet, add funds, checking…) */
  const n=d.querySelector('.px9-note'),txt=rv.textContent.trim(),blocked=rv.disabled&&rv.dataset.act!=='wallet',wal=rv.dataset.act==='wallet';
@@ -19829,6 +19833,9 @@ let q=false;new MutationObserver(()=>{if(q)return;q=true;requestAnimationFrame((
 setInterval(()=>{if(!document.hidden)try{all()}catch(x){}},1000);
 addEventListener('hashchange',()=>{POS.at=0;setTimeout(all,0)});
 })();
+
+/* r187: "More options" now only holds TP/SL */
+(function(){'use strict';new MutationObserver(()=>{const b=document.querySelector('#app .px-mo4h span');if(b&&b.textContent!=='TP/SL')b.textContent='TP/SL'}).observe(document.documentElement,{childList:true,subtree:true})})();
 </script>
 <style id="saturn-r112-css">
 /* chat: the conversation height follows the visual viewport (soft keyboards shrink it; 100dvh alone does not on iOS) */
