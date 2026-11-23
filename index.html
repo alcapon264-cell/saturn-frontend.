@@ -20329,7 +20329,7 @@ html[data-px-nonav] .pxr{padding-bottom:calc(40px + env(safe-area-inset-bottom,0
     'solana': Object.freeze({ mechanism: null, limitation: 'Not charged on Solana markets yet: the Solana Perps program has no app-fee option, and a fee taken at signing could be charged on an order that never fills.' })
   });
   const MARKET_VENUES = Object.freeze({ SOL: 'solana', ETH: 'solana', BTC: 'solana', HYPE: 'hyperliquid', ZEC: 'hyperliquid', JUP: 'hyperliquid', NEAR: 'hyperliquid', BNB: 'hyperliquid',
-    SNDK: 'hyperliquid:xyz', SPCX: 'hyperliquid:xyz', SKHYNIX: 'hyperliquid:xyz' });
+    SNDK: 'hyperliquid:xyz', SPCX: 'hyperliquid:xyz', SKHYNIX: 'hyperliquid:xyz', DOGE: 'hyperliquid', XRP: 'hyperliquid', SUI: 'hyperliquid', AVAX: 'hyperliquid', LINK: 'hyperliquid', LTC: 'hyperliquid', ADA: 'hyperliquid', TRX: 'hyperliquid', AAVE: 'hyperliquid', ENA: 'hyperliquid', WIF: 'hyperliquid', FARTCOIN: 'hyperliquid', PUMP: 'hyperliquid', TRUMP: 'hyperliquid', PENGU: 'hyperliquid', ARB: 'hyperliquid', APT: 'hyperliquid', TON: 'hyperliquid', DOT: 'hyperliquid', BCH: 'hyperliquid', ONDO: 'hyperliquid', TIA: 'hyperliquid', WLD: 'hyperliquid', UNI: 'hyperliquid', OP: 'hyperliquid', INJ: 'hyperliquid', SEI: 'hyperliquid', TSLA: 'hyperliquid:xyz', NVDA: 'hyperliquid:xyz', AAPL: 'hyperliquid:xyz', MSFT: 'hyperliquid:xyz', GOOGL: 'hyperliquid:xyz', AMZN: 'hyperliquid:xyz', META: 'hyperliquid:xyz', COIN: 'hyperliquid:xyz', HOOD: 'hyperliquid:xyz', PLTR: 'hyperliquid:xyz', MSTR: 'hyperliquid:xyz', AMD: 'hyperliquid:xyz', NFLX: 'hyperliquid:xyz' });
   const RATE = BPS / 10000;
   function feeFor(venue) {
     const v = VENUES[venue] || null, mechanism = v ? v.mechanism : null;
