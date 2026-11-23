@@ -18990,21 +18990,50 @@ function cands(src){let u=String(src).trim().replace(/^ipfs:\/\//i,'https://ipfs
  let h='';try{h=new URL(u).hostname}catch(e){return[]}
  if(FAST.test(h))return[u];
  const c=/\/ipfs\/([A-Za-z0-9]{40,80}(?:\/[^?#]*)?)/.exec(u)||/^https:\/\/([a-z0-9]{50,70})\.ipfs\.[^/]+\/?$/i.exec(u);
- if(c){const p=c[1];return[W(u),W('https://gateway.pinata.cloud/ipfs/'+p),W('https://dweb.link/ipfs/'+p)]}
+ if(c){const p=c[1];return[W('https://gateway.pinata.cloud/ipfs/'+p),W('https://dweb.link/ipfs/'+p),W(u),W('https://w3s.link/ipfs/'+p)]}
  return[W(u),u]}
-function run(){while(busy<6&&Q.length){const src=Q.shift(),e=IMG.get(src);if(!e||e.st!=='q')continue;e.st='load';busy++;try_(src,e,0)}}
-function try_(src,e,i){if(i>=e.c.length){e.st='bad';busy--;run();return}
- const im=new Image();let done=false;im.referrerPolicy='no-referrer';im.decoding='async';
- const fin=okk=>{if(done)return;done=true;clearTimeout(to);if(okk&&im.naturalWidth>0){e.st='ok';e.url=e.c[i];landed=true;busy--;run()}else try_(src,e,i+1)};
- const to=setTimeout(()=>fin(false),9000);im.onload=()=>fin(true);im.onerror=()=>fin(false);im.src=e.c[i]}
+function run(){while(busy<6&&Q.length){const src=Q.shift(),e=IMG.get(src);if(!e||e.st!=='q')continue;e.st='load';busy++;try_(src,e)}}
+function try_(src,e){let left=e.c.length,next=0,done=false,hedge=0;
+ const fail=()=>{if(done)return;if(--left<=0){done=true;clearTimeout(hedge);e.st='bad';busy--;run()}};
+ const start=()=>{if(done||next>=e.c.length)return;const url=e.c[next++],im=new Image();let fin=false;im.referrerPolicy='no-referrer';im.decoding='async';
+  const to=setTimeout(()=>{if(!fin){fin=true;im.src='';fail()}},14000);
+  im.onload=()=>{if(fin)return;fin=true;clearTimeout(to);if(done)return;if(im.naturalWidth>0){done=true;clearTimeout(hedge);e.st='ok';e.url=url;landed=true;busy--;run()}else{fail();start()}};
+  im.onerror=()=>{if(fin)return;fin=true;clearTimeout(to);fail();start()};
+  im.src=url;clearTimeout(hedge);hedge=setTimeout(start,3500)};
+ start()}
 function want(src){let e=IMG.get(src);if(!e){const c=cands(src);e={st:c.length?'q':'bad',c,url:null};IMG.set(src,e);if(c.length){Q.push(src);run()}if(IMG.size>4000)IMG.delete(IMG.keys().next().value)}return e}
 function fix(t){if(!t)return;const cur=t.img;
  if(typeof cur==='string'&&/^https?:|^ipfs:/i.test(cur)&&cur!==t.__i201){t.__src201=t.img0&&/wsrv\.nl/.test(cur)?t.img0:cur}
  const src=t.__src201;if(!src)return;const e=want(src);
  const show=e.st==='ok'?e.url:null;
  if(t.img!==show){t.img=show;t.__i201=show;t.__img200=show}}
-function pass(){try{if(typeof CACHE!=='undefined')CACHE.forEach(x=>fix(x&&x.t))}catch(e){}
- for(const k of ['new','hot'])(F[k].list||[]).forEach(fix);try{(S.items||[]).forEach(fix)}catch(e){}
+/* r202 PICTURE FINDER: list tokens (Hot, Gainers, Losers, search, token page) that came without a picture are looked up:
+   first on Saturn's server (Pump.fun metadata from the live stream / Pump.fun), then on GeckoTerminal (its token picture).
+   Each token is asked at most a few times; a real picture found is loaded with the same fallbacks as above. */
+const B58=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/,PIC=new Map(),ASK=new Map(),SQ=new Set(),GQ=new Set();let sBusy=false,gBusy=false,gWait=0;
+const isSol=t=>!t.chain||t.chain==='sol'||t.chain==='solana';
+function noteMissing(t){if(!t||typeof t.id!=='string'||!B58.test(t.id)||!isSol(t))return;const id=t.id;
+ if(PIC.has(id)){const u=PIC.get(id);if(u&&!t.img&&!t.__src201)t.img=u;return}
+ const e=t.__src201&&IMG.get(t.__src201);if(t.img||(t.__src201&&(!e||e.st!=='bad')))return;
+ const a=ASK.get(id)||{s:0,g:0,at:0};ASK.set(id,a);if(Date.now()<a.at)return;
+ if(a.s<4&&!(e&&e.st==='bad'))SQ.add(id);else if(a.g<2)GQ.add(id)}
+function gotPic(id,u){if(typeof u!=='string'||!/^https:\/\//.test(u)||/missing/.test(u))return false;PIC.set(id,u);if(PIC.size>6000)PIC.delete(PIC.keys().next().value);return true}
+async function sRun(){if(sBusy||!SQ.size)return;sBusy=true;const c=[...SQ].slice(0,40);c.forEach(m=>SQ.delete(m));
+ try{const r=await fetch('https://saturn-perps-staging.onrender.com/v1/tok/meta?m='+c.join(','),{headers:{accept:'application/json'},referrerPolicy:'no-referrer'});const j=r.ok?await r.json():null;const M=j&&j.meta||{};
+  for(const m of c){const a=ASK.get(m);const v=M[m];if(v&&gotPic(m,v.image))continue;a.s++;
+   if(v&&!v.image||a.s>=4||!(j&&j.pending)){a.s=4;a.at=0}else a.at=Date.now()+2500}}
+ catch(x){c.forEach(m=>{const a=ASK.get(m);a.s++;a.at=Date.now()+5000})}finally{sBusy=false}}
+async function gRun(){if(gBusy||!GQ.size||Date.now()<gWait)return;gBusy=true;const c=[...GQ].slice(0,30);c.forEach(m=>GQ.delete(m));
+ try{let base='https://api.geckoterminal.com/api/v2';try{base=CHART_CONFIG.HISTORY_API||base}catch(x){}
+  const r=await fetch(base+'/networks/solana/tokens/multi/'+c.join(','),{headers:{accept:'application/json'},referrerPolicy:'no-referrer'});
+  if(r.status===429){gWait=Date.now()+20000;c.forEach(m=>GQ.add(m));return}
+  const j=r.ok?await r.json():null;const seen=new Set();((j&&j.data)||[]).forEach(d=>{const a=d&&d.attributes||{};if(a.address&&gotPic(a.address,a.image_url))seen.add(a.address)});
+  c.forEach(m=>{if(seen.has(m))return;const a=ASK.get(m);a.g++;a.at=Date.now()+(a.g<2?60000:0);if(a.g>=2)PIC.set(m,null)})}
+ catch(x){c.forEach(m=>{const a=ASK.get(m);a.g++;a.at=Date.now()+30000})}finally{gBusy=false;gWait=Math.max(gWait,Date.now()+2500)}}
+setInterval(()=>{sRun();gRun()},1200);
+function pass(){const seen=[];try{(S.items||[]).forEach(t=>seen.push(t))}catch(e){}for(const k of ['new','hot'])(F[k].list||[]).forEach(t=>seen.push(t));
+ try{if(typeof CACHE!=='undefined')CACHE.forEach(x=>{if(x&&x.t)seen.push(x.t)})}catch(e){}
+ for(const t of seen){try{noteMissing(t);fix(t)}catch(e){}}
  if(landed){landed=false;try{if(S.view==='home'&&!document.hidden)window.renderList()}catch(e){}}}
 setInterval(pass,600);pass();
 window.__satImg201=IMG;
