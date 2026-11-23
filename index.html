@@ -18949,6 +18949,66 @@ function pass(){try{CACHE.forEach(e=>{const t=e&&e.t;if(t&&t.img&&t.__img200!==t
  try{const F=window.__satDf199F;if(F)for(const k of ['new','hot'])(F[k].list||[]).forEach(t=>{if(t.img&&t.__img200!==t.img){const f=fix(t.img);if(f!==t.img){t.img0=t.img;t.img=f}t.__img200=t.img}})}catch(e){}}
 setInterval(pass,1500);pass();
 })();
+
+/* ===== r201 NEW = ONLY JUST-LAUNCHED, PICTURES THAT ACTUALLY SHOW:
+   (1) New and Hot show Saturn's live list only: the old "load more" pages from the previous data source are no longer added under it,
+       and an empty New says it is waiting for the next launch instead of showing old tokens.
+   (2) Ages in New tick in seconds (3s, 24s, 58s); a token leaves New after 1 minute.
+   (3) A picture is loaded in the background first and only put in the row once it has arrived (no blank or letter flash, no
+       restart on every refresh); if the first picture server fails, two more are tried before the letter badge. ===== */
+(function(){'use strict';
+if(window.__satNew201||typeof S==='undefined')return;window.__satNew201=1;
+const F=window.__satDf199F;if(!F)return;
+const solNet=()=>{try{return !window.MCH||MCH.net==='sol'||MCH.net==='all'}catch(e){return true}};
+const tab=()=>{try{return S.view==='watch'?'following':S.tab}catch(e){return null}};
+const feedOn=ct=>(ct==='new'||ct==='hot')&&S.view==='home'&&!(S.q||'').trim()&&solNet();
+/* (1) live list only */
+const LT=window.listTokens;
+window.listTokens=function(){const ct=tab();if(ct==='new'&&feedOn(ct)&&Array.isArray(F.new.list))return F.new.list.slice(0,40);return LT.apply(this,arguments)};
+if(window.DF&&typeof DF.view==='function'){const V=DF.view;DF.view=function(l,ct){if(feedOn(ct)&&F[ct]&&Array.isArray(F[ct].list)&&F[ct].list.length){try{DF.off()}catch(e){}return l.slice(0,40)}return V.apply(this,arguments)}}
+const sAge=t=>{const s=Math.max(0,Math.floor((Date.now()-t.born)/1000));return s<60?s+'s':Math.floor(s/60)+'m'};
+function tick(){if(tab()!=='new'||!feedOn('new'))return;const g=document.getElementById('grid');if(!g)return;
+ const L=F.new.list||[],by=new Map(L.map(t=>[t.id,t]));
+ g.querySelectorAll('.dcx[data-go]').forEach(el=>{const t=by.get(el.dataset.go);if(!t||!t.born)return;const v=sAge(t);
+  const a=el.querySelector('.tk2-tk')||el.querySelector('.rf-am');if(!a)return;const p=a.textContent.split(' · ');if(p.length<2)return;
+  const i=a.classList.contains('tk2-tk')?p.length-1:0;if(p[i]!==v){p[i]=v;a.textContent=p.join(' · ')}});
+ if(!L.length){const e=g.querySelector('.discover-empty');if(e&&!e.dataset.w201){e.dataset.w201='1';e.innerHTML='<b>Waiting for the next launch…</b><span>Tokens show up here the second they launch on Pump.fun, and leave after 1 minute.</span>'}}}
+/* with the network set to All networks (the default) the list was drawn by the multi-chain view, which never used the live list: the live
+   list is drawn there too for New (and for Hot once it has tokens) */
+function allNet(){try{const ct=tab();if(!window.MCH||MCH.net!=='all'||!feedOn(ct)||!Array.isArray(F[ct].list))return;const l=F[ct].list.slice(0,40);if(ct==='hot'&&!l.length)return;
+ const g=document.getElementById('grid');if(!g)return;if(window.DF)try{DF.off()}catch(e){}
+ if(l.length){if(!g.querySelector(':scope>.dcx-list'))g.innerHTML='';window.dcPatch(g,'',l)}
+ else if(!g.querySelector('.discover-empty[data-w201]'))g.innerHTML='<div class="discover-empty" data-w201="1"><b>Waiting for the next launch…</b><span>Tokens show up here the second they launch on Pump.fun, and leave after 1 minute.</span></div>'}catch(e){}}
+const RL=window.renderList;if(typeof RL==='function')window.renderList=function(){const r=RL.apply(this,arguments);allNet();try{tick()}catch(e){}return r};
+setInterval(tick,1000);
+/* (3) pictures: preload, then show */
+const FAST=/^(dd\.dexscreener\.com|cdn\.dexscreener\.com|static\.jup\.ag|img-v1\.raydium\.io|coin-images\.coingecko\.com|assets\.coingecko\.com|raw\.githubusercontent\.com|saturn-perps-staging\.onrender\.com)$/i;
+const W=u=>'https://wsrv.nl/?url='+encodeURIComponent(u)+'&w=96&h=96&fit=cover&output=webp&maxage=7d';
+const IMG=new Map();let busy=0,landed=false;const Q=[];
+function cands(src){let u=String(src).trim().replace(/^ipfs:\/\//i,'https://ipfs.io/ipfs/');
+ const m=/^https:\/\/wsrv\.nl\/\?url=([^&]+)/.exec(u);if(m)try{u=decodeURIComponent(m[1])}catch(e){}
+ let h='';try{h=new URL(u).hostname}catch(e){return[]}
+ if(FAST.test(h))return[u];
+ const c=/\/ipfs\/([A-Za-z0-9]{40,80}(?:\/[^?#]*)?)/.exec(u)||/^https:\/\/([a-z0-9]{50,70})\.ipfs\.[^/]+\/?$/i.exec(u);
+ if(c){const p=c[1];return[W(u),W('https://gateway.pinata.cloud/ipfs/'+p),W('https://dweb.link/ipfs/'+p)]}
+ return[W(u),u]}
+function run(){while(busy<6&&Q.length){const src=Q.shift(),e=IMG.get(src);if(!e||e.st!=='q')continue;e.st='load';busy++;try_(src,e,0)}}
+function try_(src,e,i){if(i>=e.c.length){e.st='bad';busy--;run();return}
+ const im=new Image();let done=false;im.referrerPolicy='no-referrer';im.decoding='async';
+ const fin=okk=>{if(done)return;done=true;clearTimeout(to);if(okk&&im.naturalWidth>0){e.st='ok';e.url=e.c[i];landed=true;busy--;run()}else try_(src,e,i+1)};
+ const to=setTimeout(()=>fin(false),9000);im.onload=()=>fin(true);im.onerror=()=>fin(false);im.src=e.c[i]}
+function want(src){let e=IMG.get(src);if(!e){const c=cands(src);e={st:c.length?'q':'bad',c,url:null};IMG.set(src,e);if(c.length){Q.push(src);run()}if(IMG.size>4000)IMG.delete(IMG.keys().next().value)}return e}
+function fix(t){if(!t)return;const cur=t.img;
+ if(typeof cur==='string'&&/^https?:|^ipfs:/i.test(cur)&&cur!==t.__i201){t.__src201=t.img0&&/wsrv\.nl/.test(cur)?t.img0:cur}
+ const src=t.__src201;if(!src)return;const e=want(src);
+ const show=e.st==='ok'?e.url:null;
+ if(t.img!==show){t.img=show;t.__i201=show;t.__img200=show}}
+function pass(){try{if(typeof CACHE!=='undefined')CACHE.forEach(x=>fix(x&&x.t))}catch(e){}
+ for(const k of ['new','hot'])(F[k].list||[]).forEach(fix);try{(S.items||[]).forEach(fix)}catch(e){}
+ if(landed){landed=false;try{if(S.view==='home'&&!document.hidden)window.renderList()}catch(e){}}}
+setInterval(pass,600);pass();
+window.__satImg201=IMG;
+})();
 </script>
 <script id="saturn-r159-trader">
 /* ===== Saturn r159 — Trader profile (Pulse) redesign (additive; presentation only) =====
