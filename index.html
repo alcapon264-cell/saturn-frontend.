@@ -19566,7 +19566,7 @@ const mOf=sym=>(PX._mall||[]).find(m=>m&&m.symbol===sym)||null;
 const pill=c=>num(c)?`<span class="stk-pl ${c>=0?'u':'d'}">${c>=0?'↑':'↓'} ${Math.abs(c).toFixed(2)}%</span>`:'<span class="stk-pl n">—</span>';
 /* one original row (Perps markup) -> the new row */
 function conv(a){const sym=a.dataset.sym,m=mOf(sym),img=a.querySelector('.px-lg img'),base=(a.querySelector('.px-mt b')||{}).textContent||sym,pb=a.querySelector('.px-mp b');
- const name=m&&m.name&&String(m.name).toUpperCase()!==String(base).toUpperCase()?m.name:'Perpetual',stock=m&&m.category==='stock';
+ const name=m&&m.name?m.name:'Perpetual',stock=m&&m.category==='stock';
  const sub=e(name)+(stock?' · stock':'')+(m&&num(m.volume24h)?' <u>· '+e(fmtVol(m.volume24h))+' vol</u>':'');
  const lev=m&&num(m.maxLeverage)?`<span class="px8-lv">${e(String(m.maxLeverage))}x</span>`:'';
  const n=document.createElement('a');n.className='px-mrow stk-r px8';n.href=a.getAttribute('href');n.dataset.sym=sym;
