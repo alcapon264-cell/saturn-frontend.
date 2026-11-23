@@ -18877,6 +18877,18 @@ F.render=function(){if(RM())return _r.apply(this,arguments);if(!st.raf&&this.el&
 const _d=F.detach;F.detach=function(){if(st.raf){cancelAnimationFrame(st.raf);st.raf=0}st.disp.clear();return _d.apply(this,arguments)};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&F.el)F.render()});
 })();
+
+/* ===== r198 TOKEN CHART, professional look: (1) the line is drawn straight from real point to real point, like exchange charts (the old
+   curve bent between sparse trades and looked wobbly); (2) MARKET CAP is the default value on the chart and in its price tag — the chart
+   used to fall back to price when it opened before the market cap had loaded and then stayed on price; it now switches back to market cap
+   as soon as the market cap is known, unless you picked Price yourself. ===== */
+(function(){'use strict';
+if(window.__satCh198||typeof SChart==='undefined')return;window.__satCh198=1;
+try{window.chCurve=function(g,P){if(!P||!P.length)return;g.moveTo(P[0].x,P[0].y);for(let i=1;i<P.length;i++)g.lineTo(P[i].x,P[i].y)}}catch(e){}
+let userPrice=false;
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-sc="mode"]');if(b)userPrice=b.dataset.v==='price'},true);
+const _ser=SChart.series;SChart.series=function(){try{if(this.mode==='price'&&!userPrice&&this.sf()){this.mode='mcap';if(typeof CanvasSChart!=='undefined')CanvasSChart.mode='mcap';this.hover=null;try{this.syncChips()}catch(x){}}}catch(x){}return _ser.apply(this,arguments)};
+})();
 </script>
 <script id="saturn-r159-trader">
 /* ===== Saturn r159 — Trader profile (Pulse) redesign (additive; presentation only) =====
