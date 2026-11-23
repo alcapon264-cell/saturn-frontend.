@@ -19073,6 +19073,27 @@ const st=document.createElement('style');st.textContent='#profilebtn img.sat-mk{
 icons();header();
 new MutationObserver(()=>{header();wdHead()}).observe(document.documentElement,{childList:true,subtree:true});
 })();
+
+/* ===== r207 EVERY WALLET HAS A NAME: a wallet with no username used to show as "7xKX…gAsU". Every wallet now gets a Saturn name made from
+   its address (always the same name for the same wallet, on every device), e.g. "Golden Comet". A name the person set themselves, or a
+   username, always wins. The real address is still shown on the profile and in copy buttons. ===== */
+(function(){'use strict';
+if(window.__satNames207||typeof WP==='undefined')return;window.__satNames207=1;
+const A='Golden Silent Cosmic Lunar Solar Astral Crimson Velvet Iron Silver Swift Bold Quiet Wild Royal Midnight Electric Frozen Blazing Hidden Lucky Rapid Noble Mystic Neon Shadow Stellar Polar Atomic Brave Calm Clever Cobalt Copper Crystal Daring Dusky Emerald Fierce Gentle Glassy Grand Hollow Ivory Jade Keen Lone Magic Marble Night Onyx Pale Prime Quantum Radiant Ruby Rogue Sapphire Scarlet Sharp Sly Smoky Sonic Stormy Sunny Tidal Titanic Twin Ultra Vivid Wandering Witty Amber Arctic Feral Hyper Infinite Jolly Kinetic Orbital'.split(' ');
+const N='Comet Orbit Nova Nebula Pulsar Quasar Meteor Moon Ring Titan Rocket Falcon Phoenix Tiger Wolf Fox Hawk Raven Lion Panther Shark Whale Dragon Viper Cobra Owl Lynx Bear Bison Stallion Eagle Orca Jaguar Mantis Otter Badger Hornet Kraken Sphinx Griffin Voyager Pilot Ranger Captain Nomad Drifter Ghost Ninja Samurai Knight Wizard Sage Monk Baron Duke Hunter Sniper Trader Whisper Spark Flare Storm Tide Ember Frost Echo Cipher Signal Vector Prism Atlas Apollo Gemini Orion Vega Lyra Draco Rover Probe Beacon'.split(' ');
+const C=new Map();
+function gen(w){w=String(w||'');if(!w)return'Trader';let n=C.get(w);if(n)return n;
+ let h=2166136261>>>0;for(let i=0;i<w.length;i++){h^=w.charCodeAt(i);h=Math.imul(h,16777619)>>>0}
+ let h2=h;for(let i=w.length-1;i>=0;i--){h2^=w.charCodeAt(i);h2=Math.imul(h2,2246822519)>>>0}
+ n=A[h%A.length]+' '+N[h2%N.length];C.set(w,n);if(C.size>20000)C.delete(C.keys().next().value);return n}
+const isAddr=w=>/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(String(w||''))||/^0x[0-9a-fA-F]{40}$/.test(String(w||''));
+const looksBare=(d,w)=>!d||d==='Trader'||d==='Wallet'||/…|\.\.\./.test(d)&&w&&d.replace(/[….]/g,'').length<=12||d===w;
+window.satWalletName=gen;
+try{const D0=WP.def;WP.def=function(w){const d=D0.apply(this,arguments);return isAddr(w)&&looksBare(d,w)?gen(w):d}}catch(e){}
+try{const G0=WP.get;WP.get=function(w){const r=G0.apply(this,arguments);try{if(r&&isAddr(w)&&!r.isCustom&&!r.username&&looksBare(r.displayName,w))return Object.assign({},r,{displayName:gen(w)})}catch(e){}return r}}catch(e){}
+try{WP.name=function(w){try{return WP.get(w).displayName}catch(e){return isAddr(w)?gen(w):'Trader'}}}catch(e){}
+try{if(typeof Chat!=='undefined'&&Chat&&typeof Chat.name==='function'){const CN=Chat.name;Chat.name=function(p){const d=CN.apply(this,arguments);return p&&p.wallet&&!p.displayName&&!p.username?gen(p.wallet):d}}}catch(e){}
+})();
 </script>
 <script id="saturn-r159-trader">
 /* ===== Saturn r159 — Trader profile (Pulse) redesign (additive; presentation only) =====
