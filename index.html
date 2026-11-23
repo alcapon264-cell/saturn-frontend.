@@ -19058,13 +19058,18 @@ function header(){const b=document.getElementById('profilebtn');if(!b)return;con
 /* r205: the full-screen Withdraw page had its own header with the old ring drawing as its only way out. It now shows a back arrow + the new logo,
    and closing it can no longer bounce straight back into Withdraw: on phones the same tap also landed on the page underneath (ghost tap). */
 function wdHead(){document.querySelectorAll('.wdp-logo').forEach(b=>{if(b.dataset.l205)return;b.dataset.l205='1';const sv=b.querySelector('svg');if(sv)sv.remove();
- b.insertAdjacentHTML('afterbegin','<span class="wdp-bk" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span><img class="sat-mk" src="'+MARK+'" alt="" width="49" height="24">');b.setAttribute('aria-label','Back, close withdrawal')})}
+ b.insertAdjacentHTML('afterbegin','<img class="sat-mk" src="'+MARK+'" alt="" width="49" height="24">');b.setAttribute('aria-label','Close withdrawal')})}
 let closedAt=0;
 document.addEventListener('click',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-act="wxclose"]');if(t){closedAt=Date.now();return}
  if(Date.now()-closedAt<700){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}},true);
-try{const WO=window.wxOpen;if(typeof WO==='function')window.wxOpen=function(){if(Date.now()-closedAt<700)return;return WO.apply(this,arguments)}}catch(e){}
+/* r206: swiping back (or the phone's back) closes Withdraw / Deposit instead of leaving them open: opening adds one history step, back removes it */
+try{const WO=window.wxOpen;if(typeof WO==='function')window.wxOpen=function(){if(Date.now()-closedAt<700)return;const r=WO.apply(this,arguments);
+ try{if(document.getElementById('wx')&&!(history.state&&history.state.sat==='wx'))history.pushState({sat:'wx'},'',location.href)}catch(e){}return r}}catch(e){}
+addEventListener('popstate',()=>{try{if(document.getElementById('wx')&&typeof WX!=='undefined'&&!(WX.mode==='withdraw'&&WX.wd&&WX.wd.busy)){closedAt=Date.now();wxClose()}}catch(e){}});
+document.addEventListener('click',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-act="wxclose"]');if(!t)return;
+ setTimeout(()=>{try{if(!document.getElementById('wx')&&history.state&&history.state.sat==='wx')history.back()}catch(x){}},0)});
 const st=document.createElement('style');st.textContent='#profilebtn img.sat-mk{height:24px;width:auto;display:block;filter:drop-shadow(0 0 6px rgba(230,184,92,.25))}'
- +'.wdp-logo{display:inline-flex!important;align-items:center;gap:6px;color:#e6b85c;padding:6px 8px 6px 2px!important;min-height:44px}.wdp-logo img.sat-mk{height:24px;width:auto;display:block}.wdp-bk{display:inline-flex;color:#f1ebe0}';document.head.appendChild(st);
+ +'.wdp-logo{display:inline-flex!important;align-items:center;padding:6px 8px 6px 0!important;min-height:44px}.wdp-logo img.sat-mk{height:24px;width:auto;display:block}html body .wdp>.wdp-h{position:relative;z-index:31;height:49px;margin-bottom:-49px;display:flex;align-items:center;pointer-events:none}html body .wdp>.wdp-h>*{pointer-events:auto}html body .wdp>.wdp-nw{margin-top:0!important}';document.head.appendChild(st);
 icons();header();
 new MutationObserver(()=>{header();wdHead()}).observe(document.documentElement,{childList:true,subtree:true});
 })();
