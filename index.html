@@ -19042,6 +19042,23 @@ function pass(){const seen=[];try{(S.items||[]).forEach(t=>seen.push(t))}catch(e
 setInterval(pass,600);pass();
 window.__satImg201=IMG;
 })();
+
+/* ===== r204 SATURN LOGO: the ringed-planet picture is Saturn's one logo everywhere. The header's small gold ring drawing, the old browser-tab
+   icon and the old home-screen icon are replaced by it (files served next to this page: saturn-mark.png, saturn-favicon-64.png,
+   saturn-icon-180.png, saturn-icon-512.png). ===== */
+(function(){'use strict';
+if(window.__satLogo204)return;window.__satLogo204=1;
+const V='?v=204',MARK='saturn-mark.png'+V;
+function icons(){try{const H=document.head;
+ const set=(rel,sizes,href)=>{let l=H.querySelector('link[rel="'+rel+'"]'+(sizes?'[sizes="'+sizes+'"]':''));if(!l){l=document.createElement('link');l.rel=rel;if(sizes)l.sizes=sizes;H.appendChild(l)}l.type='image/png';if(l.getAttribute('href')!==href)l.href=href};
+ H.querySelectorAll('link[rel="icon"],link[rel="shortcut icon"]').forEach((l,i)=>{if(i)l.remove()});
+ set('icon','64x64','saturn-favicon-64.png'+V);set('apple-touch-icon','180x180','saturn-icon-180.png'+V)}catch(e){}}
+function header(){const b=document.getElementById('profilebtn');if(!b)return;const sv=b.querySelector(':scope>svg');if(!sv&&b.querySelector('img.sat-mk'))return;
+ if(sv){const im=document.createElement('img');im.className='sat-mk';im.src=MARK;im.alt='';im.width=49;im.height=24;im.decoding='async';sv.replaceWith(im)}}
+const st=document.createElement('style');st.textContent='#profilebtn img.sat-mk{height:24px;width:auto;display:block;filter:drop-shadow(0 0 6px rgba(230,184,92,.25))}';document.head.appendChild(st);
+icons();header();
+new MutationObserver(()=>header()).observe(document.documentElement,{childList:true,subtree:true});
+})();
 </script>
 <script id="saturn-r159-trader">
 /* ===== Saturn r159 — Trader profile (Pulse) redesign (additive; presentation only) =====
