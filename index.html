@@ -21144,7 +21144,7 @@ function inspectTx(b64,ctx){
    UNVERIFIED in this build and therefore behind EXEC_ENABLED: the Borsh argument layout (ARG_LAYOUT) and the Side byte encoding. ---- */
 const ARG_LAYOUT=Object.freeze({
  increase:[['sizeUsdDelta','u64'],['collateralTokenDelta','u64'],['side','side'],['priceSlippage','u64'],['jupiterMinimumOut','opt_u64'],['counter','u64']],
- decrease:[['collateralUsdDelta','u64'],['sizeUsdDelta','u64'],['priceSlippage','u64'],['jupiterMinimumOut','opt_u64'],['entirePosition','opt_bool'],['counter','u64']]});
+ decrease:[['collateralUsdDelta','u64'],['sizeUsdDelta','u64'],['priceSlippage','u64'],['jupiterMinimumOut','opt_u64'],['entirePosition','opt_bool'],['counter','u64']],tpsl:[['collateralUsdDelta','u64'],['sizeUsdDelta','u64'],['requestType','u8'],['priceSlippage','opt_u64'],['jupiterMinimumOut','opt_u64'],['triggerPrice','opt_u64'],['triggerAboveThreshold','opt_bool'],['entirePosition','opt_bool'],['counter','u64']]});
 const SIDE_BYTE={1:'long',2:'short'};
 const IX_ROLES={increase:['owner','fundingAccount','perpetuals','pool','position','positionRequest','positionRequestAta','custody','collateralCustody','inputMint','referral','tokenProgram','associatedTokenProgram','systemProgram','eventAuthority','program'],
  decrease:['owner','receivingAccount','perpetuals','pool','position','positionRequest','positionRequestAta','custody','collateralCustody','desiredMint','referral','tokenProgram','associatedTokenProgram','systemProgram','eventAuthority','program']};
@@ -21163,9 +21163,9 @@ function onCurve(bytes){let y=0n;for(let i=31;i>=0;i--)y=(y<<8n)|BigInt(i===31?b
  let x=modPow(x2,(EP+3n)/8n);if(modP(x*x-x2)!==0n){x=x*modPow(2n,(EP-1n)/4n)%EP;if(modP(x*x-x2)!==0n)return false}return true}
 async function pda(seeds,prog){const pb=b58dec(prog);for(let bump=255;bump>=0;bump--){const hsh=await sha256(...seeds,Uint8Array.of(bump),pb,enc('ProgramDerivedAddress'));if(!onCurve(hsh))return b58encode(hsh)}throw xerr('pda','no PDA')}
 const ata=(owner,mint)=>pda([b58dec(owner),b58dec(TOK_PROG),b58dec(mint)],ATA_PROG);
-let DISC_P=null;const discs=()=>DISC_P||(DISC_P=Promise.all(['create_increase_position_market_request','create_decrease_position_market_request','account:Position'].map((n,i)=>sha256(enc(i<2?'global:'+n:n)).then(x=>x.subarray(0,8)))).then(([inc,dec,pos])=>({increase:inc,decrease:dec,position:pos})));
+let DISC_P=null;const discs=()=>DISC_P||(DISC_P=Promise.all(['create_increase_position_market_request','create_decrease_position_market_request','account:Position','create_decrease_position_request2'].map((n,i)=>sha256(enc(i!==2?'global:'+n:n)).then(x=>x.subarray(0,8)))).then(([inc,dec,pos,tps])=>({increase:inc,decrease:dec,position:pos,tpsl:tps})));
 function readArgs(d,kind){let o=8;const out={};const need=n=>{if(o+n>d.length)throw xerr('args','instruction data is truncated')};
- for(const [k,t] of ARG_LAYOUT[kind]){if(t==='u64'){need(8);out[k]=le(d,o,8);o+=8}else if(t==='side'){need(1);out[k]=SIDE_BYTE[d[o]]||null;o+=1}
+ for(const [k,t] of ARG_LAYOUT[kind]){if(t==='u64'){need(8);out[k]=le(d,o,8);o+=8}else if(t==='u8'){need(1);out[k]=d[o++]}else if(t==='side'){need(1);out[k]=SIDE_BYTE[d[o]]||null;o+=1}
   else if(t==='opt_u64'){need(1);const tag=d[o++];if(tag===0)out[k]=null;else if(tag===1){need(8);out[k]=le(d,o,8);o+=8}else throw xerr('args','bad option tag')}
   else if(t==='opt_bool'){need(1);const tag=d[o++];if(tag===0)out[k]=null;else if(tag===1){need(1);if(d[o]>1)throw xerr('args','bad bool');out[k]=d[o++]===1}else throw xerr('args','bad option tag')}}
  if(o!==d.length)throw xerr('args','instruction data has unexpected extra bytes');return out}
@@ -21181,8 +21181,10 @@ async function decodePerpsTx(b64,ctx){const why=m=>({ok:false,why:m});
   if(t.req!==1||t.nsig!==1)return why('it needs a signature from someone other than your wallet');
   if(t.keys[0]!==ctx.wallet)return why('the fee payer is not your connected wallet');
   const all=await resolveKeys(t);const per=t.ixs.filter(x=>x.prog===PERPS_PROGRAM);
-  if(per.length!==1)return why(per.length?'it contains more than one Perps instruction':'it does not call the Perps program');
-  const ix=per[0],dsc=D[ctx.kind];if(!dsc.every((x,i)=>ix.data[i]===x))return why('the Perps instruction is not the expected '+(ctx.kind==='increase'?'open/increase':'close/decrease')+' market request');
+  const nT=ctx.kind==='increase'&&Array.isArray(ctx.tpsl)?ctx.tpsl.length:0,isD=(x,dd)=>dd.every((b,i)=>x.data[i]===b);
+  if(per.length!==1+nT)return why(per.length>1+nT?'it contains more Perps instructions than you asked for':per.length?'it is missing the take profit / stop loss you set':'it does not call the Perps program');
+  const dsc=D[ctx.kind],mains=per.filter(x=>isD(x,dsc));if(mains.length!==1)return why('the Perps instruction is not the expected '+(ctx.kind==='increase'?'open/increase':'close/decrease')+' market request');
+  const ix=mains[0],TPX=per.filter(x=>x!==ix);if(TPX.some(x=>!isD(x,D.tpsl)))return why('it contains a Perps instruction Saturn did not expect');
   const roles=IX_ROLES[ctx.kind];if(ix.acc.length!==roles.length)return why('the Perps instruction has an unexpected number of accounts');
   const A={};roles.forEach((r,i)=>{A[r]=all[ix.acc[i]]});if(Object.values(A).some(v=>!v))return why('an account could not be resolved');
   const mk=ctx.market;
@@ -21218,6 +21220,16 @@ async function decodePerpsTx(b64,ctx){const why=m=>({ok:false,why:m});
   if(A.position!==posPda)return why('its position account is not the address derived for your wallet, this market and direction');
   const ctr=new Uint8Array(8);{let v=BigInt(g.counter);for(let i=0;i<8;i++){ctr[i]=Number(v&255n);v>>=8n}}
   if(A.positionRequest!==await pda([enc('position_request'),b58dec(A.position),ctr,Uint8Array.of(ctx.kind==='increase'?1:2)],PERPS_PROGRAM))return why('its position request account is not the address derived for this request');
+  /* r188: every take profit / stop loss request must close the WHOLE new position, owned by you, paid to your own account, at exactly your price and direction */
+  if(TPX.length){const R=['owner','receivingAccount','perpetuals','pool','position','positionRequest','positionRequestAta','custody','custodyDovesPriceAccount','custodyPythnetPriceAccount','collateralCustody','desiredMint','referral','tokenProgram','associatedTokenProgram','systemProgram','eventAuthority','program'],want=ctx.tpsl.map(x=>({type:x.requestType,price:BigInt(x.triggerPrice),above:(x.requestType==='tp')===(ctx.side==='long')})),recv=await ata(ctx.wallet,ctx.mint);
+   for(const x of TPX){if(x.acc.length!==R.length)return why('a take profit / stop loss request has an unexpected number of accounts');const B={};R.forEach((r,i)=>{B[r]=all[x.acc[i]]});if(Object.values(B).some(v=>!v))return why('an account could not be resolved');
+    if(B.owner!==ctx.wallet||B.pool!==JLP_POOL||B.position!==A.position||B.custody!==A.custody||B.collateralCustody!==A.collateralCustody)return why('a take profit / stop loss request is not for this position');
+    if(B.program!==PERPS_PROGRAM||B.tokenProgram!==TOK_PROG||B.associatedTokenProgram!==ATA_PROG||B.systemProgram!==SYS_PROG||B.perpetuals!==A.perpetuals||B.eventAuthority!==A.eventAuthority||B.referral!==PERPS_PROGRAM)return why('a take profit / stop loss request uses unexpected program accounts');
+    if(B.desiredMint!==ctx.mint||B.receivingAccount!==recv)return why('a take profit / stop loss would pay out somewhere other than your own '+'account');
+    let a;try{a=readArgs(x.data,'tpsl')}catch(e){return why('a take profit / stop loss request could not be read')}
+    if(a.requestType!==1||a.entirePosition!==true||a.triggerPrice==null||a.triggerAboveThreshold==null||a.sizeUsdDelta!==0n||a.collateralUsdDelta!==0n)return why('a take profit / stop loss request is not a full close at a trigger price');
+    const k=want.findIndex(w=>w.price===a.triggerPrice&&w.above===a.triggerAboveThreshold);if(k<0)return why('a take profit / stop loss price or direction differs from what you set');want.splice(k,1)}
+   if(want.length)return why('it is missing the take profit / stop loss you set')}
   return{ok:true,args:Object.fromEntries(Object.entries(g).map(([k,v])=>[k,typeof v==='bigint'?v.toString():v])),accounts:A,msgHash:hex(await sha256(t.msg))}
  }catch(e){return why('it could not be fully decoded ('+(e&&e.message||'error')+')')}}
 
@@ -21307,7 +21319,7 @@ async function prepareOpen(o){
  const sym=String(o.symbol||''),base=sym.replace('-PERP','');if(!XA[base]||base==='USDC'||!(sym===base+'-PERP'))throw xerr('market','This market is not supported.');
  const asset=String(o.asset||'USDC');if(!XA[asset])throw xerr('asset','This collateral asset is not supported.');
  if(o.side!=='long'&&o.side!=='short')throw xerr('side','Choose Long or Short.');
- if(o.tp!=null||o.sl!=null)throw xerr('tpsl','Take profit and stop loss orders are not supported yet. Clear them to continue.');
+ /* r188: TP/SL are checked against the live price below */
  const lev=Number(o.leverage);if(!(lev>=1.1)||!(lev<=250))throw xerr('lev','Leverage must be between 1.1x and the market maximum.');const levS=lev.toFixed(1);
  const slip=Math.round(Number(o.slippageBps||100));if(!(slip>=10&&slip<=500))throw xerr('slip','Slippage must be between 0.1% and 5%.');
  const marginUsd=Number(o.marginUsd);if(!(marginUsd>0))throw xerr('amount','Enter an amount greater than zero.');
@@ -21318,16 +21330,16 @@ async function prepareOpen(o){
  const rawAmt=BigInt(Math.floor(marginUsd/row.price*Math.pow(10,row.dec)));if(rawAmt<=0n)throw xerr('amount','That amount is too small.');
  if(rawAmt>row.spendRaw)throw xerr('funds','That is more than the '+asset+' available in your wallet'+(asset==='SOL'?' after keeping SOL for fees and rent.':'.'));
  const actualUsd=rawToNum(rawAmt,row.dec)*row.price,before=await beforeSnapshot(fund.wallet),existing=findPos(before,sym,o.side);
- const res=await gw('POST','/positions/increase',{asset:base,side:o.side,inputToken:asset,inputTokenAmount:rawAmt.toString(),leverage:levS,maxSlippageBps:String(slip),walletAddress:fund.wallet});
+ const tpsl=[];{const L=o.side==='long',e6=v=>BigInt(Math.round(v*1e6)).toString(),pf=v=>'$'+(v>=1000?Math.round(v).toLocaleString('en-US'):v.toPrecision(5));if(o.tp!=null&&o.tp!==''){const v=Number(o.tp);if(!(v>0)||!(L?v>pxBase:v<pxBase))throw xerr('tpsl','Your take profit must be '+(L?'above':'below')+' the current '+base+' price ('+pf(pxBase)+').');tpsl.push({requestType:'tp',triggerPrice:e6(v)})}if(o.sl!=null&&o.sl!==''){const v=Number(o.sl);if(!(v>0)||!(L?v<pxBase:v>pxBase))throw xerr('tpsl','Your stop loss must be '+(L?'below':'above')+' the current '+base+' price ('+pf(pxBase)+').');tpsl.push({requestType:'sl',triggerPrice:e6(v)})}}const res=await gw('POST','/positions/increase',Object.assign({asset:base,side:o.side,inputToken:asset,inputTokenAmount:rawAmt.toString(),leverage:levS,maxSlippageBps:String(slip),walletAddress:fund.wallet},tpsl.length?{tpsl}:{}));
  if(walletAddr()!==fund.wallet)throw xerr('stale','The connected wallet changed. Nothing was prepared.');
  if(typeof res.serializedTxBase64!=='string'||!/^[A-Za-z0-9+/]+={0,2}$/.test(res.serializedTxBase64)||typeof res.positionPubkey!=='string'||!B58.test(res.positionPubkey))throw xerr('response','The Perps service returned an unexpected response. Nothing was prepared.');
  const meta=res.txMetadata&&typeof res.txMetadata==='object'?res.txMetadata:{};
  const ins=inspectTx(res.serializedTxBase64,{wallet:fund.wallet,kind:'increase',amountRaw:rawAmt,input:asset,meta});if(!ins.ok)throw xerr('tx_refused','Saturn refused to sign this transaction because '+ins.why+'. Nothing was sent.');
  const q=normOpenQuote(res.quote,{expSize:actualUsd*lev,price:pxBase,side:o.side,lev,existing:!!existing});
- const full=await decodePerpsTx(res.serializedTxBase64,{kind:'increase',wallet:fund.wallet,market:base,side:o.side,mint:XA[asset].mint,price:pxBase,slipBps:slip,position:existing&&existing.pubkey?existing.pubkey:res.positionPubkey,expect:{collateralRaw:rawAmt,sizeUsd:q.size}});
+ const full=await decodePerpsTx(res.serializedTxBase64,{kind:'increase',wallet:fund.wallet,market:base,side:o.side,mint:XA[asset].mint,price:pxBase,slipBps:slip,position:existing&&existing.pubkey?existing.pubkey:res.positionPubkey,expect:{collateralRaw:rawAmt,sizeUsd:q.size},tpsl});
  if(!full.ok)throw xerr('tx_refused','Saturn refused to sign this transaction because '+full.why+'. Nothing was sent.');
  if(typeof res.saturnTicket!=='string'||res.saturnTicket.length>600)throw xerr('response','The Perps service did not issue a ticket for this transaction. Nothing was prepared.');
- return deepFreeze({id:mkid(),kind:'open',ticket:res.saturnTicket,msgHash:full.msgHash,decoded:full.args,action:EXEC_ACTION.increase,wallet:fund.wallet,symbol:sym,market:base,side:o.side,asset,amountRaw:rawAmt.toString(),amount:rawToNum(rawAmt,row.dec),assetDec:row.dec,
+ return deepFreeze({id:mkid(),kind:'open',tp:tpsl.find(x=>x.requestType==='tp')?Number(o.tp):null,sl:tpsl.find(x=>x.requestType==='sl')?Number(o.sl):null,ticket:res.saturnTicket,msgHash:full.msgHash,decoded:full.args,action:EXEC_ACTION.increase,wallet:fund.wallet,symbol:sym,market:base,side:o.side,asset,amountRaw:rawAmt.toString(),amount:rawToNum(rawAmt,row.dec),assetDec:row.dec,
   marginUsd:actualUsd,leverage:lev,slippageBps:slip,tx:res.serializedTxBase64,positionPubkey:res.positionPubkey,quote:q,meta:{fee:meta.transactionFeeLamports||null,rent:meta.accountRentLamports||null,blockhash:meta.blockhash||null},
   existing:existing?{size:existing.size,collateral:existing.collateral}:null,before:snapOf(before,sym,o.side),builtAt:Date.now(),inspect:ins.summary})}
 const deepFreeze=o=>{if(o&&typeof o==='object'&&!Object.isFrozen(o)){Object.freeze(o);for(const k of Object.keys(o))deepFreeze(o[k])}return o};
@@ -21416,7 +21428,7 @@ window.__saturnPerpsExec=Object.freeze({parseTx,inspectTx,decodePerpsTx,readArgs
 const provider={
  id:'saturn-perps-data-staging',
  label:'Saturn Perps (signed by your Saturn wallet)',
- capabilities:{markets:true,candles:true,funding:false,openInterest:false,get account(){return !!walletAddr()},get execute(){return execGate().ok},get manage(){return execGate().ok}},
+ capabilities:{markets:true,candles:true,funding:false,openInterest:false,get account(){return !!walletAddr()},get execute(){return execGate().ok},get manage(){return execGate().ok},get tpsl(){return execGate().ok}},
  executionStatus(){return{enabled:EXEC_ENABLED,reasons:EXEC_ENABLED?[]:EXEC_BLOCKERS.slice()}},
  accountInfo:Object.freeze({availableMargin:false,walletFunds:true,source:'jupiter-perps (positions via the Saturn Perps gateway; execution signed by your Saturn wallet)'}),
  async funds(force){return walletFunds(!!force)},
