@@ -19714,8 +19714,11 @@ const usd=v=>!num(v)?'—':v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).
 const L={ws:null,coin:null,dex:'',trades:[],ctx:null,retry:0,t:0};
 /* r189: SOL / ETH / BTC (Jupiter) also get the market's live trade flow, read from Hyperliquid's public BTC/ETH/SOL perp trades and labelled
    as such (Jupiter has no public trade stream). Funding is shown only for Hyperliquid markets, where it is that market's own. */
-function hlCoin(m){if(!m)return null;if(m.viewOnly!==true){const b=String(m.base||m.symbol||'').replace(/-PERP$/,'');return ['SOL','ETH','BTC'].includes(b)?b:null}
- if(typeof m.venueCoin!=='string')return null;return /^([a-z]{1,8}:)?[A-Za-z0-9]{1,20}$/.test(m.venueCoin)?m.venueCoin:null}
+function hlCoin(m){if(!m)return null;const jup=['SOL','ETH','BTC'].includes(String(m.base||m.symbol||'').replace(/-PERP$/,'').toUpperCase())&&m.venue!=='hyperliquid'&&String(m.venue||'').indexOf('hyperliquid')<0;if(jup||(m.viewOnly!==true&&!String(m.venue||'').startsWith('hyperliquid'))){const b=String(m.base||m.symbol||'').replace(/-PERP$/,'');return ['SOL','ETH','BTC'].includes(b)?b:null}
+ /* r196: every Hyperliquid / Trade.xyz market — the coin name from the market data, else from the symbol (xyz markets carry the "xyz:" prefix) */
+ const base=String(m.base||m.symbol||'').replace(/-PERP$/,'').toUpperCase(),xyz=String(m.venue||'').indexOf('xyz')>=0||m.category==='stock';
+ const c=typeof m.venueCoin==='string'&&m.venueCoin?m.venueCoin:m.hl&&typeof m.hl.coin==='string'&&m.hl.coin?m.hl.coin:(xyz?'xyz:':'')+base;
+ return /^([a-z]{1,8}:)?[A-Za-z0-9]{1,20}$/.test(c)?c:null}
 function wsTo(coin){if(L.coin===coin&&L.ws)return;wsOff();if(!coin)return;L.coin=coin;L.trades=[];L.ctx=null;
  let w;try{w=new WebSocket('wss://api.hyperliquid.xyz/ws')}catch(x){return}L.ws=w;
  w.onopen=()=>{try{w.send(JSON.stringify({method:'subscribe',subscription:{type:'trades',coin}}));w.send(JSON.stringify({method:'subscribe',subscription:{type:'activeAssetCtx',coin}}))}catch(x){}};
