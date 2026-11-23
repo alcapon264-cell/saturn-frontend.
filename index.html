@@ -17385,13 +17385,13 @@ html body .prf.tr2.tr3.tr3-on::after{display:block}
 .tr3-new{display:block;width:100%;margin:8px 0 2px;padding:11px 12px;border:0;border-radius:12px;background:#1a2a1f;color:#4fd08a;font:700 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
 .tr3-new[hidden]{display:none}
 
-/* ===== r208 profile top: cover picture, actions under the name, lighter sizes ===== */
+/* ===== r208 profile top: cover picture, actions under the name, lighter sizes (r209: full-width cover that fades into the page, stronger size rules) ===== */
 html body .prf.tr2.tr3{position:relative;grid-template-areas:"bar bar" "av nm" "av fl" "act act" "bal bal" "lk lk" "main main"!important}
-html body .prf.tr3>.pr-cover{position:absolute;left:calc(50% - 50vw);width:100vw;top:-14px;height:206px;z-index:0;pointer-events:none;background-size:cover;background-position:center;
- background-image:url("saturn-planet.png?v=208"),radial-gradient(1.2px 1.2px at 12% 22%,rgba(255,241,209,.8),transparent 60%),radial-gradient(1px 1px at 28% 64%,rgba(255,241,209,.6),transparent 60%),radial-gradient(1.3px 1.3px at 46% 14%,rgba(255,241,209,.7),transparent 60%),radial-gradient(1px 1px at 63% 48%,rgba(255,241,209,.5),transparent 60%),radial-gradient(1.2px 1.2px at 8% 78%,rgba(255,241,209,.6),transparent 60%),radial-gradient(1px 1px at 38% 36%,rgba(255,241,209,.5),transparent 60%),radial-gradient(120% 140% at 80% 10%,#4a3418 0%,#1d150c 45%,#0b0a09 100%);
- background-repeat:no-repeat;background-size:290px auto,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%;background-position:right -60px top 38px,0 0,0 0,0 0,0 0,0 0,0 0,0 0}
-html body .prf.tr3>.pr-cover.own{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
-html body .prf.tr3>.pr-cover::after{content:"";position:absolute;left:0;right:0;bottom:0;height:90px;background:linear-gradient(180deg,rgba(11,10,9,0),#0b0a09)}
+html body .prf.tr3>.pr-cover{position:absolute;max-width:none!important;margin:0!important;left:-20px;width:calc(100% + 40px);top:-14px;height:210px;z-index:0;pointer-events:none;background-color:#120d07;
+ background-image:url("saturn-planet.png?v=208"),radial-gradient(1.4px 1.4px at 12% 22%,rgba(255,241,209,.85),transparent 70%),radial-gradient(1.1px 1.1px at 28% 64%,rgba(255,241,209,.6),transparent 70%),radial-gradient(1.5px 1.5px at 46% 14%,rgba(255,241,209,.75),transparent 70%),radial-gradient(1.1px 1.1px at 58% 70%,rgba(255,241,209,.5),transparent 70%),radial-gradient(1.4px 1.4px at 8% 78%,rgba(255,241,209,.6),transparent 70%),radial-gradient(1.1px 1.1px at 36% 36%,rgba(255,241,209,.5),transparent 70%),radial-gradient(1.2px 1.2px at 20% 46%,rgba(255,241,209,.6),transparent 70%),radial-gradient(120% 130% at 85% 0%,#5a401d 0%,#24190d 45%,#120d07 100%);
+ background-repeat:no-repeat;background-size:230px auto,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%;background-position:right -36px top 44px,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0;
+ -webkit-mask-image:linear-gradient(180deg,#000 58%,transparent);mask-image:linear-gradient(180deg,#000 58%,transparent)}
+html body .prf.tr3>.pr-cover.own{background-size:cover!important;background-position:center!important}
 html body .prf.tr3>:not(.pr-cover):not(#pr-head),html body .prf.tr3 .pr-id>*{position:relative;z-index:1}
 html body .prf.tr2.tr3::after{position:relative;z-index:2}
 html body .prf.tr3>.pr-cvb{position:absolute!important;right:0;top:58px;z-index:3;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border:1px solid rgba(229,185,92,.3);border-radius:11px;background:rgba(11,10,9,.6);color:#e9e2d6;font:600 12px/1 Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -17399,29 +17399,32 @@ html body .prf.tr3 .pr-bar .pr-ic,html body .prf.tr3 .pr-bar .pu-back{background
 html body .prf.tr3 .pr-rt{display:inline-flex;gap:8px}
 html body .prf.tr3 .pr-rt a.pr-ic{display:inline-grid;place-items:center;color:inherit;text-decoration:none;width:38px;height:38px;border-radius:50%}
 html body .prf.tr3 .pr-hide208{display:none!important}
-html body .prf.tr2.tr3 .pr-id>:first-child{width:68px!important;height:68px!important;border-radius:50%!important;box-shadow:0 0 0 3px #0b0a09}
 html body .prf.tr2.tr3{grid-template-columns:68px minmax(0,1fr)!important}
-html body .prf.tr2.tr3::after{margin:62px 0 0 52px!important;width:15px!important;height:15px!important}
-html body .prf.tr2.tr3 .pr-nm{margin-top:60px!important}
-html body .prf.tr2.tr3 .pr-id>:first-child{margin-top:60px!important}
+html body .prf.tr2.tr3 .pr-id>:first-child{width:68px!important;height:68px!important;border-radius:50%!important;box-shadow:0 0 0 3px #141210;margin-top:64px!important}
+html body .prf.tr2.tr3::after{margin:64px 0 0 52px!important;width:15px!important;height:15px!important}
+html body .prf.tr2.tr3 .pr-nm{margin-top:64px!important}
 html body .prf.tr2.tr3 .pr-nm h1{font-size:24px!important;font-weight:400!important}
-html body .prf.tr2.tr3 .tr2-tags{font-size:13px!important;font-weight:500!important}
-html body .prf.tr2.tr3 .pr-fl{font-size:13px!important}
+html body .prf.tr2.tr3 .tr2-tags,html body .prf.tr2.tr3 .tr2-tags *{font-size:13px!important;font-weight:500!important}
+html body .prf.tr2.tr3 .pr-fl,html body .prf.tr2.tr3 .pr-fl *{font-size:13px!important;font-weight:400!important}
 html body .prf.tr2.tr3 .pr-fl b{font-weight:600!important}
 html body .prf.tr2.tr3 #cp-row{margin:16px 0 0!important}
-html body .prf.tr2.tr3 #cp-row .cp-btn,html body .prf.tr2.tr3 #cp-row .pu-fw{height:44px!important;min-height:44px!important;font:600 15px/1 Inter,system-ui,sans-serif!important;border-radius:13px!important}
+html body .prf.tr2.tr3 #cp-row .cp-btn,html body .prf.tr2.tr3 #cp-row .pu-fw{height:44px!important;min-height:44px!important;font-size:15px!important;font-weight:600!important;border-radius:13px!important}
 html body .prf.tr2.tr3 #cp-row .pr-msg{width:44px!important;height:44px!important;border-radius:13px!important}
-html body .prf.tr2.tr3 #tr3-lead{padding-top:24px}
-.prf.tr3 .tr3-bv{font-size:32px!important;font-weight:600!important;letter-spacing:-.8px!important}
-.prf.tr3 .tr3-bal small{font-weight:600!important;font-size:10.5px!important}
-.prf.tr3 .tr3-bs{font-weight:400!important}
-.prf.tr3 .tr3-op b{font-size:17px!important;font-weight:600!important}
-.prf.tr3 .tr3-sh h3{font:600 18px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:0!important}
-.prf.tr3 .tr3-sh small{font-weight:500!important}
-.prf.tr3 .tr3-score b{font-size:18px!important;font-weight:600!important}
-.prf.tr3 .tr3-score span{font-weight:400!important}
-.prf.tr3 .tr3-tf button,.prf.tr3 .tr3-oc button{font-weight:600!important;font-size:13px!important}
-.prf.tr3 .tr3-chips button{font-weight:500!important;font-size:13.5px!important}
+html body .prf.tr2.tr3 #tr3-lead{padding-top:22px}
+html body .prf.tr2.tr3 .tr3-bv{font-size:30px!important;font-weight:600!important;letter-spacing:-.6px!important}
+html body .prf.tr2.tr3 .tr3-bal small{font-weight:600!important;font-size:10.5px!important}
+html body .prf.tr2.tr3 .tr3-bs,html body .prf.tr2.tr3 .tr3-bs *{font-size:13px!important;font-weight:400!important}
+html body .prf.tr2.tr3 .tr3-op b{font-size:17px!important;font-weight:600!important}
+html body .prf.tr2.tr3 .tr3-op .lv,html body .prf.tr2.tr3 .tr3-op .nl{font-weight:500!important}
+html body .prf.tr2.tr3 .tr3-sh h3{font-size:18px!important;font-weight:600!important;letter-spacing:0!important}
+html body .prf.tr2.tr3 .tr3-sh small{font-weight:400!important}
+html body .prf.tr2.tr3 .tr3-score b{font-size:18px!important;font-weight:600!important}
+html body .prf.tr2.tr3 .tr3-score span{font-weight:400!important;font-size:12.5px!important}
+html body .prf.tr2.tr3 .tr3-tf button,html body .prf.tr2.tr3 .tr3-oc button{font-weight:600!important;font-size:13px!important}
+html body .prf.tr2.tr3 .tr3-chips button{font-weight:500!important;font-size:13.5px!important}
+html body .prf.tr2.tr3 .tr3-ax span{font-weight:500!important}
+html body .prf.tr2.tr3 .tr3-rows b,html body .prf.tr2.tr3 .tr3-rows strong{font-weight:600!important}
+html body .prf.tr2.tr3 .tr3-rows small,html body .prf.tr2.tr3 .tr3-rows span{font-weight:400!important}
 </style>
 <style id="saturn-r160-pulse-css">
 /* r160 Pulse redesign — no border lines */
@@ -19563,9 +19566,14 @@ const IC={share:'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" str
  gear:'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>',
  cam:'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'};
 function paint(){const p=document.querySelector('.prf.tr3');if(!p)return;const w=curW(),mine=!!w&&w===meW();
+ /* r209: the profit chart area is a light tint (a gradient fill rendered as a solid block on some phones) */
+ p.querySelectorAll('.tr3-lc svg path[fill^="url("]').forEach(a=>{const ln=a.nextElementSibling,col=ln&&ln.getAttribute('stroke')||'#4fd08a';a.setAttribute('fill',col);a.setAttribute('fill-opacity','.10')});
  /* cover */
  let c=p.querySelector(':scope>.pr-cover');if(!c){c=document.createElement('div');c.className='pr-cover';c.setAttribute('aria-hidden','true');p.insertBefore(c,p.firstChild)}
  const img=mine&&myCover();const want=img?'u':'d';if(c.dataset.k!==want+(img?img.length:'')){c.dataset.k=want+(img?img.length:'');c.classList.toggle('own',!!img);c.style.backgroundImage=img?'url("'+img+'")':''}
+ /* r209: full-width cover (the page column is inset from the screen edges): shift it by however far its left edge is from the screen edge */
+ try{const c0=p.querySelector(':scope>.pr-cover');if(c0){const vw=document.documentElement.clientWidth,cr=c0.getBoundingClientRect(),cur=parseFloat(c0.style.left||getComputedStyle(c0).left)||0;
+  if(Math.abs(cr.left)>.5||Math.abs(cr.width-vw)>.5){c0.style.left=(cur-cr.left)+'px';c0.style.width=vw+'px'}}}catch(e){}
  let ed=p.querySelector(':scope>.pr-cvb');if(mine&&!ed){ed=document.createElement('button');ed.type='button';ed.className='pr-cvb';ed.innerHTML=IC.cam+'<span>Edit cover</span>';ed.addEventListener('click',pick);p.appendChild(ed)}else if(!mine&&ed)ed.remove();
  /* top-right buttons */
  const rt=p.querySelector('.pr-rt');if(rt&&rt.dataset.r208!==(mine?'m':'o')){rt.dataset.r208=mine?'m':'o';rt.querySelectorAll('.pr-208').forEach(x=>x.remove());
@@ -19581,7 +19589,7 @@ function pick(){const i=document.createElement('input');i.type='file';i.accept='
   g.drawImage(im,(W-im.width*s)/2,(H-im.height*s)/2,im.width*s,im.height*s);let d='';try{d=cv.toDataURL('image/jpeg',.82)}catch(e){}
   if(!d){try{toast('Could not use that picture.')}catch(e){}return}try{localStorage.setItem(KEY,d);toast('Cover updated')}catch(e){try{toast('Not enough space on this device to save the cover.')}catch(x){}}paint()};im.onerror=()=>{try{toast('Could not open that picture.')}catch(e){}};im.src=fr.result};fr.readAsDataURL(f)};i.click()}
 new MutationObserver(()=>{try{paint()}catch(e){}}).observe(document.documentElement,{childList:true,subtree:true});
-addEventListener('hashchange',()=>setTimeout(()=>{try{paint()}catch(e){}},0));
+addEventListener('hashchange',()=>setTimeout(()=>{try{paint()}catch(e){}},0));addEventListener('resize',()=>{try{paint()}catch(e){}});setInterval(()=>{if(!document.hidden&&document.querySelector('.prf.tr3'))try{paint()}catch(e){}},1500);
 })();
 </script>
 <script id="saturn-r160-pulse">
