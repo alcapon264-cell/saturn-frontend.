@@ -19428,14 +19428,16 @@ function model(w){const P=SOC.pf[w];if(!P||!Array.isArray(P.trades))return null;
  const A={closed:cl,wins:cl.filter(r=>r.real>0).length,med};
  const d30=now-30*86400,c30=cl.filter(r=>r.t1!=null&&r.t1>=d30),tr30=P.trades.filter(x=>x.time>=d30).length,oldest=P.trades.reduce((m,x)=>x.time&&x.time<m?x.time:m,now);
  const unreal=open.reduce((s,o)=>s+(o.pnl||0),0),known=open.some(o=>o.pnl!=null);
- return{A,open,closed,c30,tr30,cover:now-oldest>=29*86400,oldest,unreal,known,P}}
+ /* r217: a "trade" is one position (a token bought and later sold), not every buy and sell transaction: 62 buys/sells of one token are one trade */
+ const pos30=c30.length+open.filter(o=>(o.at||now)>=d30).length;
+ return{A,open,closed,c30,tr30,pos30,cover:now-oldest>=29*86400,oldest,unreal,known,P}}
 /* ---------- paint ---------- */
 function lead(M){const p=[];if(M.known&&M.open.length){const v=M.unreal;p.push(`${v>=0?'Up':'Down'} <em class="${v>=0?'g':'r'}" data-tr3="lead">${e(money(v).replace(/^[+−]/,''))}</em> in open trades right now`)}
  if(M.A.closed.length)p.push(`wins <i>${Math.round(M.A.wins/M.A.closed.length*100)}%</i> of closed trades`);if(M.A.med!=null)p.push(`usually holds about <i>${hold(M.A.med)}</i>`);
  if(!p.length)return M.P.trades.length?'Trading, but no finished trades yet.':'No trades found for this wallet yet.';
  let s=p.join(p.length>2?', ':' and ').replace(/, ([^,]*)$/,' and $1');return s.charAt(0).toUpperCase()+s.slice(1)+'.'}
 function score(M){const u=su(),real=M.c30.reduce((s,r)=>s+r.real,0),wr=M.c30.length?Math.round(M.c30.filter(r=>r.real>0).length/M.c30.length*100)+'%':'—';
- return `<div class="tr3-sh"><h3>Trade stats</h3><small>${M.cover?'last 30 days':'last '+e(spanTxt(Date.now()/1000-M.oldest))+' of trades'}</small></div><div class="tr3-score"><div><b class="${M.c30.length?(real>=0?'g':'r'):''}">${M.c30.length?e(money(real)):'—'}</b><span>Profit</span></div><div><b>${wr}</b><span>Win rate</span></div><div><b>${M.tr30}</b><span>Trades</span></div></div>`}
+ return `<div class="tr3-sh"><h3>Trade stats</h3><small>${M.cover?'last 30 days':'last '+e(spanTxt(Date.now()/1000-M.oldest))+' of trades'}</small></div><div class="tr3-score"><div><b class="${M.c30.length?(real>=0?'g':'r'):''}">${M.c30.length?e(money(real)):'—'}</b><span>Profit</span></div><div><b>${wr}</b><span>Win rate</span></div><div><b>${M.pos30}</b><span>Trades</span></div></div>`}
 function series(M){const now=Date.now()/1000,span={'7d':7*86400,'30d':30*86400}[T.range],t0=span?now-span:null,cl=M.A.closed.filter(r=>r.t1!=null).sort((a,b)=>a.t1-b.t1);
  const inR=t0?cl.filter(r=>r.t1>=t0):cl;/* r172: the line starts where this wallet's loaded history starts, not 30 days back (a flat line then a cliff) */const start=Math.max(t0||0,M.oldest&&M.oldest<now?M.oldest:now-3600);let c=0;const pts=[{t:start,v:0}];
  inR.forEach(r=>{c+=r.real;pts.push({t:r.t1,v:c})});pts.push({t:now,v:c+(M.known?M.unreal:0),live:1});return pts}
@@ -19679,7 +19681,7 @@ function data(){const X=window.__satTr3,w=curW();if(!X||X.w!==w||!X.M)return nul
  let nm='Trader';try{nm=w===meW()&&R18.prof().name?R18.prof().name:WP.name(w)}catch(e){}
  const tk=c=>{const t=c.t;return t?(t.tick&&t.tick!=='?'?t.tick:t.name||'Token'):'Token'};
  let av=null;try{const a=document.querySelector('.prf.tr3 .pr-id>:first-child');if(a&&a.src&&/^data:image\/(png|jpe?g|webp|gif)/.test(a.src))av=a.src}catch(e){}
- return{w,nm,u,usd:conv(real),sol:real,pct:cost>0?real/cost*100:null,n:trades.length,closed:cl.length,wr:cl.length?Math.round(wins/cl.length*100):null,
+ return{w,nm,u,usd:conv(real),sol:real,pct:cost>0?real/cost*100:null,n:cl.length+(M.open||[]).filter(o=>(o.at||now)>=t0).length,closed:cl.length,wr:cl.length?Math.round(wins/cl.length*100):null,
   best:best?{usd:conv(best.pnl),pct:best.pct,tk:tk(best)}:null,vol:conv(vol),volSol:vol,top:cl.slice().sort((a,b)=>b.pnl-a.pnl).slice(0,3).map(c=>({tk:tk(c),usd:conv(c.pnl),sol:c.pnl,pct:c.pct})),
   rest:cl.length>3?{n:cl.length-3,usd:conv(cl.slice().sort((a,b)=>b.pnl-a.pnl).slice(3).reduce((a,c)=>a+c.pnl,0)),sol:cl.slice().sort((a,b)=>b.pnl-a.pnl).slice(3).reduce((a,c)=>a+c.pnl,0)}:null,
   spark:(()=>{const s=M.A.closed.filter(r=>r.t1!=null&&r.t1>=t0).sort((a,b)=>a.t1-b.t1);let c=0;const p=[0];s.forEach(r=>{c+=r.real;p.push(c)});return p})(),av}}
